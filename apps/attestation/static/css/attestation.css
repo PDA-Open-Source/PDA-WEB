@@ -1,0 +1,321 @@
+.header {
+    height: 80px;
+    background-image: linear-gradient(to left, #fa766b, #b9524a);
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.heading-col {
+    width: 82.5%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.socion-head {
+    position: absolute;
+    top: 42px;
+    width: 187px;
+    height: 41px;
+    background-color: #ffffff;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+}
+
+.logo {
+    margin-top: 22px;
+    width: 120px;
+    height: 20.2px;
+    cursor: pointer;
+}
+
+.trainer-profile-container{
+    width: 82.5%;
+    margin-top:64px;
+}
+
+.attestation-title-col {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.attestation-page-title{
+    font-family: Roboto-Regular;
+    font-size: 22px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: -0.07px;
+    color: #000000;
+    padding-bottom: 24px;
+}
+
+.attestation-trainer-detail {
+    height:auto;
+    border:1px solid #ddeae9;
+    border-radius:6px;
+    margin-bottom:20px;
+}
+
+.profile{
+    width: 125px;
+    height: 125px;
+    border-style: solid;
+    border-width: 4px;
+    border-image-source: linear-gradient(to bottom, #ff968e, #b84d44);
+    border-image-slice: 1;
+    border-radius: 50%;
+    text-align: center;
+    border: solid #e67b73;
+    margin-top: 46px;
+}
+
+.profile-img {
+    width: 119px;
+    height: 119px;
+    border-radius: 50%;
+}
+
+.user-name{
+    text-align: center;
+    font-family: Roboto-Regular;
+    font-size: 16px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: -0.07px;
+    color: #000000;
+    padding-top: 24px;
+}
+
+.user-role{
+    text-align: center;
+    font-family: Roboto-Regular;
+    font-size: 12px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: -0.05px;
+    color: #999999;
+    padding-top: 2px;
+    padding-bottom: 15px;
+}
+
+.trainer-divider-card {
+  width: 100%;
+  height: 1px;
+  opacity: 0.1;
+  border: solid 1px #979797;
+  margin-bottom:16px;
+}
+
+.trainer-heading {
+    text-align: center;
+    font-family: Roboto-Regular;
+    font-size: 14px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: -0.06px;
+    background-image: linear-gradient(to left, #fa766b, #b9524a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 15px;
+}
+
+.sessionQrCode {
+    padding-bottom: 41px;
+}
+
+.sessionQrCode > canvas {
+    width:150px;
+    height:150px;
+}
+
+.download-button{
+    width: 118px;
+    height: 32px;
+    border-radius: 3px;
+    box-shadow: 0 5px 65px 0 rgba(0, 0, 0, 0.1);
+    background-image: linear-gradient(249deg, #fa766b, #b9524a);
+    text-align: center;
+    cursor:pointer;
+    margin-bottom:50px;
+}
+
+.a-download-button:link, .a-download-button:visited {
+  text-decoration: none;
+  padding: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.a-download-button:hover, .a-download-button:active {
+   background-image: linear-gradient(249deg, #fa766b, #b9524a);
+}
+
+.download-icon{
+    color: #ffffff;
+    font-size: 14px;
+    object-fit: contain;
+}
+
+.Download {
+    font-family: Roboto-Regular;
+    font-size: 12px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.05px;
+    color: #ffffff;
+}
+
+.attestation-session-detail {
+    font-family: Roboto-Regular;
+    font-size: 14px;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.06px;
+    color: #000000;
+    margin-bottom:20px;
+}
+
+.attestation-session-detail table tbody tr th{
+    padding:20px;
+    width:35%;
+    font-size: 14px;
+}
+
+.attestation-session-detail table tbody tr td{
+    padding:20px;
+    width:65%;
+    font-size: 12px;
+    text-align: justify;
+}
+
+.attestation-session-detail table tr:nth-child(odd){
+    background: #fef1e2;
+}
+
+.attestation-session-detail table tr:nth-child(even){
+    background: #f8e4cb;
+}
+
+.content-heading {
+    font-family: Roboto-Regular;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: 0px;
+    color: #333333;
+    padding-bottom: 16px;
+}
+
+.content-body {
+    border: 1px solid #f8d7bd;
+    border-radius: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-bottom:30px;
+}
+
+.content-body-scroll-container {
+    max-height:200px;
+    overflow-y:scroll;
+}
+
+.content-item {
+    padding:6px;
+    border-bottom:solid 1px rgba(0, 113, 255, 0.35);
+    margin-left: 3px;
+    margin-right: 2px;
+}
+
+.content-file-name {
+  font-family: Roboto-Regular;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: -0.05px;
+  color: #000000;
+}
+
+.content-view-button {
+  font-family: Roboto-Regular;
+  font-size: 12px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: -0.05px;
+  color: #bf554d;
+}
+
+a.content-view-button:focus, a.content-view-button:hover {
+    color:#bf554d;
+    outline:none;
+    cursor: pointer;
+}
+
+.member-content-body {
+    max-height:250px;
+    overflow-y:scroll;
+    margin-bottom:30px;
+}
+
+.attestation-member-card {
+    height:72px;
+    border: solid 0.5px rgba(0, 113, 255, 0.35);
+    border-radius:8px;
+    margin-bottom:5px;
+}
+
+.member-photo {
+    padding-right: 10px;
+    padding-left: 0.5px;
+    height: 70px;
+    width: 84px;
+    padding-top: 0.5px;
+    border-radius: 7.5px 0px 0px 7.5px;
+}
+
+.session-admin-name{
+    font-family: Helvetica;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.06px;
+    color: #000000;
+}
+
+.session-admin-roles {
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: -0.04px;
+  color: #666666;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c2564f;
+    border-radius: 5px;
+}

@@ -1,0 +1,151 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'tables.css' %}" type="text/css">
+{% endblock %}
+
+{% block data %}
+<div class="program-list-datatable">
+    <div class=" table-heads program-list-head">
+        <div class="nav nav-tabs row" id="myTab" role="tablist">
+                <div>
+                    <h4 class="program-list-label">Program List</h4>
+                </div>
+                <form class="form-inline md-form form-sm mt-0" id="navBarSearchFormProgramList"
+                      style="margin-left:20px !important; margin-bottom:0px !important;color:gray;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input class="form-control form-control-sm ml-3 w-75 global_filter" id="global_filter"
+                           type="text" placeholder="Search..." autocomplete="off"
+                           aria-label="Search" style="border:none;box-shadow: none;    margin-right: 25px;font-size: 12px;">
+                </form>
+        </div>
+    </div>
+    <table id="example" class="table table-striped table-bordered table-condensed" cellspacing="0" style="box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);border-top: none;">
+        <thead id="program-list-thead" style="border-bottom:none !important;">
+        <tr id="program-list-row">
+            <th class="table-th">Program name</th>
+            <th class="table-th" style="width:17%;">Start date</th>
+            <th class="table-th" style="width:17%;">End Date</th>
+            <th class="table-th" style="width:15%;">Entity</th>
+            <th class="table-th" style="width:15%;">Status</th>
+        </tr>
+        </thead>
+
+        <tbody class="table-body">
+        {% for program in object_list %}
+        <tr class="frame" id="table-data">
+            <td class="table-td"><a href="{% url 'program-detail' pk=program.id %}">{{ program.name }}</a></td>
+            <td class="table-td">{{ program.start_date|date:"d-M-Y" }}</td>
+            <td class="table-td">{{ program.end_date|date:"d-M-Y" }}</td>
+            <td class="table-td">{{ program.entity.name }}</td>
+            {% if not program.deleted %}
+                <td class="table-td">Active</td>
+            {% else %}
+                <td class="table-td">Deactivated</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal" id="modal-book">
+    <div class="modal-dialog" id="create-program-dialog">
+        <div class="modal-content" id="create-program-content"></div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+<!--for single datatable-->
+<script type="text/javascript">
+
+        function filterGlobal () {
+            $('#example').DataTable().search(
+                $('#global_filter').val(),
+            ).draw();
+        }
+
+         $(document).ready(function(){
+           $.fn.dataTable.moment( 'DD-MM-YYYY' );
+              var table = $('#example').DataTable({
+                "bSearchable": false,
+                info: false,
+                pagingType: "full_numbers",
+                "bPaginate" : $('#example tbody tr').length>10,
+                "iDisplayLength": 10,
+                lengthChange: false,
+
+                "columnDefs": [
+
+                     //date-fields
+                     {
+
+                        "targets":[ 1,2],
+                        "type": 'date'
+                     }
+                ],
+                "aaSorting": [],
+                language:
+                        {
+                            paginate:
+
+                           {
+                               previous:'<i class="fa fa-angle-left">' ,
+                               next: '<i class="fa fa-angle-right">',
+                               first: '<i class="fa fa-angle-double-left">',
+                               last: '<i class="fa fa-angle-double-right">',
+                           }
+                        },
+                });
+
+
+                $('input.global_filter').on( 'keyup', function () {
+                    filterGlobal();
+                });
+
+               $('#global_filter').keypress(function (e) {
+                       if (e.which == 13) {
+                            e.preventDefault();
+                       }
+                });
+
+            });
+
+            $('#example').on('click', 'tbody td', function(){
+                if( $(this).closest('tr').find('.table-td').length > 0){
+                    window.location = $(this).closest('tr').find('td:eq(0) a').attr('href');
+                }
+            });
+</script>
+
+<script>
+    function myFunction() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("example");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+</script>
+
+
+{% endblock %}

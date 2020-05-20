@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/landing-page.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/custom/notification.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<!-- header -->
+<div class="container-fluid header">
+    <div>
+        <div class="text-center socion-head"><img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion"></div>
+    </div>
+    <div class="notification-bell-icon" id="notification-bell">
+        <div class="notification js-notification-show" data-url="{% url 'notification' %}">
+            <img class="bell-image" src="{% static 'assets/bell_icon.png' %}"/>
+        </div>
+        <div class="text-center number" style="display:none;">
+            <span class="text-notification" id="unReadNotificationCount">0</span>
+        </div>
+        <div class="logout-header-icon" onclick="logout()">
+            <i class="fa fa-power-off" aria-hidden="true"></i>
+        </div>
+    </div>
+
+    <!-- popup -->
+    <div class="modal fade" id="modal-popup-notification">
+        <div class="modal-dialog" style="position:absolute;top: 32px;right: 8.5%;max-width:526px;max-height:480px;">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end header -->
+
+<!-- body content-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col align-self-center">
+            <div class="col-landing-page">
+                <div class="text-center welcome">Welcome to</div>
+                <div class="text-center welcome-text">The Program Administration Portal</div>
+                <div class="d-flex text-center landing-page-image justify-content-center">
+                    <div style="margin-right:60px;" onclick="location.href='/entities/'">
+                        <div class="icon-badge"><i class="fa fa-university fa-2x icon" aria-hidden="true"></i></div>
+                        <div class="text-center icon-label">Entity</div>
+                    </div>
+                    <div style="margin-right:60px;" onclick="location.href='/program/'">
+                        <div class="icon-badge"><i class="fa fa-clipboard fa-2x icon" aria-hidden="true"></i></div>
+                        <div class="text-center icon-label">Program</div>
+                    </div>
+                    <div onclick="location.href='/oauth/user-profile/'">
+                        <div class="icon-badge"><i class="fa fa-user fa-2x icon" aria-hidden="true"></i></div>
+                        <div class="text-center icon-label">Profile</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modal-popup">
+                <div class="modal-dialog" style="margin-top:50px;max-width:526px;max-height:557px;">
+                    <div class="modal-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end content-->
+{% endblock %}
+
+{% block javascript %}
+<script>
+/*$(document).ready(function(){
+    window.history.pushState(null, null, '');
+    window.addEventListener('popstate', function(event) {
+        window.history.pushState(null, null, '');
+    });
+});*/
+</script>
+<script src="{% static 'js/custom/scan.js' %}"></script>
+{% endblock %}

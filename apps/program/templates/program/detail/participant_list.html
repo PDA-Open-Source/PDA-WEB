@@ -1,0 +1,195 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'tables.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/entity-profile.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'participant-list.css' %}" type="text/css">
+
+
+{% endblock %}
+
+{% block data %}
+
+<div class="row" style="height:157px;    margin: 30px 2px 0 0px;">
+    <div class="col-md-12 head-card" style="float: left;">
+        <div class="col-md-4 box org-name-card border-line" >
+            <div class="city">Session name</div>
+            <div class="organization-name">{{session.session_name}}</div>
+        </div>
+        <div class="col-md-4 box two-participant-panel border-line">
+            <div class="vert-line-hard-card" style="right:63%;"></div>
+            <div class="middle">
+                <div class="city">Session Venue</div>
+                <div class="content">{{session.address}}</div>
+            </div>
+        </div>
+        <div class="col-md-2  box three-participant-panel">
+            <div class="vert-line-hard-card"></div>
+            <div class="text-left">
+                <div>
+                    <div class="city">Session start date</div>
+                    <div class="content scanTime">{{session.session_start_date}}</div>
+                </div>
+                <div>
+                    <div class="city">Session End date</div>
+                    <div class="content scanTime">{{session.session_end_date}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="program-list-datatable">
+    <div class=" table-heads program-list-head">
+        <div class="nav nav-tabs row" id="myTab" role="tablist">
+
+                <div>
+                    <h4 class="program-list-label">Participant List</h4>
+                </div>
+                <form class="form-inline md-form form-sm mt-0" id="navBarSearchFormProgramList"
+                      style="margin-left:20px !important; margin-bottom:0px !important;color:gray;">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input class="form-control form-control-sm ml-3 w-75 global_filter" id="global_filter"
+                           type="text" placeholder="Search..." autocomplete="off"
+                           aria-label="Search" style="border:none;box-shadow: none;    margin-right: 25px;font-size: 12px;">
+                </form>
+        </div>
+    </div>
+    <table id="example" class="table table-striped table-bordered table-condensed" cellspacing="0" style="box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);border-top: none;">
+        <thead id="program-list-thead" style="border-bottom:none !important;">
+        <tr id="program-list-row">
+            <th class="table-th">Participant name</th>
+            <th class="table-th" style="width:17%;">Phone Number</th>
+            <th class="table-th" style="width:17%;">Email id</th>
+            <th class="table-th" style="width:18%;">Scan in Time</th>
+            <th class="table-th" style="width:18%;">Scan out Time</th>
+            <th class="table-th" style="width:17%;">Attestation Generated</th>
+        </tr>
+        </thead>
+
+        <tbody class="table-body">
+        {% for user in participants %}
+        <tr class="frame" id="table-data">
+            <td class="table-td">{{user.name}}</td>
+            {% if user.countryCode %}
+            <td class="table-td">{{user.countryCode}}-{{user.phoneNumber}}</td>
+            {% else %}
+            <td class="table-td">{{user.phoneNumber}}</td>
+            {% endif %}
+            {% if user.emailId %}
+            <td class="table-td">{{user.emailId}}</td>
+            {% else %}
+            <td class="table-td text-center">-</td>
+            {% endif %}
+            <td class="table-td scanTime">{{user.scanInTime}}</td>
+            <td class="table-td scanTime">{{user.scanOutTime}}</td>
+            {% if user.attestationGenerated %}
+            <td class="table-td">YES</td>
+            {% else %}
+            <td class="table-td">NO</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    {% if participants %}
+    <button type="submit" id="button-signup-submit" class="auth-button-style" style="float:right;"><a class="button-text download-excel" href="{% url 'download-csv' pk=session.id %}">Download as Excel</a></button>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<!--for single datatable-->
+<script>
+    $(document).ready(function(){
+        $('.scanTime').toArray().forEach(function (item) {
+            item.innerText = moment(new Date(Date.parse(item.innerText + " UTC"))).format("DD-MMMM-YYYY hh:mm A");;
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+        function filterGlobal () {
+            $('#example').DataTable().search(
+                $('#global_filter').val(),
+            ).draw();
+        }
+
+         $(document).ready(function(){
+           $.fn.dataTable.moment( 'DD MM YYYY h:mm:ss' );
+              var table = $('#example').DataTable({
+                "bSearchable": false,
+                info: false,
+                pagingType: "full_numbers",
+                "bPaginate" : $('#example tbody tr').length>10,
+                "iDisplayLength": 10,
+                lengthChange: false,
+
+
+                "columnDefs": [
+
+                     //date-fields
+                     {
+                        "targets":[ 3,4],
+                        "type": 'date'
+                     }
+                ],
+                "aaSorting": [],
+                language:
+                        {
+                            paginate:
+
+                           {
+                               previous:'<i class="fa fa-angle-left">' ,
+                               next: '<i class="fa fa-angle-right">',
+                               first: '<i class="fa fa-angle-double-left">',
+                               last: '<i class="fa fa-angle-double-right">',
+                           }
+                        },
+                });
+
+
+                $('input.global_filter').on( 'keyup', function () {
+                    filterGlobal();
+                });
+
+               $('#global_filter').keypress(function (e) {
+                       if (e.which == 13) {
+                            e.preventDefault();
+                       }
+                });
+
+            });
+
+
+</script>
+
+<script>
+    function myFunction() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("example");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+</script>
+
+
+{% endblock %}

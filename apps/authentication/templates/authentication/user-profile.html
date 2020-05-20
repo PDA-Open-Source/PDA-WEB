@@ -1,0 +1,1775 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/user-profile.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/signup-request-otp.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+{% include 'core/header.html' %}
+<div class="container-fluid">
+    <!-- Toaster -->
+        <div aria-live="polite" aria-atomic="true" style="position: absolute; top:10px;right:10px; min-height: 200px;">
+            <div class="toast" id="modal-popup-toast" style="position: relative;z-index:999999;" data-delay="5000">
+                <div class="toast-body d-flex justify-content-between">
+                    <div id="password-check-error-message" style="font-size:14px;font-weight:bold;"></div>
+                    <div>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                                style="line-height: 0.7;color:#ffffff;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="row">
+        <div class="col align-self-center">
+            <div class="profile-col">
+                <div class="profile-page-title">
+                    Profile Details
+                </div>
+                <!-- Loader for Program Doc Update -->
+                <div class="profileLoader" id="profile-pic-loader-Image">
+                    <img id="profile-pic-loader-img" style="" src="{% static 'images/loader.gif' %}"/>
+                </div>
+                <div class="row profile-container">
+                    <div class="col-md-7 d-flex justify-content-start">
+                        <div class="row" style="min-width:260px;">
+                            <input type="hidden" id="userId" value="{{request.user.user_id}}">
+                            <div class="col">
+                                <div class="d-flex justify-content-start">
+                                    <div class="profile">
+                                        <img class="profile-img" id="userImage"
+                                             src="{% static 'images/images.png' %}"/>
+                                        <img class="cam-capture" id="camCapture" src="{% static 'assets/cam@2x.png' %}" style="cursor: pointer;">
+                                    </div>
+                                </div>
+                                <div class="user-name" id="userName" data-action=""></div><div class="text-center edit-pencil"><i class="fa fa-pencil" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="user-divider-card"></div>
+                        <div class="row" style="min-width:400px;">
+                            <div class="col user-profile-detail">
+                                <div>
+                                    <p class="Mobile-Number">Mobile Number</p>
+                                    <div class="col d-flex justify-content-between" style="padding:0; cursor: pointer;">
+                                        <div class="Mobile-Number-value" id="userPhoneNumber" data-auth="" data-action=""></div>
+                                        <div><a class="Change-Mobile-Number" id="change-mobile-number" style="color: #c75a51;">Change Mobile Number</a></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="Mobile-Number" style="margin-top:16px;">Email</p>
+                                    <div class="col d-flex justify-content-between" style="padding:0; cursor: pointer;">
+                                        <div class="Mobile-Number-value" id="email" data-action=""></div>
+                                        <div><a class="Change-Mobile-Number" id="change-email" style="color: #c75a51;">Change Email</a></div>
+                                    </div>
+                                </div>
+                                <div style="margin-top:62px;">
+                                    <div class="col d-flex justify-content-between" style="padding:0; cursor: pointer;">
+                                        <div>
+                                            <a href="{% url 'privacy-policy' %}" target="_blank" class="d-flex justify-content-start align-items-center terms-and-conditions-privacy-policy" style="color: #c75a51;">
+                                                <div><img class="img-p-policy" src="{% static 'assets/privacy-policy.png' %}" alt="P-Policy"/></div>
+                                                <div style="padding-top:3px;padding-left:8px;">Privacy Policy</div>
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'terms-and-conditions' %}" target="_blank" class="d-flex justify-content-start align-items-center terms-and-conditions-privacy-policy" style="color: #c75a51;">
+                                                <div><img class="img-tnc" src="{% static 'assets/terms-and-condition.png' %}" alt="T&C"/></div>
+                                                <div style="padding-top:2px;padding-left:8px;">Terms of Use</div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-divider-card"></div>
+                    <div class="col-md-4 d-flex justify-content-start">
+                        <div class="row">
+                            <div class="col" style="margin-top:30px;margin-left:33.5px;margin-right:33.5px;">
+                                <div>
+                                    <h4 class="Session-Code">Profile Code</h4>
+                                    <div class="QrCode" id="qrCode"></div>
+                                </div>
+                                <div>
+                                </div>
+                                <div class="d-flex justify-content-start">
+                                    <a class="download-button a-download-button" id="downloadProfile" href="#" target="_blank" style="padding-top: 2px;">
+                                        <span class="download-icon"><i class="fa fa-download"
+                                                                       aria-hidden="true"></i></span>
+                                        <b class="Download">Download ID Card</b>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-divider-card"></div>
+                        <div class="row">
+                            <div class="col-md-12 d-flex justify-content-between flex-column"
+                                 style="margin-top:45px;margin-left:43.5px;margin-bottom:69.5px;">
+                                <div>
+                                    <u class="Change-Password" id="changePassword">Change Password</u>
+                                </div>
+                                <div>
+                                    <u class="Change-Password" onclick="logout()">Logout</u>
+                                </div>
+                                <div>
+                                    <u class="Change-Password" onclick="location.href='{% url 'about-us' %}'">About</u>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Change Password -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="Change-Password-Form" method="post" class="change-password-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalTitle">Change Password</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding-bottom: 0px !important;">
+                        <div class="form-group">
+                            <label for="currentPassword" id="form-title">ENTER CURRENT PASSWORD</label>
+                            <input type="password" class="form-control" id="currentPassword" placeholder="Password" minlength="1" style="width: 86%; float: left;">
+                            <div class="form-group-append" id="toggle-password" style="width: 14%; float: right;">
+                                <i class="input-group-text fa fa-eye fa-eye-icon"></i>
+                            </div>
+                            <div class="invalid-number">
+                                <span id="currentPasswordErrorMessage" class="invalid-number-text hidden">Please enter a valid password</span>
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-top:22px;">
+                            <label for="newPassword" id="form-title">ENTER DESIRED PASSWORD</label>
+                            <input type="password" class="form-control" id="newPassword" placeholder="Password" minlength="1" >
+                            <div class="invalid-number">
+                                <span id="newPasswordErrorMessage" class="invalid-number-text hidden">Please enter a valid password</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newConfirmPassword" id="form-title">RE-ENTER PASSWORD</label>
+                            <input type="password" class="form-control" id="newConfirmPassword" placeholder="Password" minlength="1" >
+                            <div class="invalid-number">
+                                <span id="newConfirmPasswordErrorMessage" class="invalid-number-text hidden">Please enter a valid password</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="margin-bottom: 0px !important;">
+                        <button type="submit" class="btn btn-primary cancel-button " data-dismiss="modal" id="change-password-cancel-btn" >CANCEL</button>
+                        <button type="submit" class="btn btn-primary submit-button" id="change-password-save-btn" style="margin-left: 0.905rem;">
+                            SAVE
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Enter Password to request OTP -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+              <form id="enter-password-form" method="post" class="ChangeNumber-Enter-Password">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Change Mobile Number</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="InputPassword" id="form-title">ENTER CURRENT PASSWORD</label>
+                        <input type="password" class="form-control" id="InputPassword" placeholder="Password" required>
+                    </div>
+                    <div class="invalid-number">
+                        <span id="passwordErrorMessage" class="invalid-number-text hidden">Please enter your password</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary submit-button">CHANGE YOUR MOBILE NUMBER</button>
+                </div>
+              </form>
+          </div>
+        </div>
+    </div>
+
+      <!-- Modal for request OTP on Email -->
+
+      <div class="modal fade" id="RequestOTPModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+              <form id="enter-otp-form" method="post" class="ChangeNumber-Enter-OTP">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Enter OTP</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="forgot-modal-body" style="padding-right: 85px;">
+                    <p id="forgot-message-desc">We have sent an SMS to your Registered Email with the
+                        OTP. Please enter the code below.</p>
+                        <div class="form-group" style="    margin-bottom: 9px;">
+                            <label for="OTPInput" id="form-title">ONE TIME PASSWORD</label>
+                            <div class="user-otp-inputs" id="OTPInput" style="margin-top: 8px;box-sizing: border-box;">
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-1"
+                                       pattern="[0-9]{1}"/>
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-2"
+                                       pattern="[0-9]{1}"/>
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-3"
+                                       pattern="[0-9]{1}"/>
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-4"
+                                       pattern="[0-9]{1}"/>
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-5"
+                                       pattern="[0-9]{1}"/>
+                                <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-6"
+                                       pattern="[0-9]{1}"/>
+                            </div>
+                        </div>
+                    <div class="invalid-number">
+                        <span id="otpErrorMessage" class="invalid-number-text hidden"></span>
+                    </div>
+                    <div class="resend-otp" id="resend-request-otp-modal-button">Resend OTP</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary submit-button">NEXT</button>
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
+    <!-- Modal for request OTP on Phone -->
+        <div class="modal fade" id="RequestPhoneOTPModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                  <form id="enter-phone-otp-form" method="post" class="ChangeNumber-Enter-OTP">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">Enter OTP</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body" id="forgot-modal-body" style="padding-right: 85px;">
+                        <p id="forgot-message-desc">We have sent an SMS to your Phone Number with the
+                            OTP. Please enter the code below.</p>
+                            <div class="form-group">
+                                <label for="InputOTP" id="form-title">ONE TIME PASSWORD</label>
+                                <div class="user-otp-inputs" id="InputOTP" style="margin-top: 8px;box-sizing: border-box;">
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-1"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-2"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-3"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-4"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-5"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-6"
+                                           pattern="[0-9]{1}"/>
+                                </div>
+                            </div>
+                        <div class="invalid-number">
+                            <span id="otpErrorMessage" class="invalid-number-text hidden"></span>
+                        </div>
+                        <div class="resend-otp" id="resend-phone-otp-button">Resend OTP</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary submit-button">SAVE</button>
+                    </div>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+    <!-- Modal for request OTP on Phone for email change -->
+
+        <div class="modal fade" id="RequestOTPonPhoneModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                  <form id="enter-phone-otp-email-form" method="post" class="ChangeNumber-Enter-OTP">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">Enter OTP</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body" id="forgot-modal-body" style="padding-right: 85px;">
+                        <p id="forgot-message-desc">We have sent an SMS to your Phone Number with the
+                            OTP. Please enter the code below.</p>
+                            <div class="form-group">
+                                <label for="PhoneOTP" id="form-title">ONE TIME PASSWORD</label>
+                                <div class="user-otp-inputs" id="PhoneOTP" style="margin-top: 8px;box-sizing: border-box;">
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-1"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-2"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-3"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-4"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-5"
+                                           pattern="[0-9]{1}"/>
+                                    <input class="box" type="text" maxLength="1" size="1" min="0" max="9" id="otp-6"
+                                           pattern="[0-9]{1}"/>
+                                </div>
+                            </div>
+                        <div class="resend-otp" id="resend-otp-forEmail-button">Resend OTP</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary submit-button">NEXT</button>
+                    </div>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+      <!-- Modal ADD Email -->
+
+       <div class="modal fade" id="addEmailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="add-email-form" method="POST" class="ChangeEmail-Add-Email">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add your new Email</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" id="add-mobile-modal-body">
+                      <div class="form-group">
+                          <label for="InputEmail" id="form-title">EMAIL</label>
+                          <input type="email" class="form-control" id="InputEmail" placeholder="Email" required>
+                      </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary submit-button">SAVE</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+       </div>
+
+      <!-- Modal ADD Email Success -->
+
+       <div class="modal fade" id="addEmailSuccessModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">An email has been sent to your updated email ID. Please click on the link in the email to complete the new email verification process.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary submit-button close" data-dismiss="modal" style="margin-right: 4%; opacity: 1; color: #ffffff">OKAY</button>
+              </div>
+            </div>
+          </div>
+       </div>
+
+       <!-- Modal ADD Mobile NUmber password -->
+
+       <div class="modal fade" id="addMobileNumberModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="add-mobile-number-form" method="POST" class="ChangeNumber-Add-Phone-Number">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add your new mobile number</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" id="add-mobile-modal-body">
+                      <div class="form-group">
+                          <label for="InputPhoneNumber" id="form-title">MOBILE NUMBER</label>
+                          <input class="form-control" id="InputPhoneNumber" placeholder="Phone Number" required>
+                      </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary submit-button">SAVE</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+       </div>
+
+     <!-- Modal ADD Mobile NUmber for OTP -->
+
+    <div class="modal fade" id="addMobileNumberforOTPModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="enter-phone-number-form" method="post" class="ChangeNumber-Enter-Phone-Number">
+                    <div class="modal-header">
+                        <h5 class="modal-title update-mobile-title" id="exampleModalLongTitle">Add your new mobile
+                            number</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mobile-number-label">MOBILE NUMBER</p>
+                        <div class="input-group" id="ContactNumber">
+                            <div class="input-group-prepend">
+                                <select class="input-group-text placeholder-text"
+                                        style="width: 56px; padding: 0; padding-left:1.5px; background-color: #ffffff;"
+                                        id="socionUserCountryCode">
+                                </select>
+                            </div>
+                            <input id="socionPhoneNumber" class="form-control placeholder-text"
+                                   placeholder="e.g 9999999999"
+                                   style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">
+                            <div class="input-group-append hidden" id="mobio-invalid">
+                                <i class="input-group-text fa fa-exclamation-circle"
+                                   style="color: red; background-color: white"></i>
+                            </div>
+                        </div>
+                        <p class="phone-hint">Country Code</p>
+                        <div class="invalid-number">
+                            <span id="phoneNumberErrorMessage" class="invalid-number-text hidden">Please enter a valid mobile number</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary submit-button next-button">NEXT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--     Change User Name -->
+    
+    <div class="modal fade" id="modal-popup-username" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form method="POST" id="change-user-name">
+                    {% csrf_token %}
+                  <div class="modal-header">
+                    <h5 class="modal-title">Change Username</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                      <div class="form-group">
+                            <label class="form-field-label" for="socionUserName">NAME</label>
+                            <input type="text" class="form-control placeholder-text" id="socionUserName"
+                                   placeholder="e.g Anand ML" required onkeypress="return AvoidSpace(event, 'socionUserName')" onkeyup="return RemoveSpace(event, 'socionUserName')">
+                            <div class="invalid-number">
+                                <span id="userNameErrorMessage" class="invalid-number-text hidden">Please enter a user name</span>
+                            </div>
+                        </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary submit-button">SAVE</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+       </div>
+
+
+    <!-- MODAL TO CROP THE IMAGE -->
+
+      <div class="modal fade" id="ProfilePicEditModal">
+        <div class="modal-dialog" style="max-width: 900px; width:500px;">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-Title">Upload your profile picture</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="reset_uploader()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="profile-pic">
+                <input type="image" src="{% static 'assets/deactivate_button.png' %}" id="removeProfilePhoto" style="margin-left: 86%; position: absolute; z-index: 2;" disabled/>
+            </div>
+            <div class="modal-footer" style="display: block; margin-right: 0px; padding-left: 66px; padding-right: 62px;">
+              <div class="btn-group" role="group" style="float: right;">
+                <button type="button" class="btn btn-primary" id="upload-button">CHANGE PHOTO</button>
+                  <input type="file" id="profilePhoto" class="file" accept=".jpg, .jpeg, .png" name="attachment" style="position:absolute; cursor: pointer;"/>
+                <button id="uploadBtn" type="button" class="btn btn-primary js-crop-and-upload" disabled>SAVE PHOTO</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</div>
+
+<style>
+    input.file {
+        width: 108px;
+        height: 29px;
+        cursor: pointer;
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+    .file {
+        cursor: pointer;
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+</style>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function(){
+    disableScreen();
+    var allData = {};
+    var config = {
+        getUserInfoUrl: "{{settings.BASE_URL}}" + "user/private/details/",
+        getUserId: function(){
+            return $("#userId");
+        },
+        getImageField: function(){
+            return $("#userImage");
+        },
+        getProfileImageField: function(){
+            return $(".cr-image");
+        },
+        getImageViewPortField: function(){
+            return $(".cr-viewport");
+        },
+        getProfileImageSubmitBtn: function(){
+            return $("#uploadBtn");
+        },
+        getProfileImageDeleteBtn: function(){
+            return $("#removeProfilePhoto");
+        },
+        getUserNameField: function(){
+            return $("#userName");
+        },
+        getEmailField: function(){
+            return $("#email");
+        },
+        getPhoneNumberField: function(){
+            return $("#userPhoneNumber");
+        },
+        getQrCode: function(){
+            return $("#qrCode");
+        },
+        getProfileCard: function(){
+            return $("#downloadProfile");
+        },
+        getOldPasswordField: function(){
+            return $("#currentPassword");
+        },
+        getPasswordField: function(){
+            return $("#newPassword");
+        },
+        getConfirmPasswordField: function(){
+            return $("#newConfirmPassword");
+        },
+        getPasswordErrorField: function(){
+            return $("#newPasswordErrorMessage");
+        },
+        getOldPasswordErrorField: function(){
+            return $("#currentPasswordErrorMessage")
+        },
+        getConfirmPasswordErrorField: function(){
+            return $("#newConfirmPasswordErrorMessage");
+        },
+        getEncryptedPassword: function(password){
+            if(password !== ''){
+                var encryptedPassword = encrypt(password);
+                return encryptedPassword;
+            }
+            else {
+                return password;
+            }
+        },
+        getEncryptedOTP: function(otp){
+            if(otp !== ''){
+                var encryptedOtp = encrypt(otp);
+                return encryptedOtp;
+            }
+            else {
+                return otp;
+            }
+        },
+        getOTPInputField: function(){
+            return $("#OTPInput");
+        },
+        getInputOTPField: function(){
+            return $("#InputOTP");
+        },
+        getPhoneOTPField: function(){
+            return $("#PhoneOTP");
+        },
+        sendOTPUrl: "{{settings.BASE_URL}}" + "user/send-otp-new-phone",
+        validateOTPUrl: "{{settings.BASE_URL}}" + "user/validate-otp",
+        EmailSendOTP: "{{settings.BASE_URL}}" + "user/send-otp",
+        UpdateEmailUrl: "{{settings.BASE_URL}}" + "user/update-email-id",
+        ChangePasswordUrl: "{{settings.BASE_URL}}" + "user/change-password",
+        token : localStorage.getItem("socion_accessToken")
+    }
+    var osid = "";
+    var crtdDttm = "";
+    var updtDttm = "";
+    var photo = "";
+    var userId = config.getUserId().val();
+    var userInfoUrl = config.getUserInfoUrl + userId;
+    $.ajax(userInfoUrl, {
+        method: "GET",
+        contentType: "application/json",
+    })
+    .done(function(data, textStatus, jqXHR){
+        $('.loader-overlay').remove();
+        if(jqXHR.status === 200){
+            allData = data;
+            config.getImageViewPortField().attr("style", "outline: none; width: 300px; height: 300px;");
+            if(data.photo !== ""){
+                config.getImageField().attr("src", data.photo);
+                photo = data.photo;
+                config.getProfileImageDeleteBtn().attr("disabled", false);
+                config.getProfileImageSubmitBtn().attr("disabled", false);
+                localStorage.setItem("profile_pic", photo);
+            }
+            osid = data.osid;
+            crtdDttm = data.crtdDttm;
+            updtDttm = data.updtDttm;
+            config.getUserNameField().text(data.name);
+            config.getUserNameField().attr("data-action", data.name);
+            config.getEmailField().text(data.emailId);
+            config.getEmailField().attr("data-action", data.emailId);
+            config.getPhoneNumberField().text(data.countryCode + " " + data.phoneNumber);
+            config.getPhoneNumberField().attr("data-auth", data.countryCode);
+            config.getPhoneNumberField().attr("data-action", data.phoneNumber);
+            var downloadButtonValue = data.profileCardUrl;
+            jQuery('#qrCode').qrcode(encrypt(data.userId));
+            config.getProfileCard().attr("href", downloadButtonValue);
+            config.getProfileCard().attr("download", "Profile - "+data.name+".pdf");
+        }
+        else{
+            $('.toast #password-check-error-message').text("Something went wrong...!!!");
+            $('.toast').toast('show');
+            $('.toast').on('hidden.bs.toast', function(){
+                $(this).removeClass("login-error");
+            });
+        }
+    })
+    .fail(function(jqXHR, textStatus, errorThrown){
+        $('.loader-overlay').remove();
+        var statusCode = jqXHR.status;
+        if(statusCode === 422){
+            var errors = jqXHR.responseJSON.errors;
+            $.each(errors, function(_, error){
+                console.log(error);
+            });
+        }else{
+            $('.toast #password-check-error-message').text("Something went wrong...!!!");
+            $('.toast').toast('show');
+            $('.toast').on('hidden.bs.toast', function(){
+                $(this).removeClass("login-error");
+            });
+        }
+    });
+
+    $("#changePassword").click(function(event){
+        $("#changePasswordModal").modal("show");
+    });
+
+    $("#toggle-password").click(function(event){
+        var passwordField = $("#currentPassword")
+        if(passwordField.attr('type') === 'text'){
+            passwordField.attr('type','password');
+        } else {
+            passwordField.attr('type','text');
+        }
+    });
+
+    $(document).on("submit", "#Change-Password-Form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var ChangePasswordUrl = config.ChangePasswordUrl;
+        var currentPassword = document.getElementById("currentPassword").value;
+        var newPassword = document.getElementById("newPassword").value;
+        var encryptedcurrentPassword = config.getEncryptedPassword(currentPassword);
+        var encryptednewPassword = config.getEncryptedPassword(newPassword);
+        var PasswordCred = {currentPassword: encryptedcurrentPassword, newPassword: encryptednewPassword};
+        var jsonData = JSON.stringify(PasswordCred);
+        accessToken = localStorage.getItem("socion_accessToken");
+        if(config.getPasswordField().val() === config.getConfirmPasswordField().val() && config.getConfirmPasswordField().val().length >= 1 && config.getOldPasswordField().val().length !== 0) {
+            $.ajax(ChangePasswordUrl, {
+                method: "POST",
+                headers: { "access-token": accessToken },
+                data: jsonData,
+                contentType: "application/json",
+                beforeSend: function( xhr ){
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    $("#changePasswordModal").modal("hide");
+                    alert("Your Password has been changed successfully. You will be prompted to login with your new password.");
+                    logout();
+                }
+                else if (data.responseCode === 400){
+                    if(data.message === "Current password value is incorrect"){
+                        $('#modal-popup-toast').addClass("login-error");
+                        $('#modal-popup-toast #password-check-error-message').text("Current password is incorrect...!!");
+                        $('#modal-popup-toast').toast('show');
+                        $('#modal-popup-toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                    else if (data.message === "Current password and updated password should be different"){
+                        $('#modal-popup-toast').addClass("login-error");
+                        $('#modal-popup-toast #password-check-error-message').text("Current and Updated password should be different!!");
+                        $('#modal-popup-toast').toast('show');
+                        $('#modal-popup-toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                }
+                else{
+                    $('#modal-popup-toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('#modal-popup-toast').toast('show');
+                    $('#modal-popup-toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        }
+        else if(config.getOldPasswordField().val().length == 0) {
+            $('.loader-overlay').remove();
+            $('#currentPasswordErrorMessage').text("Current password is required");
+            $('#currentPasswordErrorMessage').removeClass("hidden");
+        }
+        else if(config.getPasswordField().val().length == 0 && config.getConfirmPasswordField().val().length == 0) {
+            $('.loader-overlay').remove();
+            $('#newPasswordErrorMessage').text("Password is Required");
+            $('#newPasswordErrorMessage').removeClass("hidden");
+        } else if(config.getPasswordField().val() !== config.getConfirmPasswordField().val()) {
+            $('.loader-overlay').remove();
+            $('#newConfirmPasswordErrorMessage').text("Password doesn't match");
+            $('#newConfirmPasswordErrorMessage').removeClass("hidden");
+        } else if(config.getPasswordField().val().length > 0 && config.getConfirmPasswordField().val().length === 0) {
+            $('.loader-overlay').remove();
+            $('#newPasswordErrorMessage').addClass("hidden");
+            $('#newConfirmPasswordErrorMessage').text("Please enter a password");
+            $('#newConfirmPasswordErrorMessage').removeClass("hidden");
+        }
+        else if(config.getPasswordField().val().length == 0) {
+            $('.loader-overlay').remove();
+            $('#newPasswordErrorMessage').text("Password is Required");
+            $('#newPasswordErrorMessage').removeClass("hidden");
+        }
+        else if(config.getConfirmPasswordField().val().length == 0) {
+            $('.loader-overlay').remove();
+            $('#newConfirmPasswordErrorMessage').text("Please enter a password");
+            $('#newConfirmPasswordErrorMessage').removeClass("hidden");
+        }
+    });
+
+    $("#change-email").click(function(event){
+        disableScreen();
+        event.preventDefault();
+        var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var SendOTP = config.EmailSendOTP + "?phoneNumber=" + phoneNumber + "&typeOfOTP=UpdateEmail-OTP&countryCode="+ countryCode;
+        accessToken = localStorage.getItem("socion_accessToken");
+        $.ajax(SendOTP, {
+            method: "GET",
+            headers: { "access-token": accessToken },
+            contentType: "application/json",
+            beforeSend: function( xhr ){
+            }
+        })
+        .done(function(data, textStatus, jqXHR){
+            $('.loader-overlay').remove();
+            if(data.responseCode === 200){
+                $("#RequestOTPonPhoneModal").modal("show");
+            }
+            else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            $('.loader-overlay').remove();
+            var statusCode = jqXHR.status;
+            if(statusCode === 422){
+                var errors = jqXHR.responseJSON.errors;
+                $.each(errors, function(_, error){
+                    console.log(error);
+                });
+            }else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        });
+    });
+
+    $("#resend-otp-forEmail-button").click(function(event){
+        disableScreen();
+        event.preventDefault();
+        var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var SendOTP = config.EmailSendOTP + "?phoneNumber=" + phoneNumber + "&typeOfOTP=UpdateEmail-OTP&countryCode="+ countryCode;
+        accessToken = localStorage.getItem("socion_accessToken");
+        $.ajax(SendOTP, {
+            method: "GET",
+            headers: { "access-token": accessToken },
+            contentType: "application/json",
+            beforeSend: function( xhr ){
+            }
+        })
+        .done(function(data, textStatus, jqXHR){
+            $('.loader-overlay').remove();
+            if(data.responseCode === 200){
+                $('.toast').addClass("login-error");
+                $('.toast #password-check-error-message').text("OTP sent successfully...");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+            else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            $('.loader-overlay').remove();
+            var statusCode = jqXHR.status;
+            if(statusCode === 422){
+                var errors = jqXHR.responseJSON.errors;
+                $.each(errors, function(_, error){
+                    console.log(error);
+                });
+            }else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        });
+    });
+
+    $(document).on("submit", "#enter-phone-otp-email-form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var ValidatePhoneOTPUrl = config.validateOTPUrl;
+        var otp = config.getPhoneOTPField().children().toArray();
+        var otpText = "";
+        otp.forEach(function(item){
+            otpText = otpText + item.value;
+        });
+        var encryptedOtp = config.getEncryptedOTP(otpText);
+        var otpCreds = {otp:encryptedOtp,typeOfOTP:"UpdateEmail-OTP",phoneNumber: phoneNumber,countryCode:countryCode};
+        var jsonCreds = JSON.stringify(otpCreds);
+        $.ajax(ValidatePhoneOTPUrl, {
+            method: "POST",
+            contentType: "application/json",
+            data: jsonCreds
+        })
+        .done(function(data, textStatus, jqXHR){
+            $('.loader-overlay').remove();
+            if(data.responseCode === 200){
+                $("#RequestOTPonPhoneModal").modal("hide");
+                $("#addEmailModal").modal("show");
+            }
+            else if (data.responseCode === 400 && otpText === ""){
+                $('.toast').addClass("login-error");
+                $('.toast #password-check-error-message').text("Please Enter OTP");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            } else {
+                $('.toast').addClass("login-error");
+                $('.toast #password-check-error-message').text("Incorrect OTP");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            $('.loader-overlay').remove();
+            var statusCode = jqXHR.status;
+            if(statusCode === 422){
+                var errors = jqXHR.responseJSON.errors;
+                $.each(errors, function(_, error){
+                    console.log(error);
+                });
+            }else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        });
+    });
+
+    $(document).on("submit", "#add-email-form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        emailID = document.getElementById("InputEmail").value;
+        var EmailUpdateUrl = config.UpdateEmailUrl + "?emailId=" + emailID;
+        if(emailID !== ""){
+            accessToken = localStorage.getItem("socion_accessToken");
+            $.ajax(EmailUpdateUrl, {
+                method: "GET",
+                headers: { "access-token": accessToken },
+                contentType: "application/json",
+                beforeSend: function( xhr ){
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    $("#addEmailModal").modal("hide");
+                    $("#addEmailSuccessModal").modal("show");
+                }
+                else if(data.responseCode === 404){
+                    alert("Please enter a valid Email.");
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        } else {
+            $('.loader-overlay').remove();
+            $("#mobio-invalid").removeClass("hidden");
+            $("#phoneNumber").addClass("input-field-error");
+        }
+    });
+
+    $("#change-mobile-number").click(function(event){
+        disableScreen();
+        event.preventDefault();
+        var emailId = document.getElementById("email").getAttribute("data-action");
+        var userPhone = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var EmailSendOTPUrl = config.EmailSendOTP + "?phoneNumber=" + userPhone + "&typeOfOTP=UpdatePhone-OTP&countryCode="+ countryCode;
+        if(emailId !== ""){
+            accessToken = localStorage.getItem("socion_accessToken");
+            $.ajax(EmailSendOTPUrl, {
+                method: "GET",
+                headers: { "access-token": accessToken },
+                contentType: "application/json",
+                beforeSend: function( xhr ){
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    $("#RequestOTPModal").modal("show");
+                }
+                else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+        }
+        else {
+            $('.loader-overlay').remove();
+            $("#exampleModalCenter").modal("show");
+        }
+    });
+
+    $("#resend-request-otp-modal-button").click(function(event){
+        disableScreen();
+        event.preventDefault();
+        var userPhone = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var EmailSendOTPUrl = config.EmailSendOTP + "?phoneNumber=" + userPhone + "&typeOfOTP=UpdatePhone-OTP&countryCode="+ countryCode;
+        accessToken = localStorage.getItem("socion_accessToken");
+        $.ajax(EmailSendOTPUrl, {
+            method: "GET",
+            headers: { "access-token": accessToken },
+            contentType: "application/json",
+            beforeSend: function( xhr ){
+            }
+        })
+        .done(function(data, textStatus, jqXHR){
+            $('.loader-overlay').remove();
+            if(data.responseCode === 200){
+               $('.toast').addClass("login-error");
+                $('.toast #password-check-error-message').text("OTP sent successfully...");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+            else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+    });
+
+    $(document).on("submit", "#enter-otp-form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var userPhone = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var ValidateOTPUrl = config.validateOTPUrl;
+        var otp = config.getOTPInputField().children().toArray();
+        var otpText = "";
+        otp.forEach(function(item){
+            otpText = otpText + item.value;
+        });
+        var encryptedOtp = config.getEncryptedOTP(otpText);
+        var otpCreds = {otp:encryptedOtp,typeOfOTP:"UpdatePhone-OTP",phoneNumber: userPhone,countryCode:countryCode};
+        var jsonCreds = JSON.stringify(otpCreds);
+        if ( otpText != "" ) {
+            $.ajax(ValidateOTPUrl, {
+                method: "POST",
+                contentType: "application/json",
+                data: jsonCreds
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    $("#RequestOTPModal").modal("hide");
+                    $("#addMobileNumberforOTPModal").modal("show");
+                }
+                else if (data.responseCode === 400 && otpText === ""){
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("Please Enter OTP");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                } else {
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("Incorrect OTP");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        }
+        else {
+            $('.loader-overlay').remove();
+            $("#otpErrorMessage").text("Please enter the OTP..!!");
+            $("#otpErrorMessage").removeClass("hidden");
+            setTimeout(function(){
+                $("#otpErrorMessage").addClass("hidden");
+            }, 2500);
+        }
+    });
+
+    $(document).on("submit", "#enter-password-form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var LoginUrl = "{{settings.BASE_URL}}" + "user/login";
+        var userPhone = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var password = document.getElementById("InputPassword").value;
+        var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
+        var loginCreds = {userName: userPhone,password: config.getEncryptedPassword(password),countryCode:countryCode}
+        var jsonCreds = JSON.stringify(loginCreds);
+        $.ajax(LoginUrl, {
+            method: "POST",
+            contentType: "application/json",
+            data: jsonCreds,
+            beforeSend: function( xhr ){
+                config.getPasswordErrorField().empty();
+            }
+        })
+        .done(function(data, textStatus, jqXHR){
+            $('.loader-overlay').remove();
+            if(data.responseCode === 200){
+                $("#exampleModalCenter").modal("hide");
+                $("#addMobileNumberforOTPModal").modal("show");
+            }
+            else if(data.responseCode === 401){
+                if(data.message == "Invalid Password"){
+                    config.getPasswordErrorField().removeClass("hidden");
+                    config.getPasswordErrorField().text("Invalid Credentials...!!!");
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("Invalid Credentials...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                    });
+                }
+            }
+            else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            $('.loader-overlay').remove();
+            var statusCode = jqXHR.status;
+            if(statusCode === 422){
+                var errors = jqXHR.responseJSON.errors;
+                $.each(errors, function(_, error){
+                    if(error.field === "password" && error.message === "passwordmust not be empty"){
+                        config.getPasswordErrorField().removeClass("hidden");
+                        config.getPasswordErrorField().text("Please enter your password");
+                    }
+                });
+            }
+            else{
+                $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                });
+            }
+        })
+    });
+
+    $('#enter-password-form .modal-body #InputPassword').on('blur', function () {
+    var password = $(this).val();
+      if (password.length > 0) {
+        $("#passwordErrorMessage").addClass("hidden");
+      } else {
+        $("#passwordErrorMessage").text("Please enter your password");
+        $("#passwordErrorMessage").removeClass("hidden");
+        return false;
+      }
+  });
+
+    $(document).on("submit", "#enter-phone-number-form", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var userPhone = document.getElementById("socionPhoneNumber").value;
+        var countryCode = document.getElementById("socionUserCountryCode").value;
+        localStorage.setItem("socion_userPhoneNumber",userPhone);
+        localStorage.setItem("socion_userCountryCode",countryCode);
+        var socionSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
+        if(userPhone !== "" && checkPhoneNumberLength(userPhone)){
+            accessToken = localStorage.getItem("socion_accessToken");
+            $.ajax(socionSendOTPUrl, {
+                method: "GET",
+                headers: { "access-token": accessToken },
+                contentType: "application/json",
+                beforeSend: function( xhr ){
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    $("#addMobileNumberforOTPModal").modal("hide");
+                    $("#RequestPhoneOTPModal").modal("show");
+                }
+                else if(data.responseCode === 400){
+                    if(data.message === "User already exists."){
+                        $('.toast').addClass("login-error");
+                        $('.toast #password-check-error-message').text("Phone number already exists..!!");
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                }
+                else if(data.responseCode === 404){
+                    $('.toast #password-check-error-message').text("Please enter a valid mobile number..!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        } else {
+            $('.loader-overlay').remove();
+            $("#phoneNumberErrorMessage").text("Please enter a valid mobile number..!!");
+            $("#phoneNumberErrorMessage").removeClass("hidden");
+            $("#mobio-invalid").removeClass("hidden");
+            $("#ContactNumber").addClass("input-field-error");
+        }
+    });
+
+    $("#resend-phone-otp-button").click(function(event){
+        event.preventDefault();
+        var userPhone = localStorage.getItem("socion_userPhoneNumber");
+        var countryCode = localStorage.getItem("socion_userCountryCode");
+        var socionSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
+        if(userPhone !== ""){
+            accessToken = localStorage.getItem("socion_accessToken");
+            $.ajax(socionSendOTPUrl, {
+                method: "GET",
+                headers: { "access-token": accessToken },
+                contentType: "application/json",
+                beforeSend: function( xhr ){
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                if(data.responseCode === 200){
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("OTP sent successfully...");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+                else if(data.responseCode === 404){
+                    alert("Couldn't send OTP. Please Wait.");
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        } else {
+            alert("Please enter a valid mobile number");
+            $("#mobio-invalid").removeClass("hidden");
+            $("#phoneNumber").addClass("input-field-error");
+        }
+    });
+
+    $(document).on("submit", "#enter-phone-otp-form", function (event) {
+
+        event.preventDefault();
+        var ValidateOTPUrl = config.validateOTPUrl;
+        var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        var countryCode = localStorage.getItem("socion_userCountryCode");
+        var otp = config.getInputOTPField().children().toArray();
+        var otpText = "";
+        otp.forEach(function(item){
+            otpText = otpText + item.value;
+        });
+        var encryptedOtp = config.getEncryptedOTP(otpText);
+        var otpCreds = {otp:encryptedOtp,typeOfOTP:"NewPhone-OTP",phoneNumber: phoneNumber,countryCode:countryCode};
+        var jsonCreds = JSON.stringify(otpCreds);
+        if (otpText != "") {
+            disableScreen();
+            $.ajax(ValidateOTPUrl, {
+                method: "POST",
+                contentType: "application/json",
+                data: jsonCreds
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    alert("Your Phone Number has been changed successfully. You will be prompted to login with your new Phone Number.");
+                    logout();
+                }
+                else if (data.responseCode === 400 && otpText === ""){
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("Please Enter OTP");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                } else {
+                    $('.toast').addClass("login-error");
+                    $('.toast #password-check-error-message').text("Incorrect OTP");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                $("#phoneNumberErrorMessage").text("Please enter a valid mobile number..!!");
+                $("#phoneNumberErrorMessage").removeClass("hidden");
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        console.log(error);
+                    });
+                }else{
+                    $('.toast #password-check-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            });
+        }
+        else {
+            $('.loader-overlay').remove();
+            $("#otpErrorMessage").text("Please enter the OTP..!!");
+            $("#otpErrorMessage").removeClass("hidden");
+            setTimeout(function(){
+                $("#otpErrorMessage").addClass("hidden");
+            }, 2500);
+        }
+    });
+
+   $('.edit-pencil').click(function () {
+       $("#change-user-name .modal-body #socionUserName").val($("#userName").text());
+       $("#modal-popup-username").modal("show");
+   });
+
+    $(document).on("submit", "#change-user-name", function (event) {
+        disableScreen();
+        event.preventDefault();
+        var updateProfileURL = "{{settings.BASE_URL}}" + "user/update-profile";
+        var profileData = {
+            name:$('#socionUserName').val(),
+            emailId:config.getEmailField().text(),
+            salutation:"",
+            phoneNumber:config.getPhoneNumberField().attr("data-action"),
+            photo:photo,
+            userId:userId,
+            crtdDttm:crtdDttm,
+            updtDttm:updtDttm,
+            active:true,
+            profileCardUrl:config.getProfileCard().attr("href"),
+            countryCode:config.getPhoneNumberField().attr("data-auth"),
+            osid:osid
+        };
+        var jsonData = JSON.stringify(profileData);
+        $.ajax(updateProfileURL, {
+            method: "PUT",
+            contentType: "application/json",
+            data: jsonData,
+            headers: {
+                "access-token":config.token,
+            }
+        })
+        .done(function (data, textStatus, jqXHR) {
+            $('.loader-overlay').remove();
+            if (data.responseCode === 200) {
+                window.location.reload();
+            }
+            else {
+                $('.toast #login-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            $('.loader-overlay').remove();
+            var statusCode = jqXHR.status;
+            if (statusCode === 422) {
+                var errors = jqXHR.responseJSON.errors;
+                console.log(errors);
+            } else {
+                $('.toast #login-error-message').text("Something went wrong...!!!");
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                });
+            }
+        });
+    });
+
+    function getCookie(c_name) {
+        if(document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if(c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if(c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+      // Upload Profile Pic
+
+      var file = {};
+      $(".js-crop-and-upload").click(function (event) {
+          disableScreen();
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          // get image co-ordinate result from croppie
+          var info = $('#profile-pic').croppie('get');
+          var x1 = info.points[0];
+          var y1 = info.points[1];
+          var x2 = info.points[2];
+          var y2 = info.points[3];
+
+          // get cropped image
+          $('#profile-pic').croppie('result', {
+            type: 'base64',
+            size: 'viewport',
+            circle: false,
+            }).then(function (img) {
+              //img is html positioning & sizing the image correctly if resultType is 'html'
+              //img is base64 url of cropped image if resultType is 'canvas'
+
+                file[Math.random()] = img;
+                var extension;
+                var contentFileList = document.getElementById("profilePhoto").files;
+                if (contentFileList.length !== 0){
+                    for (var i = 0; i < contentFileList.length; i++) {
+                       var fileExt = contentFileList[i].name.split('.');
+                       extension = fileExt[fileExt.length-1];
+                    }
+                }
+                else {
+                    var fileExt = photo.split('.');
+                    extension = fileExt[fileExt.length-1];
+                }
+                var files = Object.values(file);
+                var userId = document.getElementById("userId").value;
+                if (files.length !== 0) {
+                    var photoUrl = "{{settings.AWS_STATIC_URL}}profile-picture/" + userId + "." + extension;
+                }
+                else {
+                    var photoUrl = "";
+                }
+                var dataUrl = "/oauth/upload-profile-pic/";
+                $.ajax(dataUrl, {
+                  headers: {
+                        "X-CSRFToken": getCookie("csrftoken")
+                    },
+                  data: {image: img,
+                        ext: extension},
+                  method: "POST",
+                })
+                  .done(function () {
+                    file.length = 0;
+                    allData["photo"] = photoUrl;
+                    var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+                    allData["userName"] = phoneNumber;
+                    var bodyData = JSON.stringify(allData);
+                    var updateProfileUrl = "{{settings.BASE_URL}}" + "user/update-profile";
+                    accessToken = localStorage.getItem("socion_accessToken");
+                    $.ajax(updateProfileUrl, {
+                        method: "PUT",
+                        headers: { "access-token": accessToken },
+                        contentType: "application/json",
+                        data: bodyData
+                    })
+                    .done(function(data, textStatus, jqXHR){
+                        if(data.responseCode === 200){
+                            var updatePhotoUrl = "{{settings.BASE_URL}}" + "user/update-photo?isRemovePhoto=false";
+                            $.ajax(updatePhotoUrl, {
+                                method: "POST",
+                                headers: { "access-token": accessToken },
+                                contentType: "application/json",
+                            })
+                            .done(function(data, textStatus, jqXHR){
+                                if(data.responseCode === 200){
+                                    $('.loader-overlay').remove();
+                                    file.length = 0;
+                                    window.location.reload();
+                                }
+                                else {
+                                    alert("Something went Wrong!");
+                                    file.length = 0;
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                        else if(data.responseCode === 404){
+                            alert("Something went Wrong!");
+                            window.location.reload();
+                        }
+                    })
+                  })
+                  .fail(function () {
+                    $('.loader-overlay').remove();
+                  });
+                return false;
+            });
+        });
+
+    // Remove Profile Pic
+    $(document).on("click", "#removeProfilePhoto", function (event) {
+        disableScreen();
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        allData["photo"] = '';
+        var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
+        allData["userName"] = phoneNumber;
+        var bodyData = JSON.stringify(allData);
+        var updateProfileUrl = "{{settings.BASE_URL}}" + "user/update-profile";
+        accessToken = localStorage.getItem("socion_accessToken");
+        $.ajax(updateProfileUrl, {
+            method: "PUT",
+            headers: { "access-token": accessToken },
+            contentType: "application/json",
+            data: bodyData
+        })
+        .done(function(data, textStatus, jqXHR){
+            if(data.responseCode === 200){
+                var updatePhotoUrl = "{{settings.BASE_URL}}" + "user/update-photo?isRemovePhoto=true";
+                $.ajax(updatePhotoUrl, {
+                    method: "POST",
+                    headers: { "access-token": accessToken },
+                    contentType: "application/json",
+                })
+                .done(function(data, textStatus, jqXHR){
+                    if(data.responseCode === 200){
+                        localStorage. removeItem("profile_pic");
+                        $('.loader-overlay').remove();
+                        window.location.reload();
+                    }
+                    else {
+                        alert("Something went Wrong!");
+                    }
+                });
+            }
+            else if(data.responseCode === 404){
+                alert("Something went Wrong!");
+                window.location.reload();
+            }
+        })
+    });
+
+   $('.modal').on('hidden.bs.modal', function(){
+     $('#enter-password-form .modal-body #InputPassword').val('');
+     $('#enter-phone-number-form .modal-body #socionPhoneNumber').val('');
+     $("#mobio-invalid").addClass("hidden");
+     $("#ContactNumber").removeClass("input-field-error");
+     $('#enter-phone-number-form .modal-body #phoneNumberErrorMessage').addClass("hidden");
+     $('#Change-Password-Form .modal-body .form-group input').val('');
+     $('#add-email-form .modal-body .form-group input#InputEmail').val('');
+     $('.user-otp-inputs').children().val('');
+     $('#change-user-name .modal-body .form-group #socionUserName').val('');
+     $('#change-user-name .modal-body .form-group #userNameErrorMessage').addClass('hidden');
+     $('#currentPasswordErrorMessage, #newPasswordErrorMessage, #newConfirmPasswordErrorMessage').addClass('hidden');
+     $("#currentPassword").attr('type','password');
+   });
+
+    $('#currentPassword').on('blur', function () {
+      if ($('#currentPassword').val().length > 0) {
+        $("#currentPasswordErrorMessage").addClass("hidden");
+      } else {
+        $('#currentPasswordErrorMessage').text("Current password is required");
+        $("#currentPasswordErrorMessage").removeClass("hidden");
+      }
+    });
+
+    $('#newPassword, #newConfirmPassword').on('blur', function () {
+      if ($('#newPassword').val() == $('#newConfirmPassword').val()) {
+        $("#newPasswordErrorMessage").addClass("hidden");
+        $("#newConfirmPasswordErrorMessage").addClass("hidden");
+      } else if ($('#newConfirmPassword').val().length > 0 && $('#newPassword').val() === "") {
+        $('#newPasswordErrorMessage').text("Password is Required");
+        $('#newPasswordErrorMessage').removeClass("hidden");
+      } else if ($('#newConfirmPassword').val().length == 0 && $('#newPassword').val() != $('#newConfirmPassword').val()) {
+        $('#newConfirmPasswordErrorMessage').addClass("hidden");
+      } else if ($('#newPassword').val().length > 0 && $('#newPassword').val() !== $('#newConfirmPassword').val()) {
+        $('#newConfirmPasswordErrorMessage').text("Password doesn't match");
+        $('#newConfirmPasswordErrorMessage').removeClass("hidden");
+        $('#newPasswordErrorMessage').addClass("hidden");
+      }
+    });
+
+    $(document).on("click", "#camCapture", function (event) {
+        $("#ProfilePicEditModal").modal("show");
+        $('.cr-slider').attr({'min':1.000, 'max':2.000});
+        $('.cr-slider').attr("disabled", true);
+        $('.cr-slider').attr("style", "cursor: pointer;");
+        if (localStorage.getItem("profile_pic") !== null){
+            config.getProfileImageField().attr("style", "transform: translate3d(75px, 25px, 0px) scale(1);");
+            config.getProfileImageField().attr("crossorigin", "anonymous");
+            config.getProfileImageField().attr("src", photo);
+            $('.cr-slider').attr("disabled", false);
+        }
+        else {
+            config.getProfileImageField().attr("style", "transform: translate3d(75px, 25px, 0px) scale(0.88);");
+            config.getProfileImageField().attr("src", "/statics/images/images.png");
+        }
+    });
+
+    $("#ProfilePicEditModal").on('hide.bs.modal', function(){
+        document.getElementById("profilePhoto").value = "";
+      });
+
+  /* SCRIPT TO SHOW THE MODAL WITH THE PREVIEW */
+
+  $("#profilePhoto").change(function (event) {
+    event.preventDefault();
+    var ext = $('#profilePhoto').val().split('.').pop().toLowerCase();
+    if($.inArray(ext, ['png', 'jpg', 'jpeg', '']) == -1) {
+        alert('Invalid File Type! Only Files with format of png, jpg, jpeg will be uploaded!!');
+        document.getElementById("profilePhoto").value = "";
+    }
+    else if (this.files && this.files[0]) {
+      $("#uploadBtn").attr("disabled", false);
+      $('.cr-slider').attr("disabled", false);
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        // bind an image to croppie
+        $('#profile-pic').croppie('bind',{
+          url: e.target.result,
+        });
+      }
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  /* Script to customize the image cropper. */
+  $('#profile-pic').croppie({
+
+      // viewport options
+      viewport: {
+        width: 300,
+        height: 300,
+        type:'circle' // or 'square'
+      },
+
+      // boundary options
+      boundary: {
+        width: 450,
+        height: 350,
+      },
+
+      // orientation controls
+      orientationControls: {
+        enabled:true,
+        leftClass:'',
+        rightClass:''
+      },
+
+      // resize controls
+      resizeControls: {
+        width:true,
+        height:true
+      },
+
+      // addiontal CSS class
+      customClass:'',
+
+      // enable image resize
+      enableResize:false,
+
+      // show image zoom control
+      showZoom:true,
+
+      // image zoom with mouse wheel
+      mouseWheelZoom:false,
+
+      // enable exif orientation reading
+      enableExif:false,
+
+      // restrict zoom so image cannot be smaller than viewport
+      enforceBoundary:true,
+
+      // enable orientation
+      enableOrientation:false,
+
+      // enable key movement
+      enableKeyMovement:true,
+    });
+
+});
+</script>
+
+<script>
+    /* Script to reset the profile picture uploader. */
+    function reset_uploader() {
+        document.getElementById("profilePhoto").value = "";
+    }
+</script>
+<script src="{% static 'js/custom/mobileNumberValidation.js' %}"></script>
+<script src="{% static 'js/custom/countryCodes.js' %}"></script>
+<script src="{% static 'js/custom/otp.js' %}"></script>
+<script src="{% static 'js/custom/encrypt.js' %}"></script>
+{% endblock %}

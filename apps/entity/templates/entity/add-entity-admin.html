@@ -1,0 +1,201 @@
+{% load static %}
+<form class="js-add-entity-admin" method="POST" action="" style="margin-block-end: 0em;">
+    {% csrf_token %}
+    <div class="modal-header" style="border-bottom: none;">
+        <h5 class="modal-title" style="font-family: AvenirNext-DemiBold; font-size: 18px; color: #333333;">Add
+            Member</h5>
+        <button type="button" class="close close-pop-up" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+        <div style="margin-left:20px;margin-right:20px;">
+            <div style="font-family: AvenirNext-Medium; font-size: 10px; color: #666666;padding-bottom:11px;">
+                Scan contact person QR code
+            </div>
+            <div class="d-flex align-items-center justify-content-between" id="divScanQR">
+
+                <div class="d-flex align-items-center js-scan-admin-qr" style="cursor:pointer;width:157px;height:48px; border: solid 0.5px #f9cfcc;border-radius:4px;background-clip: padding-box;  box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);">
+                    <img src="{% static 'assets/add_scan_button.png' %}" alt="add_button"
+                         style="float:left;width:32px;margin-left:24px;margin-top:8px;margin-bottom:8px;">
+                    <div style="margin-left: 18px;font-family: AvenirNext-Medium; font-size: 10px; color: #666666;">
+                        Click to Scan
+                    </div>
+                </div>
+
+                <div style="font-family: AvenirNext-Medium; font-size: 16px; color: #666666;margin:16px;">
+                    OR
+                </div>
+
+                <div id="addByPhoneNumber">
+                    <div class="input-group" id="phoneNumber" style="width:269px;height:48px;box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);">
+                        <div class="input-group-prepend">
+                            <select class="input-group-text code-placeholder-text"
+                                    style="width: 67px; padding: 0; padding-left:2px; background-color: #ffffff;border: solid 0.5px #f9cfcc;"
+                                    id="socionUserCountryCode">
+                            </select>
+                        </div>
+                        <input id="socionPhoneNumber" class="form-control mobile-placeholder-text" placeholder="Enter mobile number" required
+                               style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;height:48px;border: solid 0.5px #f9cfcc;">
+                        <div class="input-group-append hidden" id="mobio-invalid">
+                            <i class="input-group-text fa fa-exclamation-circle"
+                               style="color: red; background-color: white;padding-top: 14px;border: solid 0.5px #f9cfcc;"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="text-right">
+                <div class="invalid-number" style="padding-right: 85px;margin-top:0;">
+                    <span id="phoneNumberErrorMessage" class="invalid-number-text hidden" style="font-size:11px;">Please enter a valid mobile number</span>
+                </div>
+            </div>
+        </div>
+    </div>
+   <div class="modal-footer" style="border-top: none;padding:20px;">
+        <input class="btn btn-add-entity-information button-text-add-popup" id="GetDetailsByPhoneNumber" style="padding-top: 6px;" disabled readonly value="ADD MEMBER">
+<!--       <input class="btn add-member-btn" id="GetDetailsByPhoneNumber" value="Add Member" disabled readonly style="text-align:right;">-->
+    </div>
+</form>
+
+<script src="{% static 'js/custom/mobileNumberValidation.js' %}"></script>
+<script src="{% static 'js/custom/countryCodes.js' %}"></script>
+
+<script>
+    $(document).ready(function (){
+        function loadAddEntityMember(userId) {
+            var data_url = "/entities/add-entity-admin-info/" + userId;
+            var btn = $(this);
+            $.ajax({
+              url: data_url,
+              type: 'get',
+              dataType: 'json',
+              beforeSend: function () {
+                $("#modal-popup-admin").modal("show");
+              },
+              success: function (data) {
+                $("#modal-popup-admin .modal-content").html(data.html_form);
+                entityId = $("#entityDetailId").val();
+                $("#entityId").val(entityId);
+              },
+              error: function(jqXHR, textStatus, errorThrown){
+                if (jqXHR.status === 404 && jqXHR.statusText === "Not Found"){
+                    $("#modal-popup-admin").modal("hide");
+                    $(".notification-toaster").css("display", "block");
+                    $('.toast').addClass("login-error");
+                    $('.toast #notification-error-message').text("Invalid QR Code");
+                    $('.toast .toast-body .close').css('line-height',0);
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                        $(".notification-toaster").css("display", "none");
+                    });
+                }
+              }
+            });
+        }
+
+        $("#socionPhoneNumber").on("blur", function () {
+            var mobNum = $(this).val();
+            if (!checkPhoneNumberLength(mobNum)) {
+                $("#GetDetailsByPhoneNumber").prop("disabled", true);
+            } else {
+                $("#GetDetailsByPhoneNumber").removeAttr("disabled");
+                return false;
+            }
+        });
+
+        $('#GetDetailsByPhoneNumber').on("click",function(){
+            $(".js-add-entity-admin")[0].reportValidity();
+            var socion_userCountryCode = $('#socionUserCountryCode').val();
+            var socion_userPhoneNumber = $('#socionPhoneNumber').val();
+            var getUserInfoByPhoneNumberUrl = "{{settings.BASE_URL}}" + "user/get-profile-from-phoneNumber";
+            var postData = {
+                phoneNumbers:[{
+                   phoneNumber:socion_userPhoneNumber,
+                   countryCode:socion_userCountryCode
+                }]
+            }
+            var jsonData = JSON.stringify(postData);
+            if(checkPhoneNumberLength(socion_userPhoneNumber)){
+                $.ajax(getUserInfoByPhoneNumberUrl, {
+                    method: "POST",
+                    contentType: "application/json",
+                    data: jsonData,
+                    headers: {
+                        "access-token":localStorage.getItem("socion_accessToken"),
+                    }
+                })
+                .done(function(data, textStatus, jqXHR){
+                    if(jqXHR.status === 200){
+                        if(data.responseCode === 200 && data.message === "SuccessFully fetch user Data"){
+                            var userDetail;
+                            var user =  socion_userCountryCode.concat(socion_userPhoneNumber);
+                            data.response.forEach(function (item) {
+                                userDetail = item;
+                            });
+                            //localStorage.setItem("addMember_userId", userDetail[user].userId);
+                            //localStorage.setItem("addMember_name", userDetail[user].name);
+                            //localStorage.setItem("addMember_emailId", userDetail[user].emailId);
+                            //localStorage.setItem("addMember_phoneNumber", userDetail[user].countryCode + "-" + userDetail[user].phoneNumber);
+                            loadAddEntityMember(userDetail[user].userId);
+                        }
+                        else if (data.responseCode === 500 && data.message === "Unable to fetch user details"){
+                            $("#modal-popup-admin").modal("hide");
+                            $(".notification-toaster").css("display", "block");
+                            $('.toast').addClass("login-error");
+                            $('.toast #notification-error-message').text("User doesn't exist..!!");
+                            $('.toast .toast-body .close').css('line-height',0);
+                            $('.toast').toast('show');
+                            $('.toast').on('hidden.bs.toast', function(){
+                                $(this).removeClass("login-error");
+                                $(".notification-toaster").css("display", "none");
+                            });
+                        }
+                    }
+                    else{
+                        $(".notification-toaster").css("display", "block");
+                        $('.toast #notification-error-message').text("Something went wrong...!!!");
+                        $('.toast .toast-body .close').css('line-height',0);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                            $(".notification-toaster").css("display", "none");
+                        });
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown){
+                    var statusCode = jqXHR.status;
+                    if(statusCode === 422){
+                        var errors = jqXHR.responseJSON.errors;
+                        $.each(errors, function(_, error){
+                        });
+                    }else if (statusCode === 500 && jqXHR.responseText === "Error handling"){
+                        $("#modal-popup-admin").modal("hide");
+                        $(".notification-toaster").css("display", "block");
+                        $('.toast').addClass("login-error");
+                        $('.toast #notification-error-message').text("User doesn't exist..!!");
+                        $('.toast .toast-body .close').css('line-height',0);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                            $(".notification-toaster").css("display", "none");
+                        });
+                    } else {
+                        $(".notification-toaster").css("display", "block");
+                        $('.toast #notification-error-message').text("Something went wrong...!!!");
+                        $('.toast .toast-body .close').css('line-height',0);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                            $(".notification-toaster").css("display", "none");
+                        });
+                    }
+                });
+            }
+            else {
+                $("#GetDetailsByPhoneNumber").prop("disabled", true);
+            }
+        });
+    });
+</script>

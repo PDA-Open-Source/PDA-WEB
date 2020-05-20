@@ -1,0 +1,215 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/newfavicon.ico' %}">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Socion</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+     <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'css/custom/fonts.css' %}" type="text/css">
+
+
+
+        {% block styles %}
+        {% endblock %}
+
+<!--    qr code download-->
+<script>
+function myFn(id){
+    var qrDiv = document.getElementById("QRCode" + id);
+    html2canvas(qrDiv, {
+     onclone: function(document) {
+        var qrDivTemp = document.getElementById("QRCode" + id);
+        qrDivTemp.children[0].style.display = "block";
+        qrDivTemp.style.cssText = "background-color: #ffffff;border: 1px solid #666666;border-radius: 4px;";
+    },
+    onrendered: function(canvas) {
+        canvas.className = "html2canvas";
+        var link = document.createElement("a");
+        var qrImage = canvas.toDataURL("image/png");
+        link.href = qrImage;
+        link.download="QRCode" + id + ".png"
+        link.click();
+        delete qrDivTemp;
+      },
+      useCORS: true
+    });
+}
+</script>
+
+<!--    Enable Edit mode-->
+    <script>
+        function myFunction() {
+          document.getElementById("name").readOnly = false;
+          document.getElementById("description").readOnly = false;
+        }
+    </script>
+
+<!--    Remove Edit button-->
+    <script>
+         function removeDummy() {
+            var elem = document.getElementById('dummy');
+            elem.parentNode.removeChild(elem);
+            return false;
+        }
+    </script>
+
+
+    <style>
+        input.file {
+            position: relative;
+            text-align: right;
+            -moz-opacity:0 ;
+            filter:alpha(opacity: 0);
+            opacity: 0;
+            z-index: 2;
+        }
+        .file {
+            position: relative;
+            text-align: right;
+            -moz-opacity:0 ;
+            filter:alpha(opacity: 0);
+            opacity: 0;
+            z-index: 2;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+{% include 'core/header.html' %}
+
+<div class="container-fluid  program-container" style="width: 84%;    margin-bottom: 45px;">
+    <div class="row">
+        <div class="col align-self-center">
+
+                {% block content %}
+                {% endblock %}
+
+                {% block data %}
+                {% endblock %}
+
+                {% block pro %}
+                {% endblock %}
+
+                {% block topic %}
+                {% endblock %}
+
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.1/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/datetime-moment.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+        integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+<script src="{% static 'js/plugin.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/crypto-js.min.js" integrity="sha256-u6BamZiW5tCemje2nrteKC2KoLIKX9lKPSpvCkOhamw=" crossorigin="anonymous"></script>
+<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js" integrity="sha256-w6/1B0uwkpR3uX0YUw3k2zzHnq6xDNdVZHLIdz8xV6I=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+<script src="{% static 'js/custom/encrypt.js' %}"></script>
+<script>
+function baseURLFunction() {
+    var BaseURL = "{{settings.BASE_URL}}";
+    return BaseURL;
+}
+</script>
+<script src="{% static 'js/custom/notification.js' %}"></script>
+<script>
+function logout() {
+ localStorage.clear();
+ var cookies = document.cookie.split(";");
+ for (var i = 0; i < cookies.length; i++){
+   name = cookies[i].split("=")[0];
+   document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+   window.location.href = '/oauth/login/';
+ }
+}
+</script>
+<script>
+function AvoidSpace(event, id) {
+    var k = event ? event.which : window.event.keyCode;
+    var val = document.getElementById(id).value;
+    if (val.length == 0 && k == 32) {
+        return false;
+    }
+    else if (val == ' ') {
+        return false;
+    }
+}
+</script>
+<script>
+function RemoveSpace(event, id) {
+    var val = document.getElementById(id).value;
+    if (val === ' ') {
+        document.getElementById(id).value = '';
+        return val;
+    }
+}
+</script>
+<script>
+$(document).ready(function ($) {
+    var url = window.location.pathname;
+    var activePage = url;
+    $('#header-icon div.head-icon').each(function () {
+        var linkPage = $(this).attr('data-url');
+        //if (activePage == linkPage) {
+        if (activePage.includes(linkPage)) {
+            $(this).addClass("head-icon-active");
+        }
+    });
+});
+</script>
+
+<script>
+function disableScreen() {
+    // creates <div class="overlay"></div> and
+    // adds it to the DOM
+    var div= document.createElement("div");
+    div.className += "loader-overlay";
+    var i = document.createElement("i");
+    i.className += "fa fa-spinner fa-pulse fa-2x fa-fw loader-img";
+    div.appendChild(i);
+    var span = document.createElement("span");
+    span.className += "sr-only";
+    div.appendChild(span);
+    // var img = document.createElement("img");
+    // img.src="/static/images/loader.gif";
+    // img.className += "loader-img"
+    // div.appendChild(img);
+    document.body.appendChild(div);
+}
+</script>
+
+
+{% block javascript %}
+{% endblock %}
+
+</body>
+</html>

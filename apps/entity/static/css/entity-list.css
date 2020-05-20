@@ -1,0 +1,66 @@
+.entity-list-col {
+    margin-top: 37px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-add-entity-list {
+    margin-top:6px;
+  width: 83px;
+  height: 32px;
+  border: none;
+  border-radius: 3px;
+  background-image: linear-gradient(to left, #fa766b, #b9524a);
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.btn-add-entity {
+  width: 120px;
+  height: 36px;
+  border: none;
+  border-radius: 3px;
+  background-image: linear-gradient(to left, #3e993f, #2b8880);
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.button-text-add-list {
+  width: 20px;
+  font-family: NotoSans-Regular;
+  font-size: 12px;
+  font-weight: 100;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #ffffff;
+}
+
+.button-text-add-popup {
+  font-family: AvenirNext-Bold;
+  font-size: 12px;
+  font-weight: 100;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #ffffff;
+}
+
+.entity-page-title {
+  font-family: AvenirNext-DemiBold;
+  font-size: 18px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  color: #333333;
+}
+
+
+#registration-modal-popup{
+    padding-right:30%;
+}

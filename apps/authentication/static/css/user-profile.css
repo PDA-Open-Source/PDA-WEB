@@ -1,0 +1,543 @@
+.profile-col {
+    margin-top: 62px;
+    width: 84%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-page-title {
+  font-family: Helvetica;
+  font-size: 22px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.41;
+  letter-spacing: normal;
+  color: #333333;
+}
+
+.profile-container{
+    margin:0;
+    margin-top:12px;
+    border: 1px solid #dee2e6!important;
+    border-radius: 6px;
+    background-color: #f6fbfd;
+    border-color: #ddeae9 !important;
+}
+
+.profile{
+    width: 125px;
+    height: 125px;
+    border-style: solid;
+    border-width: 4px;
+    border-image-source: linear-gradient(to bottom, #ff968e, #b84d44);
+    border-image-slice: 1;
+    border-radius: 50%;
+    text-align: center;
+    border: solid #e67b73;
+    margin-top: 46px;
+    margin-bottom: 27px;
+    margin-left: 29%;
+}
+
+.cam-capture{
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  margin-top: -10px;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.user-name{
+  text-align:center;
+  display:inline-block;
+  font-family: Helvetica;
+  font-size: 16px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.25;
+  letter-spacing: -0.07px;
+  color: #333333;
+  margin-left:40px;
+  margin-bottom:31px;
+      width: 68%;
+}
+
+.edit-pencil {
+    display: inline-block;
+    width:22px;
+    height: 22px;
+    background-color:#cb5c53;
+    margin-right:10px;
+    padding-top:5px;
+    font-weight:100;
+    font-size:12px;
+    color:#ffffff;
+    border-radius:50%;
+    float:right;
+    cursor: pointer;
+}
+
+.user-divider-card {
+  width: 1px;
+  height: 177.3px;
+  opacity: 0.1;
+  border: solid 1px #979797;
+  margin-top:36px;
+  margin-left:14px;
+}
+
+.Mobile-Number {
+    height: 12px;
+    font-family: Helvetica;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.2;
+    letter-spacing: -0.04px;
+    color: #999999;
+    margin-bottom: 4px;
+}
+
+.Mobile-Number-value{
+
+    height: 20px;
+    font-family: Helvetica;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.67;
+    letter-spacing: -0.05px;
+    color: #333333;
+
+}
+
+.Change-Mobile-Number {
+    height: 12px;
+    font-family: Helvetica;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: -0.04px;
+    color: #c75a51;
+}
+
+.Session-Code {
+    font-family: Helvetica-Bold;
+    font-size: 12px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1;
+    letter-spacing: -0.05px;
+    color: #333333;
+}
+
+.QrCode > canvas {
+    width: 105px;
+    height: 105px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.Attestation-Card {
+    font-family: Helvetica-Bold;
+    font-size: 12px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1;
+    letter-spacing: -0.05px;
+    color: #333333;
+}
+
+.share-button {
+    font-family: AvenirNext-Medium;
+    font-size: 14px;
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.06px;
+    color: #c2574e;
+}
+
+.download-button{
+    width: 107px;
+    height: 32px;
+    border-radius: 3px;
+    box-shadow: 0 5px 65px 0 rgba(0, 0, 0, 0.1);
+    background-image: linear-gradient(249deg, #fa766b, #b9524a);
+    text-align: center;
+    cursor:pointer;
+}
+
+.a-download-button:link, .a-download-button:visited {
+  text-decoration: none;
+}
+
+.a-download-button:hover, .a-download-button:active {
+   background-image: linear-gradient(249deg, #fa766b, #b9524a);
+}
+
+.download-icon{
+    color: #ffffff;
+    font-size: 14px;
+    object-fit: contain;
+}
+
+.Download {
+    width: 54px;
+    height: 16px;
+    font-family: Roboto-Regular;
+    font-size: 10px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.05px;
+    color: #ffffff;
+}
+
+.Change-Password {
+    width: 114px;
+    height: 20px;
+    font-family: Helvetica;
+    font-size: 13px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.43;
+    letter-spacing: -0.06px;
+    color: #c75a51;
+    cursor:pointer;
+}
+
+.modal-body{
+    padding-left: 65.2px;
+    padding-right: 91px;
+    padding-bottom: 211px;
+}
+
+.modal-dialog{
+    width: 428.2px;
+    height: 532px;
+}
+
+.modal-header{
+    border-bottom: none;
+    font-family:AvenirNext;
+}
+.submit-button{
+   width: 269.2px;
+    height: 35px;
+    border-radius: 3px;
+    border: solid 1px #cf5e55;
+    font-family: AvenirNext-DemiBold;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    background-image: linear-gradient(254deg, #fa766b, #b9524a);
+    margin-right: 28px;
+}
+
+.modal-footer{
+    margin-right: 45px;
+    border-top:none;
+}
+
+.modal-title{
+    margin-left: 48px;
+    margin-top: 30px;
+    font-family:AvenirNext-DemiBold;
+    font-style: normal;
+    font-stretch: normal;
+    color: #333333;
+    font-size: 18px;
+      font-weight: 600;
+}
+
+#form-title{
+       height: 16px;
+    font-family: AvenirNext-DemiBold;
+    font-size: 12px;
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #666666;
+}
+
+.form-control{
+    font-size: 11px;
+    letter-spacing: normal;
+    color: #333333;
+    font-family:AvenirNext-DemiBold;
+}
+
+.form-control:focus{
+        border-color: #5cb85c;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+}
+
+#forgot-password-button{
+    display: flex;
+    justify-content: flex-end;
+    font-family: AvenirNext;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #c3574f;
+    margin-left: 150px;
+    }
+
+    #forgot-message-desc{
+      padding-bottom: 25px;
+    width: 311px;
+    height: 32px;
+    font-family: AvenirNext-Regular;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: 0.2px;
+    color: #333333;
+    }
+
+    #forgot-modal-body{
+        padding-bottom: 150px;
+    }
+
+    #resend-otp-button{
+        display: flex;
+    justify-content: flex-end;
+    font-family: AvenirNext;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #c3574f;
+    margin-left: 193px;
+    }
+
+    #add-mobile-modal-body{
+        padding-bottom: 245px;
+        }
+
+#change-password-cancel-btn{
+  width: 110px;
+  height: 40px;
+  border-radius: 3px;
+  border: solid 1px #cf5e55;
+      background-color: white;
+    color: #cf5e55;
+    font-size: 12px;
+    font-family: AvenirNext-Medium;
+}
+
+#change-password-save-btn{
+  width: 144.2px;
+  height: 40px;
+  border-radius: 3px;
+      font-family: AvenirNext-DemiBold;
+  background-image: linear-gradient(254deg, #fa766b, #b9524a);
+}
+
+#profilePhoto:hover{
+    cursor:pointer;
+}
+.box{
+    width: 37px;
+    height: 37px;
+    border-radius: 3px;
+    border: solid 1px #dde3e8;
+    background-color: #ffffff;
+    text-align: center;
+}
+.resend-otp-label{
+    padding-top: 0px;
+    margin-left: 66%;
+    height: 14px;
+    font-family: AvenirNext;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: right;
+    color: #333333;
+}
+.mobile-number-label{
+    height: 16px;
+    font-family: AvenirNext;
+    font-size: 12px;
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #666666;
+}
+.update-mobile-title{
+    font-family: AvenirNext-Bold;
+    font-style: normal;
+    font-stretch: normal;
+    color: #333333;
+    font-size: 18px;
+    font-weight: 600;
+
+}
+.next-button{
+    height: 35px;
+    border-radius: 3px;
+    border: solid 1px #cf5e55;
+    font-family: AvenirNext-DemiBold;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    background-image: linear-gradient(254deg, #fa766b, #b9524a);
+}
+
+.user-profile-detail{
+    margin-left:31px;
+    margin-top:39px;
+    margin-right:33.5px;
+}
+
+@media only screen  and (max-width : 1224px) {
+    .user-profile-detail{
+        margin-left:31px;
+        margin-top:39px;
+        margin-right:47.5px;
+    }
+}
+
+.profileLoader{
+    height:0px;
+    margin-left:35%;
+    display: none;
+}
+
+#profile-pic-loader-Image{
+    width:100px;
+}
+
+#profile-pic-loader-img{
+    position: absolute;
+    z-index: 2;
+}
+
+.terms-and-conditions-privacy-policy {
+  font-family: Helvetica;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1;
+  letter-spacing: -0.05px;
+  color: #c75a51;
+}
+
+.img-p-policy{
+  width: 17px;
+  height: 19px;
+  object-fit: contain;
+}
+
+.img-tnc{
+  margin-top:3px;
+  width: 16px;
+  height: 17px;
+}
+
+button[type="button"]{
+   outline:none;
+}
+button[type="button"]::-moz-focus-inner {
+   border: 0;
+}
+
+ol#alphabet {
+    counter-reset: list;
+    display:table;
+}
+ol#alphabet > li {
+    list-style: none;
+    display:table-row;
+}
+ol#alphabet > li:before {
+    content: "(" counter(list,lower-alpha) ") ";
+    display:table-cell;
+    counter-increment: list;
+}
+
+ol#list-alpha {
+    counter-reset: list;
+}
+
+ol#list-alpha > li {
+    list-style: none;
+}
+
+ol#list-alpha > li:before {
+    content: "(" counter(list,lower-alpha) ") ";
+    counter-increment: list;
+}
+
+ol.numbered {
+    padding-inline-start:18px;
+    counter-reset: item
+}
+
+ol.numbered > li {
+  display: block
+}
+
+ol.numbered > li:before {
+  content: counters(item, ".") ". ";
+  counter-increment: item
+}
+
+#upload-button {
+    font-size: x-small;
+    margin-right: 20px;
+    border-radius: 5px;
+    background-image: linear-gradient(249deg, #ffffff, #ffffff);
+    color: red;
+    border-color: red;
+}
+
+#uploadBtn {
+    font-weight: bold;
+    font-size: x-small;
+    border-radius: 5px;
+    background-image: linear-gradient(249deg, #fa766b, #b9524a);
+    border-color: red;
+}
+
+#profile-pic {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    align-self: center;
+    min-width: 150px;
+    min-height: 150px;
+}

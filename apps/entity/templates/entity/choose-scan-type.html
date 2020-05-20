@@ -1,0 +1,43 @@
+{% load static %}
+<div class="js-choose-scan" style="background-color:#f2f2f2;text-align:center;margin-block-end: 0em;border-radius: 0.3rem;">
+    <div class="modal-header" style="border-bottom: none;">
+        <h5 class="modal-title" style="font-family: AvenirNext-DemiBold; font-size: 18px; color: #333333;">Choose Scan
+            Option</h5>
+        <button type="button" class="close close-pop-up" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+        <div style="margin-left:20px;margin-right:20px;margin-top:58px;margin-bottom:58px;">
+            <div class="d-flex align-items-center justify-content-center">
+                <div>
+                    <div class="js-scan-qr"
+                         style="display:flex;align-items:center;justify-content:center;cursor:pointer; background-color:#fff; width:118px;height:118px;border: solid 0.5px #e76b62;border-radius:6px;background-clip: padding-box;box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);">
+                        <img src="{% static 'assets/camera.png' %}" alt="scan_button"
+                         style="width:60px;height:46px;margin-top:15px;margin-bottom:8px;">
+                    </div>
+                    <div style="font-family: AvenirNext-DemiBold; font-size: 14px; color: #333333;margin-top:10px;">
+                        Open Camera
+                    </div>
+                    <div style="font-family: AvenirNext-Regular; font-size: 10px; color: #333333;margin-top:5px;">
+                        Scan QR Code
+                    </div>
+                </div>
+                <div style="background-color:#979797;width:2px;height:100px;border-radius:5px;margin-left:73px;margin-right:73px;"></div>
+                <div>
+                    <div class="js-choose-scan-type"
+                         style="display:flex;align-items:center;justify-content:center;cursor:pointer; background-color:#fff; width:118px;height:118px;border: solid 0.5px #e76b62;border-radius:6px;background-clip: padding-box;box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);">
+                        <img src="{% static 'assets/browse.png' %}" alt="add_button"
+                         style="width:60px;height:46px;margin-top:15px;margin-bottom:8px;">
+                    </div>
+                    <div style="font-family: AvenirNext-DemiBold; font-size: 14px; color: #333333;margin-top:10px;">
+                        Browse Files to Scan
+                    </div>
+                    <div style="font-family: AvenirNext-Regular; font-size: 10px; color: #333333;margin-top:5px;">
+                        Scan QR Code
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

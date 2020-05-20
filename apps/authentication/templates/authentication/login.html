@@ -1,0 +1,288 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col col-md-4 col-left d-flex align-items-center flex-column">
+        </div>
+        <!-- Toaster -->
+        <div aria-live="polite" aria-atomic="true" style="position: absolute; top:10px;right:10px; min-height: 200px;">
+            <div class="toast" style="position: relative;" data-delay="5000">
+                <div class="toast-body d-flex justify-content-between">
+                    <div id="login-error-message" style="font-size:14px;font-weight:bold;"></div>
+                    <div>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                                style="line-height: 0.7;color:#ffffff;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col col-md-8 align-self-center">
+            <div class="col-form">
+                <div class="socion-image">
+                    <img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion"/>
+                </div>
+                <div class="text-left auth-title">Log in</div>
+                <form id="socionLoginForm">
+
+                    <div class="form-group">
+                        <label class="form-field-label" for="socionPhoneNumber">MOBILE NUMBER</label>
+                        <div class="input-group" id="phoneNumber">
+                            <div class="input-group-prepend">
+                                <select class="input-group-text placeholder-text"
+                                        style="width: 56px; padding: 0; padding-left:1.5px; background-color: #ffffff;"
+                                        id="socionUserCountryCode">
+                                </select>
+                            </div>
+                            <input id="socionPhoneNumber" class="form-control placeholder-text" placeholder="e.g 9999999999"
+                                   style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">
+                            <div class="input-group-append hidden" id="mobio-invalid">
+                                <i class="input-group-text fa fa-exclamation-circle"
+                                   style="color: red; background-color: white"></i>
+                            </div>
+                        </div>
+                        <p class="phone-hint">Country Code</p>
+                        <div class="invalid-number">
+                            <span id="phoneNumberErrorMessage" class="invalid-number-text hidden">Please enter a valid mobile number</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-field-label" for="socionPassword">PASSWORD</label>
+                        <input type="password" class="form-control placeholder-text" id="socionPassword"
+                               placeholder="enter your password">
+                        <div class="invalid-number">
+                            <span id="passwordErrorMessage" class="invalid-number-text hidden">Please enter your password</span>
+                        </div>
+                        <div>
+                            <a class="forgot-password" href="{% url 'forgot-password' %}">Forgot your password?</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-button-style"><span class="button-text">LOGIN</span></button>
+
+                    <div class="auth-footer">Don’t have an account? <a class="a-link-style"
+                                                                       href="{% url 'signup-request-otp' %}">Sign Up</a>
+                        here
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+$(function(){
+    var config = {
+        loginUrl: "{{settings.BASE_URL}}" + "user/login",
+        getUserNameField: function(){
+            return $("#socionPhoneNumber");
+        },
+        getPasswordField: function(){
+            return $("#socionPassword");
+        },
+        getCountryCodeField: function(){
+            return $("#socionUserCountryCode");
+        },
+        getUserNameErrorField: function(){
+            return $("#phoneNumberErrorMessage");
+        },
+        getPasswordErrorField: function(){
+            return $("#passwordErrorMessage");
+        },
+        getEncryptedPassword: function(password){
+            if(password !== ''){
+                var encryptedPassword = encrypt(password);
+                return encryptedPassword;
+            }
+            else {
+                return password;
+            }
+        }
+    }
+
+    function setUserCookie(cookie_name, cookie_value, expires_in) {
+      var date = new Date();
+      var expireTime = date.setTime(date.getTime() + expires_in);
+      var expires = "expires="+ expireTime;
+      document.cookie = cookie_name + "=" + cookie_value + ";" + expires + ";path=/";
+    }
+
+    function updateLocalStorage(key, value){
+         key = 'socion_'+ key;
+         localStorage.setItem(key, value);
+    }
+
+    function encryptValue(plainText){
+         return btoa(plainText);
+    }
+
+    function getPayload(token){
+        //var payload = window.atob(token.split('.')[1]);
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join('')));
+        return payload;
+    }
+
+    $("#socionLoginForm").submit(function(event){
+        disableScreen();
+        event.preventDefault();
+        var socionLoginUrl = config.loginUrl;
+        var userName = config.getUserNameField().val();
+        var password = config.getPasswordField().val();
+        var countryCode = config.getCountryCodeField().val();
+        var loginCreds = {userName: userName,password: config.getEncryptedPassword(password),countryCode:countryCode}
+        var jsonCreds = JSON.stringify(loginCreds);
+        if(checkPhoneNumberLength(config.getUserNameField().val())){
+            $.ajax(socionLoginUrl, {
+                method: "POST",
+                contentType: "application/json",
+                data: jsonCreds,
+                beforeSend: function( xhr ){
+                    config.getUserNameErrorField().empty();
+                    config.getPasswordErrorField().empty();
+                }
+            })
+            .done(function(data, textStatus, jqXHR){
+                $('.loader-overlay').remove();
+                if(data.responseCode === 200){
+                    // Store the value in Session Storage to access in OTP screen
+                    var userDetails = JSON.stringify(data.response.userDetails);
+                    var accessTokenPayload = getPayload(data.response.accessTokenResponseDTO.accessToken);
+                    var userRoles = accessTokenPayload.realm_access.roles;
+                    var socion_user_name =  accessTokenPayload.name;
+                    setUserCookie(encryptValue("socion_userid"),encryptValue(data.response.userDetails.userId),data.response.accessTokenResponseDTO.expiresIn);
+                    setUserCookie(encryptValue("socion_username"),encryptValue(data.response.userDetails.name),data.response.accessTokenResponseDTO.expiresIn);
+                    setUserCookie("active_user",socion_user_name,data.response.accessTokenResponseDTO.expiresIn);
+                    if(userRoles.includes("admin")){
+                        setUserCookie(encryptValue("socion_userroles"),encryptValue("admin"),data.response.accessTokenResponseDTO.expiresIn);
+                    } else {
+                        setUserCookie(encryptValue("socion_userroles"),encryptValue("user"),data.response.accessTokenResponseDTO.expiresIn);
+                    }
+                    updateLocalStorage("accessToken", data.response.accessTokenResponseDTO.accessToken);
+                    updateLocalStorage("accessToken_expiresIn", data.response.accessTokenResponseDTO.expiresIn);
+                    updateLocalStorage("refreshToken_expiresIn", data.response.accessTokenResponseDTO.refreshExpiresIn);
+                    updateLocalStorage("refreshToken", data.response.accessTokenResponseDTO.refreshToken);
+                    window.location.href = '/oauth/landing/';
+                }else if(data.responseCode === 401){
+                    if(!checkPhoneNumberLength(config.getUserNameField().val())){
+                        config.getUserNameErrorField().removeClass("hidden");
+                        config.getUserNameErrorField().text("Please enter a valid mobile number");
+                    }
+                    if(data.message == "Invalid Password"){
+                        $('.toast').addClass("login-error");
+                        $('.toast #login-error-message').text("Invalid Credentials...!!!");
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                    else if (data.message === "User does not exist with this PhoneNumber"){
+                        $('.toast').addClass("login-error");
+                        $('.toast #login-error-message').text("You are not Registered... Sign Up Now...!!!");
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                    else{
+                        $('.toast').addClass("login-error");
+                        $('.toast #login-error-message').text(data.message);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                }else if(data.responseCode === 400){
+                    if (data.message === "This phone number is not valid for this country"){
+                        $('.toast').addClass("login-error");
+                        $('.toast #login-error-message').text(data.message);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                }else if(data.responseCode === 404){
+                    if (data.message === "User does not exist with this PhoneNumber" || data.message === "User with PhoneNumber does not exist."){
+                        $('.toast').addClass("login-error");
+                        $('.toast #login-error-message').text(data.message);
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                        });
+                    }
+                }
+                else{
+                    if(!checkPhoneNumberLength(config.getUserNameField().val())){
+                        config.getUserNameErrorField().removeClass("hidden");
+                        config.getUserNameErrorField().text("Please enter a valid mobile number");
+                    }
+                    $('.toast #login-error-message').text("Something went wrong...!!!");
+                    $('.toast').toast('show');
+                    $('.toast').on('hidden.bs.toast', function(){
+                        $(this).removeClass("login-error");
+                    });
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                $('.loader-overlay').remove();
+                var statusCode = jqXHR.status;
+                if(statusCode === 422){
+                    if(!checkPhoneNumberLength(config.getUserNameField().val())){
+                        config.getUserNameErrorField().removeClass("hidden");
+                        config.getUserNameErrorField().text("Please enter a valid mobile number");
+                    }
+                    if(config.getPasswordField().val().length==0){
+                        config.getPasswordErrorField().removeClass("hidden");
+                        config.getPasswordErrorField().text("Please enter your password");
+                    }
+                    var errors = jqXHR.responseJSON.errors;
+                    $.each(errors, function(_, error){
+                        if(error.field === "userName"){
+                            config.getUserNameErrorField().removeClass("hidden");
+                            config.getUserNameErrorField().text("Please enter a valid mobile number");
+                        }
+                        if(error.field === "password" && error.message === "passwordmust not be empty"){
+                            config.getPasswordErrorField().removeClass("hidden");
+                            config.getPasswordErrorField().text("Please enter your password");
+                        }
+                    });
+                }else{
+                    if(!checkPhoneNumberLength(config.getUserNameField().val())){
+                        config.getUserNameErrorField().removeClass("hidden");
+                        config.getUserNameErrorField().text("Please enter a valid mobile number");
+                    }
+                    $('.toast #login-error-message').text("Something went wrong...!!!");
+                        $('.toast').toast('show');
+                        $('.toast').on('hidden.bs.toast', function(){
+                            $(this).removeClass("login-error");
+                    });
+                }
+            });
+        }
+        else {
+            $('.loader-overlay').remove();
+            config.getUserNameErrorField().removeClass("hidden");
+            config.getUserNameErrorField().text("Please enter a valid mobile number");
+        }
+    });
+});
+</script>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/custom/mobileNumberValidation.js' %}"></script>
+<script src="{% static 'js/custom/countryCodes.js' %}"></script>
+<script src="{% static 'js/custom/encrypt.js' %}"></script>
+{% endblock %}

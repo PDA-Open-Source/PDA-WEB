@@ -1,0 +1,26 @@
+{% load static %}
+<input type="hidden" id="paginationPageNumber" value=""/>
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLongTitle">Notifications</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body" style="padding:0px">
+    <form method="POST" class="js-notification-popup-content" action="{% url 'notification' %}" hidden>
+        {% csrf_token %}
+        <input type="text" name="notificationObject" id="notification-input" value=""/>
+        <button type="submit" id="notificationSubmit"></button>
+    </form>
+    <ul class="list-group scrollbar" id="style-3">
+        {% include 'core/partial-notification.html' %}
+    </ul>
+    <div class="list-group-item list-group-item-primary notification-div" id="loadMore" style="display:none;">
+        <div class="row">
+            <div class="col notification-title text-center"
+                 style="font-size:15px; width: 380px;font-weight:bold; cursor:pointer;">
+                Load More...
+            </div>
+        </div>
+    </div>
+</div>

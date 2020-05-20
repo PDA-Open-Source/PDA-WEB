@@ -1,0 +1,56 @@
+{% load widget_tweaks %}
+{% load static %}
+
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+{% endblock %}
+
+
+<form id="create-topic-form" method="post" data-url="{% url 'topic_create' program.pk %}" class="create-topic-form"
+      xmlns="http://www.w3.org/1999/html">
+    {% csrf_token %}
+    <div class="modal-header" id="topic-modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+
+    <div class="modal-body" id="topic-modal-body">
+        <div class="form-style-8" style="margin:auto;">
+            {% with WIDGET_ERROR_CLASS='my_error' WIDGET_REQUIRED_CLASS='my_required' %}
+                 {{ form.name|attr:"onkeypress: return AvoidSpace(event, 'id_name')"|attr:"onkeyup: return RemoveSpace(event, 'id_name')" }}
+            {% endwith %}
+        </div>
+        <div class="form-style-4" style="margin:auto;">
+            {% with WIDGET_ERROR_CLASS='my_error' WIDGET_REQUIRED_CLASS='my_required' %}
+                {{ form.description|attr:"type:textarea"|attr:"onkeypress: return AvoidSpace(event, 'id_description')"|attr:"onkeyup: return RemoveSpace(event, 'id_description')" }}
+            {% endwith %}
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <div id="topic-file-upload-2" style="margin-top:50px;">
+                    <div style="position: relative;">
+                        <div>
+                            <input type="file" id="handleFiles" class="file" name="attachment" disabled />
+                        </div>
+                        <div id="topic-file-image-2">
+                            <span id="topic-upload-image-disable" style="color:#999999;">
+                                <img id="topic-add-content" src="{% static 'images/content_disable.png' %}" width="20px" height="20px"/> Add Content
+                            </span>
+                            {{ form.topic }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="modal-footer" id="topic-footer">
+        <button type="submit"  class="btn btn-primary" name="btn" value="Submit" id="submitBtn" data-toggle="modal"
+                data-target="#confirm-submit">Create Topic</button>
+    </div>
+</form>

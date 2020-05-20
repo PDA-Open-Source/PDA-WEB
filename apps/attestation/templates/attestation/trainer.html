@@ -1,0 +1,142 @@
+{% load static %}
+{% load qr_code %}
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}">
+
+        <title>Attestation</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <link href="{% static 'custom.css' %}" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-fixed-top navbar-water">
+            <div class="container-fluid col-md-6" style="float: left">
+                <a class="navbar-brand col-md-2" id="logo-image" href="#" style="margin-left: 60px;">
+                    <img src="{% static 'images/FORWATER_LOGO.png' %}">
+                </a>
+                <div class="page-heading col-md-6" id="nav-heading" style="float: right; margin-left: 120px;">
+                    <h2>Attestation Details</h2>
+                </div>
+            </div>
+        </nav>
+        <div class="container main-container col-md-12" id="attestation-container" style="display: inline-flex;">
+            <div class="col-md-3 attestation-first" style="flaot: left; margin-left: 20px">
+                <div class="participant">
+                    <img id="user-image" src="{{ data.user.photo }}" alt="">
+                    <h4>{{ data.user.name }}</h4>
+                    <span>{{ role }}</span>
+                </div>
+                <hr class="participant-hr">
+                <div class="session">
+                    <p>Session QR Code</p>
+                    {% qr_from_text url image_format="png" size=4 %}
+                    <p class="card">Attestation Card</p>
+                    <div class="session-download" style="height: 15px;">
+                        <a href="{{ data.attestationUrl }}" title="{{ data.attestationUrl }}" id="downloadattestation" target="_blank" class="download">Download</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 attestation-second" style="max-width: 500px;">
+                <table>
+                    <tr>
+                        <td>Program</td>
+                        <td>{{ data.topicInfo.program.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Session</td>
+                        <td>{{ data.sessionName }}</td>
+                    </tr>
+                    <tr>
+                        <td>Session Description</td>
+                        <td>{{ data.sessionDescription }}</td>
+                    </tr>
+                    <tr>
+                        <td>Session Start Date and Time</td>
+                        <td>{{ session_start_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Session End Date and Time</td>
+                        <td>{{ session_end_date }}</td>
+                    </tr>
+                    {% if role == "Trainer" %}
+                    <tr>
+                        <td>Number of participant</td>
+                        <td>{{ data.numberOfParticipants }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+            <div class="col-md-4 attestation-third" style="width: auto;">
+                    <h3>Content</h3>
+                <div class="resources">
+                    {% for content in data.topicInfo.content %}
+                    <div class="video col-md-12">
+                        <div class="v-media col-md-6">
+                            <div class="media">
+                                <a class="pull-left">
+                                    {% if content.contentType == "Video" %}
+                                    <img class="media-object" src="{% static 'images/video_icon.png' %}" alt="Media Object">
+                                    {% endif %}
+                                    {% if content.contentType == "Document" %}
+                                    <img class="media-object" src="{% static 'images/pdf_icon.png' %}" alt="Media Object">
+                                    {% endif %}
+                                    {% if content.contentType == "Image" %}
+                                    <img class="media-object" src="{% static 'images/image_icon.png' %}" alt="Media Object">
+                                    {% endif %}
+                                </a>
+                                <div class="media-body humain-media-content">
+                                    <h4 class="media-heading resource-media-heading">{{ content.name | truncatechars:30 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v-download col-md-4">
+                            <a href="{{ content.url }}" target="_blank" id="downloadContent{{ content.name }}" class="download">Download</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="members">
+                    <h3>Members</h3>
+                    {% for member in data.members %}
+                    <div class="member-row">
+                        <div class="media">
+                            <a class="pull-left">
+                                <img class="media-object" id="member-image" src="{{  member.photo }}" alt="Media Object">
+                            </a>
+                            <div class="media-body member-media-content">
+                                <h4 class="media-heading humain-media-heading">{{  member.name }}</h4>
+                                {% if member.roles.trainer == True %}
+                                <p  class="resource-para"> Trainer</p>
+                                {% endif %}
+                                {% if member.roles.admin == True %}
+                                <p  class="resource-para"> Admin</p>
+                                {% endif %}
+                                {% if member.roles.other == True %}
+                                <p  class="resource-para">{{ member.roles.otherRoleNames }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <footer>
+               <img src="{% static 'images/footer.png' %} ">
+            </footer>
+        </div>
+    </body>
+</html>

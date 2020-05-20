@@ -1,0 +1,30 @@
+.col-error-page {
+    margin-top: 64px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-text {
+  background-image: linear-gradient(to left, #3e993f, #2b8880);
+  font-family: AvenirNext-DemiBold;
+  font-size: 36px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2.0;
+  letter-spacing: normal;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.error-page-image {
+    margin-top: 50px;
+}
+
+.group {
+    width: 648px;
+    height: 374px;
+    object-fit: contain;
+}

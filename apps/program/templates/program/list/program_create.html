@@ -1,0 +1,175 @@
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+{% endblock %}
+
+
+<form method="POST" data-url="{% url 'program_create' entity.pk %}" class="create-form" id="programCreateForm"
+	  xmlns="http://www.w3.org/1999/html" >
+	{% csrf_token %}
+		<div class="modal-header" id="program-close-btn">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body" id="program-body">
+			<p class="add-program-title">Add Program</p>
+			<div class="form-style-8" id="name" >
+				<label class="program-name">Program Name</label>
+				{{ form.name|attr:"onkeypress: return AvoidSpace(event, 'id_name')"|attr:"onkeyup: return RemoveSpace(event, 'id_name')" }}
+			</div>
+			<label class="program-description">Description</label>
+			<div class="form-style-4" id="description">
+				{{ form.description|attr:"type:textarea"|attr:"onkeypress: return AvoidSpace(event, 'id_description')"|attr:"onkeyup: return RemoveSpace(event, 'id_description')" }}
+			</div>
+			<div id="loaderImage">
+            	<img id="topic-loader-img" src="{% static 'images/loader.gif' %}" />
+			</div>
+			<span>
+				<div class="form-style-6" id="progrm-form-date" style="margin:auto;">
+					<div class="col-sm-12 row" id="program-row">
+						<div class="col-sm-3" id="program-date">
+							{{ form.start_date }}
+						</div>
+						<div class="col-sm-3" style="padding-left: 0px;">
+							{{ form.end_date|add_class:"program-end-date" }}
+							 <div class="invalid-date">
+								<span id="dateErrorMessage" class="invalid-date-text hidden">Please enter a valid date</span>
+							</div>
+						</div>
+						<div class="col-sm-6">
+						    <label class="user-label">User Limit</label>{{ form.user_limit }}
+						</div>
+					</div>
+					{{ form.entity }}
+				</div>
+			</span>
+			<div class="col-md-10" id="Program-File-Preview">
+                <div class="col-md-6" style="padding-left:0px; padding-top: 14px;float:left;" id="program-file-name">
+					<div></div>
+				</div>
+                <div class="col-md-6" style="padding-top:15px;float: left;" id="program-file-removeBtn">
+					<div></div>
+				</div>
+            </div>
+		</div>
+
+		<div class="modal-footer col-md-12" id="program-footer">
+			<div class="col-md-3" id="program-attachment-upload">
+                <input type="file" id="fileUploader" class="file" name="attachment"/>
+                <span id="program-upload-image" style="color:#cf5e56;font-size: 11px;">
+                    <img id="program-add-content" src="{% static 'images/add_button.png' %}"
+						 width="20px" height="20px"/> Upload Document
+                </span>
+            </div>
+			<div class="col-md-3" id="program-create-btn-container" style="float: right;">
+				<button type="submit" class="btn btn-primary" id="program-create-btn">ADD PROGRAM</button>
+			</div>
+		</div>
+</form>
+
+<script src="{% static 'js/plugin.js' %}"></script>
+
+<!--For Date Field-->
+<script>
+	    $(document).ready(function () {
+        $("#datepicker-1").datepicker({
+            required: true,
+            //minDate: 0,
+            dateFormat: 'dd-M-yy',
+            onSelect: function (date) {
+                var date2 = $('#datepicker-1').datepicker('getDate');
+                date2.setDate(date2.getDate());
+                //sets minDate to dt1 date + 1
+                $('#datepicker-2').datepicker('option', 'minDate', date2);
+            },
+             onClick: function () {
+                 var date1 = $('#datepicker-1').datepicker('getDate');
+               if (Date.parse(date1)) {
+                   //var minStartDate = $('#datepicker-1').datepicker('option');
+                   $('#datepicker-1').datepicker('setDate', date1);
+               }
+               else {
+                   $('#datepicker-1').datepicker('setDate', new Date());
+               }
+           	}
+
+        });
+        $('#datepicker-2').datepicker({
+            required: true,
+            minDate: 0,
+            dateFormat: 'dd-M-yy',
+            onClick: function () {
+                var dt1 = $('#datepicker-1').datepicker('getDate');
+                var dt2 = $('#datepicker-2').datepicker('getDate');
+                if (Date.parse(dt2)) {
+                   if (dt2 <= dt1) {
+                    var minDate = $('#datepicker-2').datepicker('option', 'minDate');
+                    $('#datepicker-2').datepicker('setDate', minDate);
+                }
+               }
+               else {
+                   $('#datepicker-2').datepicker('setDate', new Date());
+               }
+            }
+        });
+
+        //To prevent Text Input
+         $("#datepicker-1,#datepicker-2").keypress(function(e){
+			var keyCode = e.which;
+			if ( (keyCode != 8 || keyCode ==32 ) && (keyCode >= 48 || keyCode <= 57)) {
+			  return false;
+			}
+		  });
+    });
+</script>
+
+<style>
+    input.file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+    .file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+</style>
+
+<!--To Prevent e input in number field-->
+<script>
+	var numberInput = document.getElementById("user-limit")
+	numberInput.addEventListener("keydown", function(e) {
+	  // prevent: "e", "=", ",", "-", "."
+	  if ([69, 187, 188, 189, 190].includes(e.keyCode)) {
+		e.preventDefault();
+	  }
+	})
+</script>
+<!--For Start date less than End Date Validation-->
+<script>
+
+	$("#datepicker-2").on("change",function () {
+		var datepicker_1 = new Date($('#datepicker-1').val());
+		var datepicker_2 = new Date($('#datepicker-2').val());
+		  if (datepicker_1 > datepicker_2) {
+			$("#dateErrorMessage").text("Please enter valid date");
+			$("#dateErrorMessage").removeClass("hidden");
+			$("#datepicker-2").val("");
+		  } else {
+			$("#dateErrorMessage").addClass("hidden");
+			return false;
+		  }
+ 	  });
+
+</script>

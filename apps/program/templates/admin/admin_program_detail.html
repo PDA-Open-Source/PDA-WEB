@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+{% block title %}{{ 'Program Detail' }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="#">Detail</a>
+</div>
+{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+{% block content %}
+<div id="content" class="colM">
+    <h1>Program Detail</h1>
+    <div id="content-main">
+        <h2>Name</h2>
+        <p>{{ object.name }}</p>
+        <hr/>
+
+        <h2>Description</h2>
+        <p>{{ object.description }}</p>
+        <hr/>
+
+        <h2>Started At</h2>
+        <p>{{ object.started_at }}</p>
+        <hr/>
+
+        <h2>Ended At</h2>
+        <p>{{ object.ended_at }}</p>
+        <hr/>
+        <br/>
+
+        {% if object.topics.count %}
+            <h2>Related Topics</h2>
+            <ul>
+                {% for topic in object.topics.all %}
+                    <li><a href="{% url 'admin:program_topic_detail' topic.pk %}">{{ topic.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <div class="submit-row">
+            <p class="deletelink-box"><a href="{% url 'admin:program_program_delete' object.pk %}" class="deletelink">Delete</a></p>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

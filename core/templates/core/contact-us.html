@@ -1,0 +1,99 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<style>
+.header {
+    height: 80px;
+    background-image: linear-gradient(to left, #fa766b, #b9524a);
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.heading-col {
+    width: 82.5%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.socion-head {
+    position: absolute;
+    top: 42px;
+    width: 187px;
+    height: 41px;
+    background-color: #ffffff;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+}
+
+.logo {
+    margin-top: 22px;
+    width: 120px;
+    height: 20.2px;
+    cursor: pointer;
+}
+
+.trainer-profile-container{
+    width: 82.5%;
+    margin-top:64px;
+}
+
+.attestation-title-col {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.attestation-page-title{
+    font-family: Roboto-Regular;
+    font-size: 22px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: -0.07px;
+    color: #000000;
+    padding-bottom: 24px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col header d-flex align-items-end justify-content-start">
+            <div class="heading-col">
+                <div class="text-center socion-head">
+                    <img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- body content-->
+<div class="container-fluid trainer-profile-container">
+    <div class="row">
+        <div class="col align-self-center attestation-title-col">
+            <div class="profile-col" style="font-family:Times New Roman;">
+                <div class="text-center attestation-page-title">
+                    <h3 style="font-size:16px;font-weight:bold;text-decoration:underline;">CONTACT US</h3>
+                </div>
+                <br>
+                <div>
+                    Thank you for reaching out to Socion.<br/><br/>
+                    For any PDA application functionality related questions, please write to us @ <a href="mailto:pda-support@socion.io" target="_top">pda-support@socion.io</a>. We will respond within 24 hours for any of these queries.<br/>
+                    <br/>
+                    For any concerns related to data privacy, please write to <a href="mailto:pda-grievance@socion.io" target="_top">pda-grievance@socion.io</a>.
+                    <br/><br/>
+                    Thank you,<br/>
+                    Team Socion.<br/>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

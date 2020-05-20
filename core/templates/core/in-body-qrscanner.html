@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/custom/in-body-qrscanner.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row row-in-body-scanner">
+        <div class="col align-self-center">
+            <form method="POST" action="{% url 'inscanner' %}" style="text-align:center;">
+                {% csrf_token %}
+                <div class="row" style="width:733px;height:130px;margin-left: auto; margin-right: auto;">
+                    <div class="col align-self-start">
+                    </div>
+                    <div class="col align-self-center">
+                        <div class="modal-hint-text">
+                            Align window with QR code
+                        </div>
+                    </div>
+                    <div class="col align-self-end">
+                        <div class="close-scanner">
+                        <span onclick="location.href='{% url 'landing' %}'">
+                            <i class="fa fa-times fa-2x icon-times"></i>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cam-div">
+                    <video id="preview" class="cam-stream"></video>
+                    <div id="scanner-bar" class="horizontal-bar"></div>
+                </div>
+                <input id="QRDecodedString" name="QRDecodedString" hidden>
+                <button type="submit" value="submit" id="SubmitQR" hidden></button>
+                <div class="progress-scan">
+                    <span class="scan-progress-text">Scanning</span>
+                    <i class="fa fa-spinner fa-pulse fa-2x fa-fw qr-scan-spinner"></i>
+                    <span class="sr-only"></span>
+                </div>
+                <div><button class="button-gallery" onclick="location.href='{% url 'scanner' %}'"><span class="button-gallery-text">Browse your Gallery</span></button></div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    var cameraStream = Instascan.Camera.getCameras();
+    scanner.addListener('scan', function (content) {
+        document.getElementById('QRDecodedString').value = content;
+        document.getElementById('SubmitQR').click();
+    });
+    cameraStream.then(function (cameras) {
+    if (cameras.length > 0) {
+      scanner.start(cameras[0]);
+      var scanner_bar = $('#scanner-bar');
+      function runQRBar() {
+        scanner_bar.animate({top:'+=150'}, 3000);
+        scanner_bar.animate({top:'-=150'}, 3000, runQRBar);
+      }
+      runQRBar();
+    } else {
+      console.error('No cameras found.');
+    }
+    }).catch(function (e) {
+    console.error(e);
+    });
+</script>
+{% endblock %}

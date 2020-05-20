@@ -1,0 +1,64 @@
+.modal-hint-text {
+  font-family: AvenirNext-Regular;
+  font-size: 24px;
+  text-align: center;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: -0.1px;
+  color: #666666;
+}
+
+p.modal-hint-text {
+  margin-bottom: 30px;
+}
+
+.horizontal {
+    position:absolute;
+    top:200px;
+    left:102px;
+    height: 4px;
+    border-radius: 5px;
+    background-image: linear-gradient(91deg, #ff1f5d, #ffaf00);
+    width:320px;
+}
+
+.close-pop-up {
+    padding:20px;
+    padding-bottom:0;
+    object-fit: contain;
+    opacity: 0.9;
+    color: #7f7f7f;
+    line-height: 0.8;
+}
+
+.cam-stream {
+     display: inline-block;
+     text-align:center;
+     margin-bottom: 20px;
+     object-fit: cover;
+     width:352px;
+     height:352px;
+}
+
+.scan-progress-text {
+  background-image: linear-gradient(to left, #3e993f, #2b8880);
+  font-family: AvenirNext-Regular;
+  font-size: 24px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: -0.1px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.qr-scan-spinner {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #3e993f, #2b8880);
+}

@@ -1,0 +1,87 @@
+{% load static %}
+{% for notification in notifications %}
+{% if notification.isRead %}
+<li class="list-group-item list-group-item-primary notification-list-item-js notification-div-read">
+    <input type="hidden" value="{{notification.notificationId}}" id="notification" name="notification"/>
+    <div class="row">
+        <div class="col-md-11 d-flex justify-content-between align-items-center notification-col">
+            <div class="notification-icon">
+                {% if notification.notificationType == "USER" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/user.png' %}"
+                     srcset="{% static 'assets/user@2x.png' %} 2x, {% static 'assets/user@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "ATTESTATION" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/attestation.png' %}"
+                     srcset="{% static 'assets/attestation@2x.png' %} 2x, {% static 'assets/attestation@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "SESSION" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/session.png' %}"
+                     srcset="{% static 'assets/session@2x.png' %} 2x, {% static 'assets/session@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "ATTENDANCE" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/attendance.png' %}"
+                     srcset="{% static 'assets/attendance@2x.png' %} 2x, {% static 'assets/attendance@3x.png' %} 3x"/>
+                {% endif %}
+            </div>
+            <div class="col notification-title" style="padding-left:10px;padding-right:10px;width: 380px;">
+                <div>{{ notification.description }}</div>
+                <div class="notification-timestamp">{{ notification.dateTime }}</div>
+            </div>
+        </div>
+        <div class="col-md-1" style="padding-right:0;padding-left:0;text-align:center;">
+            <img class="delete-dustbin" src="{% static 'assets/delete.png' %}"
+                 srcset="{% static 'assets/delete@2x.png' %} 2x, {% static 'assets/delete@3x.png' %} 3x"/>
+        </div>
+    </div>
+</li>
+{% else %}
+<li class="list-group-item list-group-item-primary notification-list-item-js notification-div">
+    <input type="hidden" value="{{notification.notificationId}}" id="notification" name="notification"/>
+    <div class="row">
+        <div class="col-md-11 d-flex justify-content-between align-items-center notification-col list-notification-item-js">
+            <div class="notification-icon">
+                {% if notification.notificationType == "USER" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/user.png' %}"
+                     srcset="{% static 'assets/user@2x.png' %} 2x, {% static 'assets/user@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "ATTESTATION" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/attestation.png' %}"
+                     srcset="{% static 'assets/attestation@2x.png' %} 2x, {% static 'assets/attestation@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "SESSION" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/session.png' %}"
+                     srcset="{% static 'assets/session@2x.png' %} 2x, {% static 'assets/session@3x.png' %} 3x"/>
+                {% elif notification.notificationType == "ATTENDANCE" %}
+                <img class="icon icon-type-notification" src="{% static 'assets/attendance.png' %}"
+                     srcset="{% static 'assets/attendance@2x.png' %} 2x, {% static 'assets/attendance@3x.png' %} 3x"/>
+                {% endif %}
+            </div>
+            <div class="col notification-title" style="padding-left:10px;padding-right:10px;width: 380px;cursor:pointer;">
+                <div>{{ notification.description }}</div>
+                <div class="notification-timestamp">{{ notification.dateTime }}</div>
+            </div>
+        </div>
+        <div class="col-md-1" style="padding-right:0;padding-left:0;text-align:center;">
+            <img class="delete-dustbin" src="{% static 'assets/delete.png' %}"
+                 srcset="{% static 'assets/delete@2x.png' %} 2x, {% static 'assets/delete@3x.png' %} 3x"/>
+        </div>
+    </div>
+</li>
+{% endif %}
+{% empty %}
+<li class="list-group-item list-group-item-primary notification-div">
+    <div class="row">
+        <div class="col notification-title text-center" style="font-size:15px; width: 380px;font-weight:bold;"
+             id="loaderNotification">Loading...
+        </div>
+    </div>
+</li>
+{% endfor %}
+
+<script>
+    $(document).ready(function(){
+        $('.notification-timestamp').toArray().forEach(function (item) {
+            if (item.innerText === "None"){
+                item.innerText = "N/A";
+            }
+            else {
+                item.innerText = moment(new Date(Date.parse(item.innerText + " UTC"))).format("DD-MMM-YYYY hh:mm A");
+            }
+        });
+    });
+</script>

@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/custom/error.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col align-self-center">
+            <div class="col-error-page">
+                <div class="text-center error-text">Oops! Something went wrong..!!!</div>
+                <div class="d-flex text-center error-page-image justify-content-center">
+                    <img src="{% static 'assets/plug.png' %}"
+                         srcset="{% static 'assets/plug@2x.png' %} 2x, {% static 'assets/plug@3x.png' %} 3x"
+                         class="group">
+                </div>
+                <div class="text-center align-self-center">
+                    <div><button class="auth-button-style" onclick="location.href='{% url 'landing' %}'"><span class="button-text">HOME</span></button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

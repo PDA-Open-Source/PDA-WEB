@@ -1,0 +1,58 @@
+<form class="show-qr-scan-popup entity-admin-qr-scan" method="POST" action="{% url 'scanner' %}" style="text-align:center;">
+    {% csrf_token %}
+    <div class="modal-header" style="border-bottom: none;">
+        <button type="button" class="close close-pop-up" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+        <p class="modal-hint-text">Align window with QR code</p>
+        <video id="preview" class="cam-stream"></video>
+        <div id="scanner-bar" class="horizontal"></div>
+        <input id="QRDecodedString" name="QRDecodedString" hidden>
+        <button type="submit" value="submit" id="SubmitQR" hidden></button>
+    </div>
+    <div class="modal-footer" style="border-top: none;justify-content:center;padding:5px;">
+        <span class="scan-progress-text">Scanning</span>
+        <i class="fa fa-spinner fa-pulse fa-2x fa-fw qr-scan-spinner"></i>
+        <span class="sr-only"></span>
+    </div>
+</form>
+<script type="text/javascript">
+var scanner = new Instascan.Scanner({ video: document.getElementById('preview'), scanPeriod: 5 });
+var cameraStream = Instascan.Camera.getCameras();
+scanner.addListener('scan', function (content) {
+    document.getElementById('QRDecodedString').value = content;
+    document.getElementById('SubmitQR').click();
+    scanner.stop();
+});
+cameraStream.then(function (cameras) {
+if (cameras.length > 0) {
+    scanner.start(cameras[0]);
+    var scanner_bar = $('#scanner-bar');
+    function runQRBar() {
+        scanner_bar.animate({top:'+=150'}, 3000);
+        scanner_bar.animate({top:'-=150'}, 3000, runQRBar);
+    }
+    runQRBar();
+} else {
+    console.error('No cameras found.');
+}
+}).catch(function (e) {
+    console.error(e);
+});
+
+$(function (){
+    $(".close-pop-up").click(function () {
+        scanner.stop();
+        delete scanner;
+    });
+
+    $(document).click(function(event) {
+        if (!$(event.target).closest('.modal-dialog').length) {
+            scanner.stop();
+            delete scanner;
+        }
+    });
+});
+</script>

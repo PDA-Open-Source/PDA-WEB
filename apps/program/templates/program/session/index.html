@@ -1,0 +1,145 @@
+{% extends 'layout.html' %}
+{% include 'base.html' %}
+{% load custom_tags %}
+{% load static %}
+
+{% block pro %}
+<div class="col-md-8">
+    <h2 class="program-heading">Programs</h2>
+    <div class="program-detail" style="width:1140px;">
+
+        <div class="left-program-detail" style="height:310px; padding: 50px 50px 50px;">
+            <h2>{{ program.name }}</h2>
+            <p class="gmail">{{ program.email }}</p>
+            <p class="date">{{ program.started_at }} -- {{ program.ended_at }}</p>
+            <div class="dash-board-view">
+                <a href="{% url 'program-list' %}" class="dashboard">Dashboard</a>
+            </div>
+        </div>
+        {% if "Admin" in request.user.roles %}
+        <div class="col-md-2 right-program-detail" style="display: inline-block; width:100px; height:75px;">
+            <input type="image" src="{% static 'admin_deactivate_program/drawable-mdpi/noun_minus_138536.png' %}" data-toggle="modal" data-target="#deactivate-program" style="width:25px; margin-top:-24px; margin-left:50px;">
+            <input type="image" class="edit-program" src="{% static 'images/edit.png' %}" data-toggle="modal" data-target="#modal" style="width:25px; margin-top:-25px; margin-left:15px">
+            <div class="col-md-8 right-program-detail" style="padding: 25px 50px 25px; width: 700px; display: inline-block; text-align:justify;">
+                <p>{{ program.description }}</p>
+            </div>
+        </div>
+        {% else %}
+
+        <div class="col-md-7 right-program-detail" style="padding: 50px 50px 50px; width: 750px; text-align:justify;">
+            <p>
+                {{ program.description }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block session %}
+
+<div class="container div-topic">
+    <div class="row">
+        <div class="col-md-8">
+
+            <div class="row">
+                <h2 style="display: inline-block">Sessions Run</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <h2 style="display: inline-block">Upcoming Sessions</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="wheel-rectangle one" data-toggle="modal" data-target="#myModal">
+                        <img class="" src="{% static 'images/wheel.png' %}">
+                        <h3 class="wheel-title">Measuring a Well.</h3>
+                        <p class="wheel-para">
+                            This topic covers how to measure rainfall, installation of a rainguage and the use of an automatic rain gauge.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="member">
+                <h2>Topics</h2>
+                {% for topic in program.topics.all %}
+                <div class="wheel-rectangle" data-toggle="modal" data-target="#" style="background-color:#f4fff4; border-color:#71d37e;">
+                    <img class="" src="{% static 'images/wheel.png' %}">
+                    <h3 class="wheel-title">{{ topic.name }}</h3>
+                    <p class="wheel-para">
+                        {{ topic.description }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="{% static 'bootstrap.min.js' %}"></script>
+
+<div class="modal" id="myModal" role="dialog" style="height:800px;">
+    
+</div>
+
+
+{% endblock %}

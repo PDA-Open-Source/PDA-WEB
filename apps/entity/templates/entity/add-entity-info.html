@@ -1,0 +1,177 @@
+{% load static %}
+<form class="js-add-entity" method="POST" action="{% url 'add-entity' %}"
+      style="text-align:center;margin-block-end: 0em;">
+    {% csrf_token %}
+    <div class="modal-header" style="border-bottom: none;">
+        <h5 class="modal-title" style="font-family: AvenirNext-DemiBold; font-size: 18px; color: #333333;">Add
+            Entity</h5>
+        <button type="button" class="close close-pop-up" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+        <div style="margin-left:20px;margin-right:20px;">
+            <input type="text" id="qrValue" value="{{qr_value}}" hidden>
+            <div id="divAdminInfo" class="js-admin-info"
+                 style="height:100px; border: solid 0.5px #f9756b;border-radius:8px;background-clip: padding-box;box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);">
+                <div class="d-flex align-item-center">
+                    <div>
+                        <img src="{% static 'images/images.png' %}" style="width:100px;height:98.5px;float:left;border-radius:8px 0px 0px 8px;"
+                             alt="Admin DP" id="userImage">
+                    </div>
+                    <div class="align-self-center" style="margin-left:16px;text-align:left;">
+                        <div style="line-height:22px;font-family: AvenirNext-Regular; font-size: 16px; color: #000000;" id="userName">
+                        </div>
+                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;">
+                            Contact Email &nbsp;:&nbsp;
+                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;" id="email"></span>
+                        </div>
+                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;">
+                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;" id="phoneNumber"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <input type="text" name="socionEntityAdminUser" id="entityAdminUser" value="" hidden>
+                <div class="form-group">
+                    <label class="form-field-label" for="socionEntityName"
+                           style="font-family: AvenirNext-DemiBold; font-size: 16px; color: #666666;float:left;">
+                        ENTER ENTITY NAME
+                    </label>
+                    <input type="text" class="form-control placeholder-text" name="socionEntityName" id="socionEntityName"
+                           placeholder="e.g ASLM" style="border: solid 1px rgba(249, 117, 107, 0.42);" required onkeypress="return AvoidSpace(event, 'socionEntityName')" onkeyup="return RemoveSpace(event, 'socionEntityName')">
+                    <div id="entityNameError" class="hidden invalid-number">
+                        <span class="invalid-number-text">Please enter an entity name</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="border-top: none;padding:20px;">
+        <button type="submit" class="btn btn-primary btn-add-entity" id="inviteEntityBtn"
+                style="box-shadow: 0 5px 65px 0 rgba(0, 0, 0, 0.1); background-image: linear-gradient(254deg, #fa766b, #b9524a);" disabled>
+            <span class="button-text-add-popup">
+                INVITE ENTITY
+            </span>
+        </button>
+    </div>
+</form>
+<script>
+    $(function (){
+        $('#socionEntityName').on("blur",function(){
+            var socionEntityName = $('#socionEntityName').val();
+            if(socionEntityName !== ''){
+                localStorage.setItem('socionEntityName', socionEntityName);
+            }
+            else{
+                localStorage.removeItem('socionEntityName');
+            }
+        });
+    });
+
+</script>
+<script>
+    $(document).ready(function(){
+        var socionEntityName = localStorage.getItem('socionEntityName');
+        console.log(socionEntityName);
+        if(socionEntityName !== 'null'){
+            $('#socionEntityName').val(socionEntityName);
+        }
+
+        var config = {
+            getUserInfoUrl: "{{settings.BASE_URL}}" + "user/private/details/",
+            getQRField: function(){
+                return $("#qrValue");
+            },
+            getImageField: function(){
+                return $("#userImage");
+            },
+            getUserNameField: function(){
+                return $("#userName");
+            },
+            getEmailField: function(){
+                return $("#email");
+            },
+            getPhoneNumberField: function(){
+                return $("#phoneNumber");
+            },
+            getUserIdField: function(){
+                return $("#entityAdminUser");
+            }
+        }
+        var qr_value = config.getQRField().val();
+        var userInfoUrl = config.getUserInfoUrl + qr_value;
+        $.ajax(userInfoUrl, {
+            method: "GET",
+            contentType: "application/json",
+        })
+        .done(function(data, textStatus, jqXHR){
+            if(jqXHR.status === 200){
+                if(data.photo !== ""){
+                    config.getImageField().attr("src", data.photo);
+                }
+                config.getUserNameField().text(data.name.toUpperCase());
+                config.getEmailField().text(data.emailId);
+                config.getPhoneNumberField().text(data.countryCode + " " + data.phoneNumber);
+                config.getUserIdField().val(data.userId);
+                setTimeout(function () { $("#inviteEntityBtn").prop('disabled', false); }, 500);
+            }
+            else{
+                $(".notification-toaster").css("display", "block");
+                $('.toast #notification-error-message').text("Something went wrong...!!!");
+                $('.toast .toast-body .close').css('line-height',0);
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                    $(".notification-toaster").css("display", "none");
+                });
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            var statusCode = jqXHR.status;
+            if(statusCode === 422){
+                var errors = jqXHR.responseJSON.errors;
+                $.each(errors, function(_, error){
+                    console.log(error);
+                });
+            } else if (statusCode === 500 && jqXHR.responseText === "Error handling"){
+                $("#modal-popup").modal("hide");
+                $(".notification-toaster").css("display", "block");
+                $('.toast').addClass("login-error");
+                $('.toast #notification-error-message').text("User doesn't exist..!!");
+                $('.toast .toast-body .close').css('line-height',0);
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                    $(".notification-toaster").css("display", "none");
+                });
+            } else if ((statusCode === 400 || statusCode === 0) && jqXHR.statusText === "error"){
+                $("#modal-popup").modal("hide");
+                $(".notification-toaster").css("display", "block");
+                $('.toast').addClass("login-error");
+                $('.toast #notification-error-message').text("Invalid QR Code");
+                $('.toast .toast-body .close').css('line-height',0);
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                    $(".notification-toaster").css("display", "none");
+                });
+            } else {
+                $(".notification-toaster").css("display", "block");
+                $('.toast #notification-error-message').text("Something went wrong...!!!");
+                $('.toast .toast-body .close').css('line-height',0);
+                $('.toast').toast('show');
+                $('.toast').on('hidden.bs.toast', function(){
+                    $(this).removeClass("login-error");
+                    $(".notification-toaster").css("display", "none");
+                });
+            }
+        });
+    });
+</script>
+
+{% block javascript %}
+<script src="{% static 'js/custom/encrypt.js' %}"></script>
+{% endblock %}

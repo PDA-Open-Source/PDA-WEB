@@ -1,0 +1,176 @@
+
+{% load widget_tweaks %}
+{% load static %}
+{% load custom_tags %}
+{% load qr_code %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+{% endblock %}
+
+{% for topic in contents %}
+<div class="modal-header  base-header" id="myModal-header">
+    <button type="button" class="close" data-dismiss="modal" style="margin: 0px;">&times;</button>
+    <div class="media modal-media">
+        <div class="pull-left text-center">
+            <div id="QRCode{{ topic.id }}">
+                <div id="topic-detail-header" style="display:none;text-align:left;font-family:AvenirNext-DemiBold;font-size:12px;padding: 12px;padding-bottom:0;">
+                    <table>
+                        <tbody>
+                        <tr>
+                            <th scope="row">Entity : &nbsp;</th>
+                            <td>{{program.entity.name}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Program : &nbsp;</th>
+                            <td>{{program.name}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Topic : &nbsp;</th>
+                            <td>{{topic.name}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div style="background-color:#666666; height: 1px;margin-top:10px;"></div>
+                </div>
+                <div>{% with '{"id":"'|addstr:topic.id|addstr:'","QRtype":"TOPIC"}' as topic_obj %}{% qr_from_text topic_obj image_format="png" size=4 %} {% endwith %}</div>
+            </div>
+            <a href="#" id="downloadQR{{ topic.id }}" onclick="myFn({{ topic.id }})" style="float:left;margin-left:8px;color:#2b8880;">
+                <b>Download QR Code</b></a>
+        </div>
+        <div class="media-body member-media-content" id="myModal-description">
+            <h4 class="media-heading modal-title">{{ topic.name }}</h4>
+            <p class="modal-title-para">
+                {{ topic.description }}
+            </p>
+        </div>
+        {% if "Admin" in request.user.roles %}
+        <div>
+            {% if topic.is_session_linked == False %}
+            <input type="image" class="show-form" src="{% static 'images/edit.png' %}"
+                   id="myModal" data-toggle="modal" data-dismiss="modal"
+                   alt="Submit" data-url="{% url 'topic_update_1' pk=topic.id %}">
+            {% endif %}
+            <input type="image"
+                   src="{% static 'admin_deactivate_program/drawable-mdpi/noun_minus_138536.png' %}"
+                   data-dismiss="modal"
+                   id="myModal-deactivate" data-toggle="modal"
+                   data-target="#deactivate-topic{{ topic.id }}">
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div class="modal-body modal-data" id="myModal-content">
+    {% if topic.is_session_linked == False %}
+    <form method="post" enctype="multipart/form-data" id="contentUpdateForm"
+          data-url="{% url 'content_update' pk=topic.id %}" class="update-content-form"
+          xmlns="http://www.w3.org/1999/html">
+        {% csrf_token %}
+        <div id="loader-Image" style="">
+            <img id="topic-loader-img" style="" src="{% static 'images/loader.gif' %}"/>
+        </div>
+        <div class="col-md-12" id="content-list" style="float: left; margin-top: 10px;">
+            <div class="col-md-2" id="content-div" style="float: left;">
+                <h3>Content</h3>
+            </div>
+            <div class="col-md-7"
+                 style="overflow:scroll; overflow-y:auto; overflow-x:hidden; height:60px;float: left;">
+                <div class="col-md-6" style="padding-left:0px; padding-top: 14px;float:left;"
+                     id="filepreview">
+                    <div></div>
+                </div>
+                <div class="col-md-6" style="padding-top:15px;float: left;" id="remove-File">
+                    <div></div>
+                </div>
+            </div>
+            <div class="col-md-3" style="margin-top: 10px; float: left;">
+                <div id="topic-file-upload-2">
+                    <div style="position: relative;">
+                        <input type="file" id="Filehandle" class="file" name="attachment" style=""/>
+                        <div id="topic-file-image-2" style="width: 138px;">
+                            <span id="topic-upload-image" style="">
+                                <img id="topic-add-content"
+                                     src="{% static 'admin_add_program/drawable-mdpi/group_2.png' %}"
+                                     width="20px" height="20px"/> Upload Content
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 progress" id="progress-wrapper" style="float: left; height: 5px; margin-top: 5px; padding: 0px; display: none;">
+              <div class="progress-bar" role="progressbar" id="progress-bar" aria-valuemin="0" aria-valuemax="100"
+                   style="background-color: green; width: 0%; height: 5px; border-radius: 5px;">&nbsp;</div>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <h3>Content</h3>
+    {% endif %}
+    <div class="modal-resource" id="myModal-resource" style="float: left; width: 100%;">
+        {% for content in topic.contents.all %}
+        {% if not content.deleted %}
+        <div class="video" id="content-column{{ content.id }}">
+            <div class="v-media col-md-7" style="float:left;">
+                <div class="media">
+                    <a class="pull-left">
+                        {% if content.content_type == "Video" %}
+                        <img class="media-object"
+                             src="{% static 'images/video_icon.png' %}"
+                             alt="Media Object">
+                        {% endif %}
+                        {% if content.content_type == "Image" %}
+                        <img class="media-object"
+                             src="{% static 'images/image_icon.png' %}"
+                             alt="Media Object">
+                        {% endif %}
+                        {% if content.content_type == "Document" %}
+                        <img class="media-object"
+                             src="{% static 'images/pdf_icon.png' %}"
+                             alt="Media Object">
+                        {% endif %}
+                    </a>
+                    <div class="media-body humain-media-content">
+                        <h4 class="media-heading resource-media-heading" id="myModal-media">
+                            {{ content.name }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="float: right;">
+                {% if content.content_type == "Video" %}
+                <div class="v-download col-md-4" style="float:left;">
+                    <a href="{{ content.vimeo_url }}" target="_blank" class="modal-download">View</a>
+                </div>
+                {% else %}
+                <div class="v-download col-md-4" style="float:left;">
+                    <a href="{{ content.content_url }}" target="_blank" class="modal-download">View</a>
+                </div>
+                {% endif %}
+                {% if topic.is_session_linked == False %}
+                <div class="v-delete col-md-2">
+                    <input type="image" style="height: 15px;" id="delete-content-button"
+                           value="{{ content.id }}"
+                       src="{% static 'admin_deactivate_program/drawable-mdpi/noun_minus_138536.png' %}">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% if topic.is_session_linked == False %}
+<div style="padding-right: 45px; padding-bottom: 10px;">
+    <form method="post" id="content-UpdateForm" data-url="{% url 'content_update' pk=topic.id %}"
+          class="update-content-form" xmlns="http://www.w3.org/1999/html">
+        {% csrf_token %}
+        <button type="submit" id="topic-save" class="btn btn-primary" style="">
+            Save
+        </button>
+    </form>
+</div>
+{% endif %}
+{% endfor %}
+
+<script src="{% static 'js/plugin.js' %}"></script>

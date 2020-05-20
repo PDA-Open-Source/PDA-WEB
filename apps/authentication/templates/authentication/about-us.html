@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/user-profile.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<!-- header -->
+{% include 'core/header.html' %}
+<!-- end header -->
+<!-- body content-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col align-self-center">
+            <div class="profile-col">
+                <div class="profile-page-title" style="font-family:Times New Roman;">
+                    <h3>Participatory Digital Attestation (PDA) Application</h3>
+                </div>
+                <br>
+                <div class="profile-page-title text-justify" style="font-family:Times New Roman;">
+                    <div style="font-size:16px;">Participatory Digital Attestation (PDA) application has been imagined, conceptualized and designed by <a href="https://www.socion.io/">Socion</a> to democratize the ability of individuals and agencies to attest skill building and other activities performed in the field, in a digitally verifiable manner, and generate attestations for the individuals for their ownership and consumption. These digitally verifiable attestations can help individual participants track and assert their qualifications in their pursuit of better (livelihood) opportunities. PDA platform can be used by individuals and any large agencies/missions/programs that are involved in solving large-scale societal challenges.</div>
+                    <div style="font-size:16px; line-height: 1.5;">
+                        <br>
+                        PDA suite of applications consist of:
+                        <br><br>
+                        PDA Participant Application (mobile app)<br>
+                        PDA Trainer Application (mobile app version)<br>
+                        PDA Program Administration Portal (web app version)
+                        <br><br>
+                        PDA Participant application enables individual participants to
+                        <br><br>
+                        <ul>
+                          <li>use the app and digitally record their participation by scanning QR codes generated when sessions are set up by trainers using the Trainer Application.</li>
+                          <li>track their participation, receive attestation for sessions attended, and access content associated with each session through digital links embedded in the attestation. Participants can also view/ download content shared during each session.</li>
+                          <li>Share their attestations and content with others in ways that makes it easy for the receiving party to view the attestations and related content.</li>
+                        </ul>
+                        PDA Trainer application enables Trainers (authorized by participating programs) to
+                        <br><br>
+                        <ul>
+                          <li>access topics in the Program Administration Portal and set up sessions</li>
+                          <li>access their Trainer attestations, for the sessions conducted by them and access content associated with each session through digital links embedded in the attestation.</li>
+                          <li>Share their attestations and content with others in ways that makes it easy for the receiving party to view the attestations and related content.</li>
+                        </ul>
+                        PDA Program Administration Portal enables authorized entity/program staff to
+                        <br><br>
+                        <ul>
+                          <li>create and manage the entity and program level information</li>
+                          <li>register and manage program related topics and content used in training sessions</li>
+                          <li>assign and manage different roles/privileges required for administering program related tasks like creating trainig topics and associated content, setup training sessions etc.</li>
+                          <li>access aggregated data that helps in analyzing interactions and generate insights related to participation by session, topic, time, location etc.</li>
+                        </ul>
+                    </div>
+                    <br><br>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,136 @@
+{% load widget_tweaks %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/entity-registration.css' %}" type="text/css">
+{% endblock %}
+
+<form id="register-entity-form" method="post" data-url="{% url 'register-entity' form.instance.pk %}" class="register-entity"
+      xmlns="http://www.w3.org/1999/html">
+    {% csrf_token %}
+    <div class="modal-header" id="entity-modal-header" style="padding: 15px 15px; float: right;">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body row col-md-12" id="entity-modal-body">
+        <div class="col-md-7 left-panel" style="padding-left:26px;">
+            <p class="entity-label" style="margin-bottom:0px;"><b>Entity Profile</b></p>
+            <div class="entity-form-style col-md-12">
+                <p class="register-registration-number">Business Registration Number: {{ form.business_registration_number|attr:"onkeypress: return AvoidSpace(event, 'id_business_registration_number')"|attr:"onkeyup: return RemoveSpace(event, 'id_business_registration_number')" }}</p>
+                <p class="register-tax-registration">TAX Registration Number: {{ form.tax_registration_number|attr:"onkeypress: return AvoidSpace(event, 'id_tax_registration_number')"|attr:"onkeyup: return RemoveSpace(event, 'id_tax_registration_number')" }}</p>
+            </div>
+            <div class="loaderElement" id="loader-Image" style="">
+                <img id="topic-loader-img" style="" src="{% static 'images/loader.gif' %}"/>
+            </div>
+            <h5 style="margin-top:40px; margin-bottom:0px;"><b>Address</b></h5>
+            <div class="entity-form-style col-md-12">
+                <p class="register-address_1">Address Line 1: {{ form.address_line1|attr:"onkeypress: return AvoidSpace(event, 'id_address_line1')"|attr:"onkeyup: return RemoveSpace(event, 'id_address_line1')" }}</p>
+                <p class="register-address_2">Address Line 2: {{ form.address_line2|attr:"onkeypress: return AvoidSpace(event, 'id_address_line2')"|attr:"onkeyup: return RemoveSpace(event, 'id_address_line2')" }}</p>
+            </div>
+            <div class="entity-form-style col-md-12">
+                <div class="col-md-6 region">
+                    <p class="register-city">City: {{ form.city|attr:"onkeypress: return AvoidSpace(event, 'id_city')"|attr:"onkeyup: return RemoveSpace(event, 'id_city')" }}</p>
+                </div>
+                <div class="col-md-6 region">
+                    <p class="register-country">Country: {{ form.country|attr:"onkeypress: return AvoidSpace(event, 'id_country')"|attr:"onkeyup: return RemoveSpace(event, 'id_country')" }}</p>
+                </div>
+            </div>
+            <div class="entity-form-style col-md-12">
+                <div class="col-md-6 region">
+                    <p class="register-state">State: {{ form.state|attr:"onkeypress: return AvoidSpace(event, 'id_state')"|attr:"onkeyup: return RemoveSpace(event, 'id_state')" }}</p>
+                </div>
+                <div class="col-md-6 region">
+                    <p class="register-pin-code">Pin/Zip Code: {{ form.pin_code }}</p>
+                </div>
+            </div>
+            <div class="col-md-4" id="entity-attachment-upload-2">
+                <input type="file" id="fileHandler" class="file entity-doc-upload" name="attachment" style="position:absolute;"/>
+                <span id="entity-upload-image" style="position: absolute;margin-top: 80%;color:#cf5e56;font-size: 11px;">
+                    <img id="entity-add-content" src="{% static 'assets/add_doc_button.png' %}" width="20px" height="20px" style=""/> Upload Document
+                </span>
+            </div>
+            <div class="col-md-8 uploadList">
+                <div class="col-md-6" id="file-preview">
+                    <div></div>
+                </div>
+                <div class="col-md-6" id="removeFile">
+                    <div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 right-panel">
+            <div class="vl"></div>
+            <div style="font-family:AvenirNext-DemiBold;font-size: 14px;color: #666666;">Entity Name</div>
+            <div style="font-size:24px;"><b>{{data.entity_name}}</b></div>
+            <div class="entity-form-style" id="entityName" hidden>
+				{% with WIDGET_ERROR_CLASS='my_error' WIDGET_REQUIRED_CLASS='my_required' %}
+                <h3><b>{{ form.name|attr:'font-weight:bold' }}</b></h3>
+				{% endwith %}
+			</div>
+            <div style="font-family:AvenirNext-DemiBold;font-size:14px; margin-top:15px;color: #666666;">Entity Administrator</div>
+            <div style="margin-top:15px;">
+                <div class="member-row-register member-box">
+                    <div class="media register-entity-card">
+                        {% if data.photo == "" %}
+                        <a class="pull-left picture" style="padding-right: 10px;">
+                            <img class="media-object member-image"  src="{% static 'images/images.png' %}"
+                                 alt="Media Object">
+                        </a>
+                        {% else %}
+                        <a class="pull-left  picture" style="padding-right: 10px;">
+                            <img class="media-object member-image"  src="{{data.photo}}" alt="Media Object">
+                        </a>
+                        {% endif %}
+                        <div class="media-body member-media-content" style="margin-top:10px;">
+                            <h6 class="media-heading humain-media-heading">{{data.name}}</h6>
+                            <h6 style="font-size:10px;">Contact Email: {{data.emailId}}</h6>
+                            <h6 style="font-size:10px;">Contact No.: {{data.countryCode}}-{{data.phoneNumber}}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" id="entity-footer">
+        <button type="submit" class="btn btn-primary" name="button" value="Submit" id="registerBtn">
+            Submit
+        </button>
+    </div>
+</form>
+
+<script src="{% static 'js/custom/entity.js' %}"></script>
+
+<script>
+    $(function(){
+        $("input[name=pin_code]")[0].oninvalid = function () {
+            this.setCustomValidity("Please enter a valid Pin Code!!");
+        };
+    });
+</script>
+
+<script>
+    $(function(){
+    $("input[name=pin_code]")[0].oninput= function () {
+        this.setCustomValidity("");
+    };
+});
+</script>
+
+<style>
+    input.file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+    .file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+</style>
+

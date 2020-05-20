@@ -1,0 +1,138 @@
+.header {
+    height: 80px;
+    position: relative;
+    background-image: linear-gradient(to left, #fa766b, #b9524a);
+}
+
+.socion-head {
+    position: absolute;
+      width: 187px;
+
+  height: 41px;
+
+  border-radius: 9px;
+    left: 152px;
+    top: 46px;
+    background-color: #ffffff;
+}
+
+.logo {
+margin-top:15px;
+    width: 120px;
+    height: 20.2px;
+
+    cursor: pointer;
+}
+
+.icon-badge {
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    background-image: linear-gradient(to left, #fa766b, #b9524a);
+    border-radius: 50%;
+    padding: 30px;
+}
+
+.notification {
+    position: absolute;
+    top: 28px;
+    right: 180px;
+    width: 19px;
+    height: 22px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.icon {
+    color: #ffffff;
+    vertical-align: middle;
+    font-size: 38px;
+}
+
+.icon-type-notification {
+    padding-top: 8px;
+}
+
+.number {
+    position: absolute;
+    top: 20px;
+    right: 165px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: solid 0.9px #ffffff;
+    background-color: #f7b500;
+    display: flex;
+    justify-content: center;
+    padding-top: 5.5px;
+}
+
+.text-notification {
+    font-family: AvenirNext-Bold;
+    font-size: 10px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #333333;
+}
+
+.col-landing-page {
+    margin-top: 64px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.welcome {
+  font-family: AvenirNext-UltraLight;
+  font-size: 40px;
+  font-weight: 100;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.22px;
+  text-align: center;
+  color: #666666;
+}
+
+.icon-label {
+  font-family: AvenirNext-Regular;
+  font-size: 16px;
+  font-weight: 100;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.22px;
+  color: #666666;
+  margin-top: 16px;
+}
+
+.welcome-text {
+  background-image: linear-gradient(to left, #fa766b, #b9524a);
+  font-family: AvenirNext-DemiBold;
+  font-size: 36px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2.0;
+  letter-spacing: normal;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.group {
+    width: 648px;
+    height: 374px;
+    object-fit: contain;
+}
+
+.landing-page-image {
+    margin-top: 80px;
+}
+.icon-badge:hover{
+        background-image: linear-gradient(131deg, #ffd096 31%, #fb8800 86%);
+}

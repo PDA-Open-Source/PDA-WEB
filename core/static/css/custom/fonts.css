@@ -1,0 +1,41 @@
+@font-face {
+  font-family: 'ProximaNova-Semibold';
+  src: local('ProximaNova-Semibold'),
+       url('../../fonts/ProximaNova-Semibold.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'AvenirNext-Regular';
+  src: local('AvenirNext-Regular'),
+       url('../../fonts/AvenirNext-Regular.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'AvenirNext-DemiBold';
+  src: local('AvenirNext-DemiBold'),
+       url('../../fonts/AvenirNext-DemiBold.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'AvenirNext-Medium';
+  src: local('AvenirNext-Medium'),
+       url('../../fonts/AvenirNext-Medium.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'AvenirNext-UltraLight';
+  src: local('AvenirNext-UltraLight'),
+       url('../../fonts/AvenirNext-UltraLight.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'Roboto-Regular';
+  src: local('Roboto-Regular'),
+       url('../../fonts/Roboto-Regular.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'NotoSans-Regular';
+  src: local('NotoSans-Regular'),
+       url('../../fonts/NotoSans-Regular.ttf') format("truetype");
+}

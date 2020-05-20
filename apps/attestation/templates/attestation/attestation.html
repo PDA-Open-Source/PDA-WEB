@@ -1,0 +1,238 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/attestation.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<!-- header -->
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col header d-flex align-items-end justify-content-start">
+            <div class="heading-col">
+                <div class="text-center socion-head">
+                    <img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid trainer-profile-container">
+    <div class="row">
+        <div class="col attestation-title-col">
+            <div class="attestation-page-title">Attestation Details</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-3 col-md-3 col-lg-3 attestation-trainer-detail">
+            <div class="row">
+                <div class="col d-flex align-items-center flex-column">
+                        <div class="profile">
+                            {% if data %}
+                                {% if data.user.photo == "" %}
+                                    <img class="profile-img" src="{% static 'images/images.png' %}"/>
+                                {% else %}
+                                    <img class="profile-img" src="{{ data.user.photo }}"/>
+                                {% endif %}
+                            {% else %}
+                                <img class="profile-img" src="{% static 'images/images.png' %}"/>
+                            {% endif %}
+                        </div>
+                    <div class="user-name" id="userName">{{ data.user.name|title }}</div>
+                    <div class="user-role" id="userRole">{{ role|title }}</div>
+                    <div class="trainer-divider-card"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col d-flex align-items-center flex-column">
+                    <div class="trainer-heading">Attestation QR Code</div>
+                    <input type="hidden" id="sessionURL" value="{{url}}"/>
+                    <div class="sessionQrCode" id="sessionQR"></div>
+                    <div class="trainer-heading">Attestation Card</div>
+                    <div style="padding-top: 2.5px; margin-bottom: 5px;">
+                        <a class="a-download-button download-button" title="{{ data.attestationUrl }}" id="downloadProfile" href="{{ data.attestationUrl }}" target="_blank">
+                        <span class="download-icon"><i class="fa fa-download"
+                                                       aria-hidden="true"></i></span>
+                        <b class="Download">Download</b></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col col-sm-5 col-md-5 col-lg-5 attestation-session-detail" style="height:auto;">
+
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Entity</th>
+                            <td>{{ data.topicInfo.program.entityName }}</td>
+                        </tr>
+                        <tr>
+                            <th>Program</th>
+                            <td>{{ data.topicInfo.program.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Session Name</th>
+                            <td>{{ data.sessionName }}</td>
+                        </tr>
+                        <tr>
+                            <th>Session Description</th>
+                            <td>{{ data.sessionDescription }}</td>
+                        </tr>
+                        <tr>
+                            <th>Attestation Issue Date</th>
+                            <td class="attestation-issue-date" style="text-align:start;">{{ attestationDate }}</td>
+                        </tr>
+                        {% if role == "Trainer" %}
+                        <tr>
+                            <th>Number of Participants</th>
+                            <td>{{ data.numberOfParticipants }}</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+        </div>
+        <div class="col col-sm-4 col-md-4 col-lg-4">
+            <div class="row">
+                <div class="col">
+                    <div class="content-heading">Content</div>
+                    <div class="content-body">
+                        <div class="content-body-scroll-container">
+                            {% for content in data.topicInfo.content %}
+                            <form hidden class="download-content" id="download-content{{ content.url }}" method="POST" >
+                                {% csrf_token %}
+                                <input type="hidden" name="content_name" id="content_name" value="{{ content.name }}">
+                                <input type="hidden" name="content_url" id="content_url" value="{{ content.url }}">
+                                <button type="submit" value="submit" id="DownloadSubmit{{ content.url }}" hidden></button>
+                            </form>
+                                <div class="d-flex content-item">
+                                    <div>
+                                        {% if content.contentType == "Video" %}
+                                            <img style="width: 32px;margin-right:8px;" src="{% static 'images/video_icon.png' %}" alt="content video">
+                                        {% endif %}
+                                        {% if content.contentType == "Document" %}
+                                            <img style="width: 32px;margin-right:8px;" src="{% static 'images/pdf_icon.png' %}" alt="content pdf">
+                                        {% endif %}
+                                        {% if content.contentType == "Image" %}
+                                            <img style="width: 30px;margin-right:8px;" src="{% static 'images/image_icon.png' %}" alt="content image">
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center" style="width:86%">
+                                        <div class="content-file-name">{{ content.name | truncatechars:16 }}</div>
+                                        <div><a data-auth="{{ content.url }}" target="_blank" id="downloadContent" class="content-view-button" style="color: #bf554d;">
+                                            <i class="fa fa-download" aria-hidden="true" style="padding-right: 3px;"></i>Download</a></div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="content-file-name" style="font-weight: bold;">No Content Available</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="content-heading">Members</div>
+                    <div class="member-content-body">
+                        {% for member in data.members %}
+                            <div class="d-flex attestation-member-card">
+                                <div>
+                                    {% if member.photo == "" %}
+                                        <img class="member-photo" src="{% static 'images/images.png' %}"
+                                         alt="user image">
+                                    {% else %}
+                                        <img class="member-photo" src="{{ member.photo }}"
+                                         alt="user image">
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-center flex-column text-left">
+                                    <div class="session-admin-name">{{ member.name }}</div>
+                                    <div class="session-admin-roles">
+                                        {% if member.roles.trainer == True %}
+                                        <span>Trainer</span>{% if member.roles.admin == True %}<span>,&nbsp;</span>{% endif %}
+                                        {% endif %}
+                                        {% if member.roles.admin == True %}
+                                        <span>Admin</span>{% if member.roles.other == True %}<span>,&nbsp;</span>{% endif %}
+                                        {% endif %}
+                                        {% if member.roles.other == True %}
+                                        <span>{{ member.roles.otherRoleNames }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="d-flex align-items-center justify-content-center attestation-member-card">
+                                <div class="session-admin-name" style="font-weight: bold;">
+                                    No Member Available
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function(){
+    var sessionURL = $('#sessionURL').val();
+    jQuery('#sessionQR').qrcode(sessionURL);
+    /* $('.attestation-issue-date').toArray().forEach(function (item) {
+        if (item.innerText === "None"){
+            item.innerText = "N/A";
+        }
+        else {
+            item.innerText = moment(new Date(Date.parse(item.innerText + " UTC"))).format("DD MMMM YYYY");
+        }
+    }); */
+});
+</script>
+
+<!-- Function to Download Content -->
+
+<script>
+    $(document).on("click", "#downloadContent", function (e) {
+        var id = $(this).data("auth");
+        document.getElementById("DownloadSubmit" + id).click();
+    });
+</script>
+
+<script>
+    $(document).on("submit", ".download-content", function(event) {
+        // disableScreen();
+        var form = $(this);
+        var download_url = "/program/download-content/";
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        $.ajax(download_url, {
+            data: form.serialize(),
+            type: form.attr("method"),
+            dataType: 'json',
+            success: function (data) {
+                if (data.downloaded) {
+                    var link = document.createElement("a");
+                    link.href = data.file_url;
+                    link.download=$('#content_name').val();
+                    link.click();
+                    link.remove();
+                    $('.loader-overlay').remove();
+                }
+                else {
+                      alert("Couldn't Download File!!");
+                      $('.loader-overlay').remove();
+                }
+            }
+        })
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+.attestation-navbar{
+    height: 80px;
+    background-image: linear-gradient(to right,#2b8880, #3e993f);
+}
+
+.brand-logo{
+    height: 105px;
+    border-radius: 50px;
+    width:105px;
+    border:2px solid white;
+}

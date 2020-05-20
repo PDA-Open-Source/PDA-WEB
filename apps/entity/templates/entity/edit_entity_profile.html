@@ -1,0 +1,66 @@
+{% load widget_tweaks %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/entity-registration.css' %}" type="text/css">
+{% endblock %}
+
+<form id="edit-entity-form" method="post" data-url="{% url 'edit-entity-profile' form.instance.pk %}" class="register-entity"
+      xmlns="http://www.w3.org/1999/html">
+    {% csrf_token %}
+    <div class="modal-header" id="entity-modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p class="edit-entity-label" style="margin-bottom:0px;"><b>Edit Entity Profile</b></p>
+        <div class="entity-form">
+            <p class="edit-entity-name">Entity Name: {{ form.name | add_class:"form-name"|attr:"onkeypress: return AvoidSpace(event, 'id_name')"|attr:"onkeyup: return RemoveSpace(event, 'id_name')" }}</p>
+            <p class="edit-registration-number">Business Registration Number: {{ form.business_registration_number|attr:"onkeypress: return AvoidSpace(event, 'id_business_registration_number')"|attr:"onkeyup: return RemoveSpace(event, 'id_business_registration_number')" }}</p>
+            <p class="edit-tax-number">TAX Registration Number: {{ form.tax_registration_number|attr:"onkeypress: return AvoidSpace(event, 'id_tax_registration_number')"|attr:"onkeyup: return RemoveSpace(event, 'id_tax_registration_number')" }}</p>
+        </div>
+        <h5 style="margin-top:40px; margin-bottom:0px;"><b>Address</b></h5>
+        <div class="entity-form">
+            <p class="edit-address-1">Address Line 1: {{ form.address_line1|attr:"onkeypress: return AvoidSpace(event, 'id_address_line1')"|attr:"onkeyup: return RemoveSpace(event, 'id_address_line1')" }}</p>
+            <p class="edit-address-1">Address Line 2: {{ form.address_line2|attr:"onkeypress: return AvoidSpace(event, 'id_address_line2')"|attr:"onkeyup: return RemoveSpace(event, 'id_address_line2')" }}</p>
+        </div>
+        <div class="entity-form col-md-12">
+            <div class="col-md-6 region">
+                <p class="edit-city">City: {{ form.city|attr:"onkeypress: return AvoidSpace(event, 'id_city')"|attr:"onkeyup: return RemoveSpace(event, 'id_city')" }}</p>
+            </div>
+            <div class="col-md-6 region">
+                <p class="edit-country">Country: {{ form.country|attr:"onkeypress: return AvoidSpace(event, 'id_country')"|attr:"onkeyup: return RemoveSpace(event, 'id_country')" }}</p>
+            </div>
+        </div>
+        <div class="entity-form col-md-12">
+            <div class="col-md-6 region">
+                <p class="edit-state">State: {{ form.state|attr:"onkeypress: return AvoidSpace(event, 'id_state')"|attr:"onkeyup: return RemoveSpace(event, 'id_state')" }}</p>
+            </div>
+            <div class="col-md-6 region">
+                <p class="edit-pin-code">Pin/Zip Code: {{ form.pin_code }}</p>
+            </div>
+        </div>
+    </div>
+        <div class="modal-footer" id="entity_footer">
+            <button type="submit" class="btn btn-primary" name="button" value="Submit" id="registerBtn">
+                Save
+            </button>
+        </div>
+</form>
+
+<script src="{% static 'js/custom/entity.js' %}"></script>
+<script>
+    $(function(){
+        $("input[name=pin_code]")[0].oninvalid = function () {
+            this.setCustomValidity("Please enter a valid Pin Code!!");
+        };
+    });
+</script>
+
+<script>
+    $(function(){
+    $("input[name=pin_code]")[0].oninput= function () {
+        this.setCustomValidity("");
+    };
+});
+</script>
+

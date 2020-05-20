@@ -1,0 +1,36 @@
+.box {
+  width: 37px;
+  height: 37px;
+  border-radius: 3px;
+  margin-right: 4.85px;
+  border: solid 1px #dde3e8;
+  background-color: #ffffff;
+  text-align: center;
+  font-family: AvenirNext-DemiBold;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.16px;
+  color: #666666;
+  transition: all 0.2s ease-in-out;
+}
+
+.resend-otp {
+  margin-top: 9px;
+  font-family: AvenirNext-Regular;
+  font-size: 10px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: right;
+  color: #333333;
+  cursor:pointer;
+}
+
+.resend-otp:hover {
+  color: #666666;
+}

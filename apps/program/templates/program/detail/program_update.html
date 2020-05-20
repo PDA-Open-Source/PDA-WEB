@@ -1,0 +1,152 @@
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+{% endblock %}
+
+
+<form method="post" id="update-program-form" data-url="{% url 'program_update' form.instance.pk %}" class="update-form" xmlns="http://www.w3.org/1999/html">
+	{% csrf_token %}
+		<div class="modal-header" id="program-close-btn">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body" id="program-body">
+			{% if access.admin_permissions %}
+			<div class="form-style-8" id="name">
+				<label class="program-name">Program Name</label>
+				{{ form.name|attr:"onkeypress: return AvoidSpace(event, 'id_name')"|attr:"onkeyup: return RemoveSpace(event, 'id_name')" }}
+			</div>
+			<div class="form-style-4" id="program-description">
+				<label class="program-description">Description</label>
+				{{ form.description|attr:"type:textarea"|attr:"onkeypress: return AvoidSpace(event, 'id_description')"|attr:"onkeyup: return RemoveSpace(event, 'id_description')" }}
+			</div>
+			<span>
+				<div class="form-style-6" style="margin:auto;">
+					<div class="col-sm-12 row" id="program-row">
+						<div class="col-sm-3" id="program-date">
+							{{ form.start_date }}
+						</div >
+						<div class="col-sm-3">
+							{{ form.end_date }}
+							<div class="invalid-date">
+								<span id="dateErrorMessage" class="invalid-date-text hidden">Please enter valid date</span>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="user-label">User Limit</label>{{ form.user_limit }}
+						</div>
+					</div>
+				</div>
+			</span>
+			{% endif %}
+			{% if access.permissions.can_edit_program or access.entity_permissions.can_edit_program %}
+			<div class="form-style-8" id="name">
+				<label class="program-name">Program Name</label>
+				{{ form.name|attr:"disabled:True" }}
+			</div>
+			<div class="form-style-4" id="program-description">
+				<label class="program-description">Description</label>
+				{{ form.description|attr:"type:textarea" }}
+			</div>
+			<span>
+				<div class="form-style-6" style="margin:auto;">
+					<div class="col-sm-12 row" id="program-row">
+						<div class="col-sm-3" id="program-date">
+							{{ form.start_date|attr:"disabled:True"|add_class:"date_1" }}
+						</div>
+						<div class="col-sm-3">
+							{{ form.end_date|attr:"disabled:True"|add_class:"date_2" }}
+							<div class="invalid-date">
+								<span id="dateErrorMessage" class="invalid-date-text hidden">Please enter valid date</span>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="user-label">User Limit</label>{{ form.user_limit|attr:"disabled:True" }}
+						</div>
+					</div>
+				</div>
+			</span>
+			{% endif %}
+		</div>
+		<div class="modal-footer" id="program-footer-2">
+			<button type="button" class="btn btn-secondary" id="program-update-cancel" data-dismiss="modal" style="">Cancel</button>
+			<button type="submit" class="btn btn-primary" id="program-create-btn" >Save Changes</button>
+		</div>
+</form>
+<!--For Date Field-->
+<script>
+	    $(document).ready(function () {
+        $("#datepicker-1").datepicker({
+            required: true,
+            // minDate: 0,
+            dateFormat: 'dd-M-yy',
+            onSelect: function (date) {
+                var date2 = $('#datepicker-1').datepicker('getDate');
+                date2.setDate(date2.getDate());
+                //sets minDate to dt1 date + 1
+                $('#datepicker-2').datepicker('option', 'minDate', date2);
+            }
+        });
+        $('#datepicker-2').datepicker({
+            required: true,
+            minDate: 0,
+            dateFormat: 'dd-M-yy',
+			beforeShow: function() {
+				var date1 = $('#datepicker-1').val()
+				$(this).datepicker('option', 'minDate', date1);
+			},
+            onClose: function () {
+                var dt1 = $('#datepicker-1').datepicker('getDate');
+                var dt2 = $('#datepicker-2').datepicker('getDate');
+                if (dt2 <= dt1) {
+                    var minDate = $('#datepicker-2').datepicker('option', 'minDate');
+                    $('#datepicker-2').datepicker('setDate', minDate);
+                }
+            }
+        });
+         //To prevent Text Input
+         $("#datepicker-1,#datepicker-2").keypress(function(e){
+			var keyCode = e.which;
+			if ( (keyCode != 8 || keyCode ==32 ) && (keyCode >= 48 || keyCode <= 57)) {
+			  return false;
+			}
+		  });
+    });
+
+</script>
+
+<script>
+	$("#datepicker-2").on("change",function () {
+		var datepicker_1 = new Date($('#datepicker-1').val());
+		var datepicker_2 = new Date($('#datepicker-2').val());
+		  if (datepicker_1 > datepicker_2) {
+			$("#dateErrorMessage").text("Please enter valid date");
+			$("#dateErrorMessage").removeClass("hidden");
+			$("#datepicker-2").val("");
+		  } else {
+			$("#dateErrorMessage").addClass("hidden");
+			return false;
+		  }
+ 	  });
+</script>
+
+ <script>
+    function edit_program() {
+        $('program-description').attr('readonly', true);
+    }
+</script>
+
+<script>
+	var numberInput = document.getElementById("user-limit")
+
+	numberInput.addEventListener("keydown", function(e) {
+	  // prevent: "e", "=", ",", "-", "."
+	  if ([69, 187, 188, 189, 190].includes(e.keyCode)) {
+		e.preventDefault();
+	  }
+	})
+</script>
+

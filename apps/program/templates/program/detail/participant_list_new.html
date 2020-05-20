@@ -1,0 +1,462 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'tables.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/entity-profile.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'participant-list.css' %}" type="text/css">
+{% endblock %}
+
+{% block data %}
+<div class="d-flex justify-content-start"
+     style="max-height: 195.9px;box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);border: solid 0.5px rgba(0, 113, 255, 0.35);border-radius:6px; margin-top: 45px;">
+    <div style="min-width:360px;background-image: linear-gradient(241deg, #fa766b, #b9524a); color:white; border-radius: 6px 0px 0px 0px;">
+        <div style="padding:26px;">
+            <div class="program-name-heading"> Participant List</div>
+            <div class="d-flex" style="padding-top:16px;">
+                <div class="card-date-title">Start Date:
+                    <span class="card-date-content sessionTime">{{session.session_start_date}}</span>
+                </div>
+                <div class="card-date-title" style="margin-left: 20px;">End Date:
+                    <span class="card-date-content sessionTime">{{session.session_end_date}}</span>
+                </div>
+            </div>
+            <div class="card-date-title" style="padding-bottom:24px;">Venue:
+                <span class="card-date-content">{{session.address}}</span>
+            </div>
+            {% if participants %}
+            <button class="btn download-list" onclick="location.href='{% url 'download-csv' pk=session.id %}'">
+                <span class="download-button-text">Download List</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="program-description-scroll">
+        <div class="right-session-detail">
+            <div class="right-session-detail-title">{{session.session_name|truncatechars:30}}</div>
+            <div class="right-session-detail-description">{{session.session_description}}</div>
+        </div>
+    </div>
+
+    <input type="hidden" id="sessionId" value="{{session.id}}"/>
+    <div class="session-qr-code" id="sessionQRCode"></div>
+
+</div>
+
+<!--<div class="program-list-datatable">-->
+<!--    <div class="table-heads program-list-head" style="margin:0;">-->
+<!--        <div class="nav nav-tabs" id="myTab" role="tablist">-->
+
+<!--            <div class="d-flex justify-content-center align-items-center session-list-label">-->
+<!--                <span class="dataTables-title">Participant List</span>-->
+<!--            </div>-->
+<!--            <form class="form-inline md-form form-sm mt-0" id="navBarSearchFormProgramList"-->
+<!--                  style="margin-left:20px !important; margin-bottom:0px !important;color:gray;">-->
+<!--                <i class="fa fa-search" aria-hidden="true"></i>-->
+<!--                <input class="form-control form-control-sm ml-3 w-75 global_filter" id="global_filter"-->
+<!--                       type="text" placeholder="Search..." autocomplete="off"-->
+<!--                       aria-label="Search" style="border:none;box-shadow: none;    margin-right: 25px;font-size: 12px;">-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <table id="example" class="table table-striped table-bordered table-condensed" cellspacing="0"-->
+<!--           style="box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);border-top: none;">-->
+<!--        <thead id="program-list-thead" style="border-bottom:none !important;">-->
+<!--        <tr id="program-list-row">-->
+<!--            <th class="table-th">Participant name</th>-->
+<!--            <th class="table-th" style="width:17%;">Phone Number</th>-->
+<!--            <th class="table-th" style="width:17%;">Email id</th>-->
+<!--            <th class="table-th" style="width:18%;">Scan in Time</th>-->
+<!--            <th class="table-th" style="width:18%;">Scan out Time</th>-->
+<!--            <th class="table-th" style="width:17%;">Attestation Generated</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+
+<!--        <tbody class="table-body">-->
+<!--        {% for user in participants %}-->
+<!--        <tr class="frame" id="table-data">-->
+<!--            <td class="table-td">{{user.name}}</td>-->
+<!--            {% if user.countryCode %}-->
+<!--            <td class="table-td">{{user.countryCode}}-{{user.phoneNumber}}</td>-->
+<!--            {% else %}-->
+<!--            <td class="table-td">{{user.phoneNumber}}</td>-->
+<!--            {% endif %}-->
+<!--            {% if user.emailId %}-->
+<!--            <td class="table-td">{{user.emailId}}</td>-->
+<!--            {% else %}-->
+<!--            <td class="table-td text-center">-</td>-->
+<!--            {% endif %}-->
+<!--            <td class="table-td scanTime">{{user.scanInTime}}</td>-->
+<!--            <td class="table-td scanTime">{{user.scanOutTime}}</td>-->
+<!--            {% if user.attestationGenerated %}-->
+<!--            <td class="table-td">YES</td>-->
+<!--            {% else %}-->
+<!--            <td class="table-td">NO</td>-->
+<!--            {% endif %}-->
+<!--        </tr>-->
+<!--        {% endfor %}-->
+
+<!--        </tbody>-->
+<!--    </table>-->
+
+<!--</div>-->
+
+<div class="row" style="margin:0;margin-top: 53.1px;">
+    <div class="col col-lg-9 col-md-9 col-sm-9 datatable-program" style="padding-bottom: 0; margin-bottom: 0;">
+
+        <div class="program-list-datatable" style="margin-top:0;margin-bottom: 0;">
+            <div class="table-heads program-list-head" style="margin:0;">
+                <div class="nav nav-tabs" id="myTab" role="tablist">
+
+                    <div class="d-flex justify-content-center align-items-center session-list-label">
+                        <span class="dataTables-title">Participant List</span>
+                    </div>
+                    <form class="form-inline md-form form-sm mt-0" id="navBarSearchFormProgramList"
+                          style="margin-left:20px !important; margin-bottom:0px !important;color:gray;">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                        <input class="form-control form-control-sm ml-3 w-75 global_filter" id="global_filter"
+                               type="text" placeholder="Search..." autocomplete="off"
+                               aria-label="Search"
+                               style="border:none;box-shadow: none;    margin-right: 25px;font-size: 12px;">
+                    </form>
+                </div>
+            </div>
+            <table id="example" class="table table-striped table-bordered table-condensed" cellspacing="0"
+                   style="box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);border-top: none;">
+                <thead id="program-list-thead" style="border-bottom:none !important;">
+                <tr id="program-list-row">
+                    <th class="table-th">Participant name</th>
+                    <th class="table-th" style="width:16%;">Phone Number</th>
+                    <th class="table-th" style="width:15%;">Email id</th>
+                    <th class="table-th" style="width:25%;">Scan in Time</th>
+                    <th class="table-th" style="width:25%;">Scan out Time</th>
+<!--                    <th class="table-th" style="width:8%;">Attestation Generated</th>-->
+                </tr>
+                </thead>
+
+                <tbody class="table-body">
+                {% for user in participants %}
+                <tr class="frame" id="table-data">
+                    <td class="table-td">{{user.name}}</td>
+                    {% if user.countryCode %}
+                    <td class="table-td">{{user.countryCode}}-{{user.phoneNumber}}</td>
+                    {% else %}
+                    <td class="table-td">{{user.phoneNumber}}</td>
+                    {% endif %}
+                    {% if user.emailId %}
+                    <td class="table-td">{{user.emailId|truncatechars:15}}</td>
+                    {% else %}
+                    <td class="table-td text-center">-</td>
+                    {% endif %}
+                    <td class="table-td scanTime">{{user.scanInTime}}</td>
+                    <td class="table-td scanTime">{{user.scanOutTime}}</td>
+<!--                    {% if user.attestationGenerated %}-->
+<!--                    <td class="table-td" style="color: #c75a51;">YES</td>-->
+<!--                    {% else %}-->
+<!--                    <td class="table-td" style="color: #c75a51;">NO</td>-->
+<!--                    {% endif %}-->
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <!-- Member Panel-->
+    <div class="col col-lg-3 col-md-3 col-sm-3 collapse show member-panel-participant-list" id="accordion"
+         style="padding-right: 0;">
+        <div class="members card">
+            <div class="card-header row" id="headingFour">
+                <div class="d-flex justify-content-between">
+                    <div class="mb-0">
+                        <a class="btn btn-link panel-button entity-admin-panel" data-toggle="collapse"
+                           data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                           style="padding: 2px;">
+                            Members
+                        </a>
+                        <p class="member-count">{{ members | length }} members</p>
+                    </div>
+
+                    <div style="color:#ffffff;margin-right:18px;cursor:pointer;margin-top:6px;" data-toggle="collapse"
+                         data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+
+                        <i id="entityArrowToggle" class="fa fa-caret-up" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="entity-admin-panel sublinks" id="entityadminlist">
+                <div class="collapse show" id="collapseOne" aria-labelledby="headingFour" data-parent="#accordion">
+                    <form class="form-inline" id="adminpanelSearchForm" style="margin-left:0px !important;color:gray;">
+                        <input class="form-control"
+                               onkeyup="SearchMembers('searchProgramAdmin', 'programMemberListPanel')"
+                               id="searchProgramAdmin" type="text" placeholder="Search" autocomplete="off"
+                               aria-label="Search"
+                               style="margin-top: 4px;height: 32px;    border-radius: 4px;box-shadow: none; width:100%;font-size:12px;">
+                    </form>
+
+                    {% for member in members %}
+                    <div class="entity-member-row programMemberListPanel">
+                        <div class="media base-header card-body member-card" data-toggle="modal"
+                                 data-target="#myModalQr{{ member.userId }}">
+                            {% if member.photo == "" %}
+                            <a class="pull-left picture" style="padding-right: 10px;padding-left: 0.5px;">
+                                <img id="content" class="media-object" src="{% static 'images/images.png' %}"
+                                     alt="Media Object" style="height: 58px;padding-top: 0.5px;border-radius: 6.5px 0px 0px 6.5px;">
+                            </a>
+                            {% else %}
+                            <a class="pull-left  picture" style="padding-right: 10px;">
+                                <img class="media-object" id="content-image" src="{{member.photo}}"
+                                     alt="Media Object" style="padding-left: 1px;height: 58px;padding-top: 0.5px;">
+                            </a>
+                            {% endif %}
+                            <div class="media-body member-media-content d-flex justify-content-center flex-column text-left">
+                                <div class="media-heading humain-media-heading session-admin-name">{{ member.name }}</div>
+                                <div class="session-admin-roles">
+                                    <span>{{ member.role|join:", "|title }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <!--    Document Panel-->
+        <div class="col-sm document-panel-entity" id="document-panel" style="margin-bottom: 45px;margin-top: 25px; padding-bottom: 0;padding-top:0;">
+            <div class="document-head" style="height: 45px;">
+                <div class="program-docs float-left">Session Content</div>
+            </div>
+            {% if contents %}
+                <div class="document-body">
+                    {% for content in contents %}
+                    <div class="program-document row" id="entity-document-row{{ forloop.counter0 }}">
+                        <div class="document-border">
+
+                                {% if content.contentType == "Video" %}
+                                <img class="media-object" style="width: 24px;"
+                                     src="{% static 'images/video_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if content.contentType == "Image" %}
+                                <img class="media-object" style="width: 24px;"
+                                     src="{% static 'images/image_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if content.contentType == "Document" %}
+                                <img class="media-object" style="width: 24px;"
+                                     src="{% static 'images/pdf_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+
+                        </div>
+                        <div class="program-document-view" style="width: 81%;">
+                            {% if content.contentType == "Video" %}
+                            <div class="v-download d-flex justify-content-between align-items-center" style="" title="{{ content.name }}">
+                                <div class="content-file-name">{{ content.name|truncatechars:20 }}</div>
+                                <div><a href="{{ content.vimeo_url }}" target="_blank" class="content-view-button">View</a></div>
+                            </div>
+                            {% else %}
+                            <div class="v-download d-flex justify-content-between align-items-center" style="" title="{{ content.name }}">
+                                <div class="content-file-name">{{ content.name|truncatechars:20 }}</div>
+                                <div><a href="{{ content.url }}" target="_blank" class="content-view-button">View</a></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="document-body-empty">
+                    <p class="document-label">No documents uploaded for this Session</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+{% for member in members %}
+<div class="modal" id="myModalQr{{member.userId}}" role="dialog">
+    <input type="hidden" class="member-userId" id="id-{{member.userId}}" value="{{member.userId}}"/>
+    <div class="modal-dialog modal-sm" id="myModalQr-dialog">
+        <div class="modal-content" id="myModalQr-content">
+            <h4 class="media-heading humain-media-heading" id="myModalQr-heading">{{member.name}}</h4>
+            <div class="media modal-media" id="myModalQr-media">
+                <a class="qr_img">
+                    <div id="myModalQr-qr"></div>
+                </a>
+            </div>
+            <div id="myModalQr-dismiss">
+                <button type="button" class="close-qr" id="myModalQr-close" data-dismiss="modal">&times;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        // Toggle plus minus icon on show hide of collapse element
+        $(".collapse").on('show.bs.collapse', function(){
+        	$("#entityArrowToggle").toggleClass("fa-caret-down fa-caret-up");
+        }).on('hide.bs.collapse', function(){
+        	$("#entityArrowToggle").toggleClass("fa-caret-up fa-caret-down");
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function(){
+        var userIds = $('.member-userId');
+        userIds.toArray().forEach(function (item){
+            var QrCodeId = "#myModalQr"+item.value+" #myModalQr-qr";
+            jQuery(QrCodeId).qrcode(encrypt(item.value));
+        });
+        var sessionId = $('#sessionId').val();
+        jQuery('#sessionQRCode').qrcode(sessionId);
+        $('.scanTime').toArray().forEach(function (item) {
+            if (item.innerText === "None"){
+                item.innerText = "N/A";
+            }
+            else {
+                item.innerText = moment(new Date(Date.parse(item.innerText + " UTC"))).format("DD-MMM-YYYY hh:mm A");
+            }
+        });
+        $('.sessionTime').toArray().forEach(function (item) {
+            if (item.innerText === "None"){
+                item.innerText = "N/A";
+            }
+            else {
+                item.innerText = moment(new Date(Date.parse(item.innerText + " UTC"))).format("DD-MMM-YYYY");
+            }
+        });
+    });
+
+
+</script>
+
+<script type="text/javascript">
+
+    function filterGlobal () {
+        $('#example').DataTable().search(
+            $('#global_filter').val(),
+        ).draw();
+    }
+
+     $(document).ready(function(){
+       $.fn.dataTable.moment( 'DD-MM-YYYY h:mm:ss' );
+          var table = $('#example').DataTable({
+            "bSearchable": false,
+            info: false,
+            pagingType: "full_numbers",
+            "bPaginate" : $('#example tbody tr').length>10,
+            "iDisplayLength": 10,
+            lengthChange: false,
+
+
+            "columnDefs": [
+
+                 //date-fields
+                 {
+                    "targets":[ 3,4],
+                    "type": 'date'
+                 }
+            ],
+            "aaSorting": [],
+            language:
+                    {
+                       search: '', searchPlaceholder: "Search",
+                       emptyTable: "<p align='center'>There are no participants for the session</p>",
+                       paginate:
+                       {
+                           previous:'<i class="fa fa-angle-left">' ,
+                           next: '<i class="fa fa-angle-right">',
+                           first: '<i class="fa fa-angle-double-left">',
+                           last: '<i class="fa fa-angle-double-right">',
+                       }
+                    },
+            });
+
+
+            $('input.global_filter').on( 'keyup', function () {
+                filterGlobal();
+            });
+
+           $('#global_filter').keypress(function (e) {
+                   if (e.which == 13) {
+                        e.preventDefault();
+                   }
+            });
+
+        });
+
+
+</script>
+
+<script>
+    function myFunction() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("example");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+
+</script>
+<script>
+    $('#accordion').collapse('show').height('auto');
+
+</script>
+<script>
+    function SearchMembers(searchInput, membersList) {
+      var input, filter, list, i, txtValue;
+      input = document.getElementById(searchInput);
+      filter = input.value.toUpperCase();
+      card = document.getElementsByClassName(membersList);
+      for (i = 0; i < card.length; i++) {
+        memberName = card[i].innerText;
+        if (memberName != undefined) {
+          txtValue = memberName;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            card[i].style.display = "block";
+          } else {
+            card[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+
+</script>
+<script>
+    $('#adminpanelSearchForm').keypress(function (e) {
+    //to prevent refresh page on enter
+           if (e.which == 13) {
+                e.preventDefault();
+           }
+    });
+
+</script>
+{% endblock %}

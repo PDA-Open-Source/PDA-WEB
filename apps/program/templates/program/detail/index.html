@@ -1,0 +1,1943 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load custom_tags %}
+{% load qr_code %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/entity-list.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/custom/scanner.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'tables.css' %}" type="text/css">
+<style>
+#table-data a{
+    text-decoration: none;
+}
+
+#table-data a:hover {
+    text-decoration:underline;
+}
+</style>
+{% endblock %}
+
+
+{% block pro %}
+<div>
+<div class="d-flex justify-content-start" style=" box-shadow: 12px 10px 40px 0 rgba(59, 59, 59, 0.1);border: solid 0.5px rgba(0, 113, 255, 0.35);border-radius:6px;    margin-top: 45px;">
+    <div style="width:360px;background-image: linear-gradient(to left, #fa766b, #b9524a); color:white;    border-radius: 6px 0px 0px 0px;">
+        <div style="padding:30px;">
+            <div>
+                <p class="program-name-heading">{{ program.name }}</p>
+                <div class="user-limit-label">
+                    <label>User Limit:</label>  {{ program.user_limit }}
+                </div>
+                <p class="date">{{ program.start_date|date:"d-M-Y" }} &ndash; {{ program.end_date|date:"d-M-Y" }}</p>
+                <div class="dash-board-view">
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="programDetailId" value="{{program.id}}">
+    <div class="program-description-scroll" style="">
+        <div style="padding:0px;">
+            <div class="right-program-detail-description" id="right-program-detail-admin">
+                <p>{{ program.description }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="column right-program-detail" style="">
+
+        {% if "Admin" in request.user.roles or permissions.can_edit_program or entity_permissions.can_edit_program %}
+        {% if not program.deleted %}
+        <input type="image" class="show-form" src="{% static 'assets/edit_button.png' %}" alt="Submit"
+               data-url="{% url 'program_update' pk=program.id %}" id="deactivate-program-image-btn">
+        {% endif %}
+        {% endif %}
+        {% if "Admin" in request.user.roles %}
+        {% if not program.deleted %}
+        <input type="image" src="{% static 'assets/deactivate_button.png' %}"
+                  data-toggle="modal" data-target="#deactivate-program" id="deactivate-program-btn">
+        {% else %}
+        {% if not program.entity.deleted %}
+        <div class="reactivate-program" style="height: 20px; float: left;">
+           <i class="fa fa-plus" aria-hidden="true" data-toggle="modal" data-target="#reactivate-program"
+              style="font-size: 18px; color: green; padding: 5px; cursor: pointer;"></i>
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+</div>
+
+<!-- Loader for Program Doc Update -->
+<div class="programLoader" id="program-doc-loader-Image">
+    <img id="program-doc-loader-img" style="" src="{% static 'images/loader.gif' %}"/>
+</div>
+
+{% endblock %}
+
+{% block topic %}
+
+<!--Topic list DT-->
+<div class="container div-topic col-12">
+    <div class="row">
+        <!-- Nav tabs -->
+        <div class="datatable-topic col-lg-9 col-md-9 col-sm-8" style="float: left;">
+            <div class="d-flex justify-content-between table-heads">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item active">
+                        <a id="active-tab" class="nav-link" href="#example4-tab1" aria-controls="example4-tab1"
+                           role="tab" data-toggle="tab"
+                           style="width: 66px;  height: 47px;font-size: 12px;letter-spacing: -0.05px;padding-top: 15px; font-family: 'Noto Sans',sans-serif; color:#666666;text-align: center;    border-radius: 2px 2px 0px 0px;font-weight: normal;">Topics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#example4-tab2" aria-controls="example4-tab2" role="tab"
+                           data-toggle="tab"
+                           style="width: 165px;  height: 47px;font-size: 12px;letter-spacing: -0.05px;padding-top: 15px; font-family: 'Noto Sans',sans-serif;font-color:#666666;text-align: center;border-radius: 2px 2px 0px 0px;font-weight: normal;">Completed
+                            Sessions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#example4-tab3" aria-controls="example4-tab3" role="tab"
+                           data-toggle="tab"
+                           style="width: 165px;  height: 47px;font-size: 12px;letter-spacing: -0.05px;padding-top: 15px; font-family: 'Noto Sans',sans-serif;font-color:#666666;text-align: center;border-radius: 2px 2px 0px 0px;font-weight: normal;">Upcoming
+                            Sessions</a>
+                    </li>
+                </ul>
+                <form class="form-inline md-form form-sm mt-0" id="navBarSearchForm"
+                      style="margin-left:101px !important; margin-bottom:0px !important; color:gray;">
+                    <img  style="" src="{% static 'images/search.png' %}"/>
+                    <input class="form-control form-control-sm ml-3 w-75 global_filter" id="global_filter"
+                           type="text" placeholder="Search..." autocomplete="off"
+                           aria-label="Search" style="border:none;box-shadow: none;">
+                </form>
+                {% if permissions.can_add_activate_deactivate_topic or entity_permissions.can_add_activate_deactivate_topic %}
+                {% if not program.deleted %}
+                <button type="button" class="btn btn-light show-topic-form" id="topic-add-btn" alt="Submit"
+                        data-url="{% url 'topic_create' program.pk %}">
+                    <i class="fa fa-plus" style="margin-right:5px;"></i>
+                    Add Topic
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+
+
+            <!--      Tab panes-->
+            <div class="tab-content" id="tabs">
+                <div role="tabpanel" class="tab-pane fade in active" id="example4-tab1">
+                    <table id="topic-tab" class="table table-striped table-bordered table-condensed"
+                           cellspacing="0" style="margin-top:0px !important;border-top: none;box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);">
+                        <thead id="entiy-program-list-thead-1" style="border-bottom:none !important;">
+                        <tr id="program-list-row-1">
+                            <th class="table-th" style="">Topic name</th>
+                            <th class="table-th" style="width:20%;">Date Of Creation</th>
+                            <th class="table-th" style="width:17%;">No. of content</th>
+                            <th class="table-th" style="width:15%;">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-body">
+                        {% for topic in contents %}
+                        <tr class="frame" id="table-data" data-toggle="modal" data-target="#myModal{{ topic.id }}">
+                            <td class="table-td">{{ topic.name }}</td>
+                            <td class="table-td">{{ topic.created_at|date:"d-M-Y" }}</td>
+                            <td class="table-td" style="padding-left: 54px;">{{topic.contents.count }}</td>
+                            {% if not topic.deleted %}
+                            <td class="table-td">Active</td>
+                            {% else %}
+                            <td class="table-td">Deactivated</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="example4-tab2">
+                    <table id="completed-session" class="table table-striped table-bordered table-condensed"
+                           cellspacing="0" style="border-top: none;box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);">
+                        <thead id="entiy-program-list-thead-2" style="border-bottom:none !important;">
+                        <tr id="program-list-row-2">
+                            <th class="table-th">Session name</th>
+                            <th class="table-th" style="width:17%;">Start Date</th>
+                            <th class="table-th" style="width:17%;">End date</th>
+                            <th class="table-th" style="width:14%;">Venue</th>
+                            <th class="table-th" style="width:18%;">Content</th>
+<!--                            <th class="table-th" style="width:18%;">No. of Attestations</th>-->
+                            <th class="table-th" style="width:18%;">Participants</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-body">
+                        {% for session in completed_session %}
+                        <tr class="frame" id="table-data">
+                            <td class="table-td">{{ session.session_name }}</td>
+                            <td class="table-td">{{ session.session_start_date|date:"d-M-Y" }}</td>
+                            <td class="table-td">{{ session.session_end_date|date:"d-M-Y" }}</td>
+                            <td class="table-td">{{ session.address }}</td>
+                            <td class="table-td">
+                                <a data-toggle="modal" data-target="#SessionModal{{ session.id }}">
+                                    <img src="{% static 'images/show-content.png' %}" style="margin-left: 15%;">{{ session.completed_session_contents.count }}
+                                </a>
+                            </td>
+<!--                            <td class="table-td">{{ session.attestation_count }}</td>-->
+                            {% if permission_can_view_participant_list and program.is_hyperlinked == True %}
+                            <td class="table-td"><a class="view-participant-link" style="color: #c75a51;" href="{% url 'participant-list' pk=session.id %}">{{ session.participant_count }} members</a></td>
+                            {% else %}
+                            <td class="table-td" style="color: #c75a51;">{{ session.participant_count }} members</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="example4-tab3">
+                    <table id="upcoming-session" class="table table-striped table-bordered table-condensed"
+                           cellspacing="0" style="margin-top:0px !important;border-top: none;box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);">
+                        <thead id="entiy-program-list-thead-1" style="border-bottom:none !important;">
+                        <tr id="program-list-row-1">
+                            <th class="table-th" >Session name</th>
+                            <th class="table-th" style="width:18%;">Start Date</th>
+                            <th class="table-th" style="width:18%;">End date</th>
+                            <th class="table-th" style="width:18%;">Content</th>
+                            <th class="table-th" style="width:20%;">Venue</th>
+<!--                            <th class="table-th" style="width:20%;">No. of Participants</th>-->
+                        </tr>
+                        </thead>
+                        <tbody class="table-body">
+                        {% for session in upcoming_session %}
+                        <tr class="frame" id="table-data">
+                            <td class="table-td">{{ session.session_name }}</td>
+                            <td class="table-td">{{ session.session_start_date|date:"d-M-Y" }}</td>
+                            <td class="table-td">{{ session.session_end_date|date:"d-M-Y" }}</td>
+                            <td class="table-td">
+                                <a data-toggle="modal" data-target="#UpcomingSessionModal{{ session.id }}">
+<!--                                    <span style="margin-left: 15%;">-->
+<!--                                        <i class="fa fa-fax fa-flip-horizontal session-content-image" aria-hidden="true"></i>-->
+<!--                                    </span>-->
+                                    <img src="{% static 'images/show-content.png' %}" style="margin-left: 15%;">{{ session.upcoming_session_contents.count }}
+                                </a>
+                            </td>
+                            <td class="table-td">{{ session.address }}</td>
+<!--                            <td class="table-td" style="padding-left: 64px;"> session.participant_count </td>-->
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Popups for Completed Sessions-->
+        {% for session in completed_session %}
+        <div class="modal" id="SessionModal{{ session.id }}" role="dialog">
+            <div class="modal-dialog modal-lg" id="session-modal-dialog" style="width: 526px; height: 333px;">
+                <div class="modal-content">
+                    <div class="modal-header col-md-12" id="session-Modal-header" style="">
+                        <div class="col-md-6"><h2 style="font-family: Roboto; font-size: 17px; color: #333333;"><b>Session Content</b></h2></div>
+                        <button type="button" class="close" data-dismiss="modal" style="">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="modal-body col-md-12" id="session-contents-body" style="display: inline-flex; padding: 8px; padding-bottom: 30px;">
+                        <div class="content-body col-md-6" id="content-section" style="max-width: 46%; height: 202px; margin-left: 17px; width: 221px; overflow-y: scroll; padding: 0px; background: #a7a2a21f; box-shadow: 4px 4px 7px #847c7c61; border-radius: 7px;">
+                            <h2 style="margin-top: 5px; font-size: 15px; font-family: Roboto; color: #333333; font-weight: bold; padding-left: 13px;">Content</h2>
+                            <div class="col-md-12" style="padding-top: 8px; height: 140px; padding-left: 0px; padding-right: 0px;">
+                                {% for session_content in session.completed_session_contents %}
+                                {% if not session_content.deleted %}
+                                <div class="v-media col-md-7" style="float:left; padding-left: 0px; padding-right: 0px;">
+                                    <div class="media">
+                                        <a class="pull-left content-image" style="padding: 10px;">
+                                            {% if session_content.content_type == "Video" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/video-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if session_content.content_type == "Image" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/image-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if session_content.content_type == "Document" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/pdf-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                        </a>
+                                        <div class="media-body humain-media-content">
+                                            {% if session_content.content_type == "Video" %}
+                                            <a href="{{ session_content.vimeo_url }}" target="_blank">
+                                                <h4 class="media-heading resource-media-heading" id="myModal-media" style="font-family: Roboto; font-size: 11px; color: #555555; height: 20px; overflow-x: hidden; overflow-y: hidden;">
+                                                {{ session_content.name|truncatechars:20 }}</h4>
+                                            </a>
+                                            {% else %}
+                                            <a href="{{ session_content.content_url }}" target="_blank">
+                                                <h4 class="media-heading resource-media-heading" id="myModal-media" style="font-family: Roboto; font-size: 11px; color: #555555; height: 20px; overflow-x: hidden; overflow-y: hidden;">
+                                                {{ session_content.name|truncatechars:20 }}</h4>
+                                            </a>
+                                            {% endif %}
+<!--                                            <div class="content-size-display" style="padding-left: 10px;">-->
+<!--                                                <span style="font-family: Roboto-Light; font-size: 7px; color: #555555">{{ session_content.size }}</span>-->
+<!--                                            </div>-->
+                                        </div>
+                                    </div>
+                                </div>
+<!--                                <div class="col-md-2" style="float: left; margin-top: 4px; width: 10px; margin-left: 30px;">-->
+<!--                                    {% if session_content.content_type == "Video" %}-->
+<!--                                    <div class="v-download col-md-4" style="float:left;">-->
+<!--                                        <a href="{{ session_content.vimeo_url }}" target="_blank"-->
+<!--                                           class="modal-download" style="color: ">Play</a>-->
+<!--                                    </div>-->
+<!--                                    {% else %}-->
+<!--                                    <div class="v-download col-md-4" style="float:left;">-->
+<!--                                        <a href="{{ session_content.content_url }}" target="_blank"-->
+<!--                                           class="modal-download">View</a>-->
+<!--                                    </div>-->
+<!--                                    {% endif %}-->
+<!--                                </div>-->
+                                <div class="col-md-2" style="float: right; padding: 0px; width: 70px; margin-top: 4px;">
+                                    <form hidden class="download-content" id="download-content{{ session_content.id }}" method="POST" >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="content_name" id="content_name" value="{{ session_content.name }}">
+                                        <input type="hidden" name="content_url" id="content_url" value="{{ session_content.content_url }}">
+                                        <button type="submit" value="submit" id="DownloadSubmit{{ session_content.id }}" hidden></button>
+                                    </form>
+                                    <input type="image" style="height: 15px; margin-top: 10px;" id="content_download_btn" data-auth="{{ session_content.id }}"
+                                              src="{% static 'assets/download_content.png' %}">
+                                </div>
+                                <hr class="session-content-bottom-border" id="content-column-bottom-border{{ session_content.id }}" style="width: 91%; margin-top: 45px; margin-bottom: 0px;">
+                                {% endif %}
+                                {% empty %}
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="empty-session-content" style="font-weight: bold; margin-top: 14px;">
+                                        No Content Available
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="content-links col-md-6" id="link-section" style="max-width: 46%; height: 202px; margin-left: 10px; width: 221px; overflow-y: scroll; overflow-x: hidden; padding: 0px; background: #a7a2a21f; box-shadow: 4px 4px 7px #847c7c61; border-radius: 7px;">
+                            <h2 style="margin-top: 5px; font-size: 15px; font-family: Roboto; color: #333333; font-weight: bold; padding-left: 13px;">Additional Links</h2>
+                            <div class="link-body">
+                                {% for link in session.completed_session_links %}
+                                    <a href="//{{ link }}" target="_blank" style="padding-left: 13px; font-size: 8px; color: #0071bc; line-height: 26px;">{{ link | truncatechars:45}}</a><br>
+                                {% empty %}
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="empty-session-content" style="font-weight: bold; margin-top: 20px;">
+                                        No Links Available
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Content Popups for Upcoming Sessions-->
+        {% for session in upcoming_session %}
+        <div class="modal" id="UpcomingSessionModal{{ session.id }}" role="dialog">
+            <div class="modal-dialog modal-lg" id="session-modal-dialog" style="width: 526px; height: 333px;">
+                <div class="modal-content">
+                    <div class="modal-header col-md-12" id="session-Modal-header" style="">
+                        <div class="col-md-6"><h2 style="font-family: Roboto; font-size: 17px; color: #333333;"><b>Session Content</b></h2></div>
+                        <button type="button" class="close" data-dismiss="modal" style="">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="modal-body col-md-12" id="session-contents-body" style="display: inline-flex; padding: 8px; padding-bottom: 30px;">
+                        <div class="content-body col-md-6" id="content-section" style="max-width: 46%; height: 202px; margin-left: 17px; width: 221px; overflow-y: scroll; padding: 0px; background: #a7a2a21f; box-shadow: 4px 4px 7px #847c7c61; border-radius: 7px;">
+                            <h2 style="margin-top: 5px; font-size: 15px; font-family: Roboto; color: #333333; font-weight: bold; padding-left: 13px;">Content</h2>
+                            <div class="col-md-12" style="padding-top: 8px; height: 140px; padding-left: 0px; padding-right: 0px;">
+                                {% for session_content in session.upcoming_session_contents %}
+                                {% if not session_content.deleted %}
+                                <div class="v-media col-md-7" style="float:left; padding-left: 0px; padding-right: 0px;">
+                                    <div class="media">
+                                        <a class="pull-left content-image" style="padding: 10px;">
+                                            {% if session_content.content_type == "Video" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/video-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if session_content.content_type == "Image" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/image-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if session_content.content_type == "Document" %}
+                                            <img class="media-object topic-popup-content" style="width: 22px; height: 24px;"
+                                                 src="{% static 'images/pdf-icon-red.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                        </a>
+                                        <div class="media-body humain-media-content">
+                                            {% if session_content.content_type == "Video" %}
+                                            <a href="{{ session_content.vimeo_url }}" target="_blank">
+                                                <h4 class="media-heading resource-media-heading" id="myModal-media" style="font-family: Roboto; font-size: 11px; color: #555555; height: 20px; overflow-x: hidden; overflow-y: hidden;">
+                                                {{ session_content.name|truncatechars:20 }}</h4>
+                                            </a>
+                                            {% else %}
+                                            <a href="{{ session_content.content_url }}" target="_blank">
+                                                <h4 class="media-heading resource-media-heading" id="myModal-media" style="font-family: Roboto; font-size: 11px; color: #555555; height: 20px; overflow-x: hidden; overflow-y: hidden;">
+                                                {{ session_content.name|truncatechars:20 }}</h4>
+                                            </a>
+                                            {% endif %}
+                                            <div class="content-size-display" style="padding-left: 10px;">
+                                                <span style="font-family: Roboto; font-size: 7px; color: #555555">{{ session_content.size }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+<!--                                <div class="col-md-2" style="float: left; margin-top: 4px; width: 10px; margin-left: 30px;">-->
+<!--                                    {% if session_content.content_type == "Video" %}-->
+<!--                                    <div class="v-download col-md-4" style="float:left;">-->
+<!--                                        <a href="{{ session_content.vimeo_url }}" target="_blank"-->
+<!--                                           class="modal-download" style="color: ">Play</a>-->
+<!--                                    </div>-->
+<!--                                    {% else %}-->
+<!--                                    <div class="v-download col-md-4" style="float:left;">-->
+<!--                                        <a href="{{ session_content.content_url }}" target="_blank"-->
+<!--                                           class="modal-download">View</a>-->
+<!--                                    </div>-->
+<!--                                    {% endif %}-->
+<!--                                </div>-->
+                                <div class="col-md-2" style="float: right; padding: 0px; width: 70px; margin-top: 4px;">
+                                    <form hidden class="download-content" id="download-content{{ session_content.id }}" method="POST" >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="content_name" id="content_name" value="{{ session_content.name }}">
+                                        <input type="hidden" name="content_url" id="content_url" value="{{ session_content.content_url }}">
+                                        <button type="submit" value="submit" id="DownloadSubmit{{ session_content.id }}" hidden></button>
+                                    </form>
+                                    <input type="image" style="height: 15px; margin-top: 10px;" id="content_download_btn" data-auth="{{ session_content.id }}"
+                                              src="{% static 'assets/download_content.png' %}">
+                                </div>
+                                <hr class="session-content-bottom-border" id="content-column-bottom-border{{ session_content.id }}" style="width: 91%; margin-top: 45px; margin-bottom: 0px;">
+                                {% endif %}
+                                {% empty %}
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="empty-session-content" style="font-weight: bold; margin-top: 14px;">
+                                        No Content Available
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="content-links col-md-6" id="link-section" style="max-width: 46%; height: 202px; margin-left: 10px; width: 221px; overflow-y: scroll; overflow-x: hidden; padding: 0px; background: #a7a2a21f; box-shadow: 4px 4px 7px #847c7c61; border-radius: 7px;">
+                            <h2 style="margin-top: 5px; font-size: 15px; font-family: Roboto; color: #333333; font-weight: bold; padding-left: 13px;">Additional Links</h2>
+                            <div class="link-body">
+                                {% for link in session.upcoming_session_links %}
+                                    <a href="//{{ link }}" target="_blank" style="padding-left: 13px; font-size: 8px; color: #0071bc; line-height: 26px;">{{ link | truncatechars:45}}</a><br>
+                                {% empty %}
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="empty-session-content" style="font-weight: bold; margin-top: 20px;">
+                                        No Links Available
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Topic Popups-->
+        {% for topic in contents %}
+        <div class="modal" id="myModal{{ topic.id }}" role="dialog">
+            <div class="modal-dialog modal-lg" id="myModal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header  base-header-topic" id="myModal-header">
+                        <button type="button" class="close" data-dismiss="modal" style="margin: 0px;">
+                            &times;
+                        </button>
+                        <div class="media modal-media" style="padding-left: 20px; padding-top: 40px;    padding-bottom: 25px;">
+                            <div class="pull-left text-center" style="    margin-right: 13px;">
+                                <div class="d-flex align-items-center flex-column" id="QRCode{{ topic.id }}">
+                                    <div id="topic-detail-header"
+                                         style="display:none;text-align:left;font-family:AvenirNext-DemiBold;font-size:12px;padding: 12px;padding-bottom:0;">
+                                        <table>
+                                            <tbody>
+                                            <tr>
+                                                <th scope="row" style="white-space: nowrap;">Entity : &nbsp;</th>
+                                                <td>{{program.entity.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" style="white-space: nowrap;">Program : &nbsp;</th>
+                                                <td>{{program.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" style="white-space: nowrap;">Topic : &nbsp;</th>
+                                                <td>{{topic.name}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div style="background-color:#666666; height: 1px;margin-top:10px;"></div>
+                                    </div>
+                                    <div class="qr-code-topic">{% with '{"id":"'|addstr:topic.id|addstr:'","QRtype":"TOPIC"}' as topic_obj %}{% qr_from_text topic_obj image_format="png" size=4 border=3 %} {% endwith %}</div>
+                                </div>
+                                <a href="#" id="downloadQR{{ topic.id }}" onclick="myFn({{ topic.id }})"
+                                   style="float:left;margin-left:8.5px;color:#2b8880;font-size: 11px;">
+                                    <b>Download QR Code</b></a>
+                            </div>
+                            <div class="media-body member-media-content" id="myModal-description">
+                                <b><h4 class="media-heading modal-title" style="overflow-x: hidden; height: 70px;">{{ topic.name }}</h4></b>
+                                <p class="topic-date">{{ topic.created_at|date:"d-M-Y" }}</p>
+                                <p class="modal-title-para" style="overflow-x: hidden; height: 45px;">
+                                    {{ topic.description }}
+                                </p>
+                            </div>
+                            {% if permissions.can_add_activate_deactivate_topic or entity_permissions.can_add_activate_deactivate_topic %}
+                            {% if not program.deleted %}
+                            <div>
+                               {% if topic.is_session_linked == False %}
+                               {% if not topic.deleted %}
+                               <input type="image" class="show-form" src="{% static 'assets/edit_button.png' %}"
+                                      id="myModal" data-toggle="modal" data-dismiss="modal"
+                                      alt="Submit" data-url="{% url 'topic_update_1' pk=topic.id %}">
+                               {% endif %}
+                               {% endif %}
+                                {% if topic.is_session_linked == True %}
+                                {% if not topic.deleted %}
+                                <input type="image" class="show-form" src="{% static 'assets/edit_button.png' %}"
+                                      data-toggle="modal" data-dismiss="modal" style="opacity: 0.3;"
+                                      alt="Submit" data-url="{% url 'topic_update_1' pk=topic.id %}" disabled>
+                                {% endif %}
+                                {% endif %}
+                                {% if topic.deleted %}
+                                   <div class="reactivate-topic" style="height: 20px; float: left;">
+                                       <a href="{% url 'reactivate-topic' pk=topic.id %}">
+                                           <i class="fa fa-plus" aria-hidden="true" onclick="disableScreen()"
+                                              style="font-size: 25px; color: green; padding: 15px; cursor: pointer;"></i>
+                                       </a>
+                                   </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-body modal-data" id="myModal-content" style="padding-top: 8px;padding-right: 0px;">
+                        {% if topic.is_session_linked == False %}
+                        <form method="post" enctype="multipart/form-data" id="contentUpdateForm"
+                              data-url="{% url 'content_update' pk=topic.id %}" class="update-content-form"
+                              xmlns="http://www.w3.org/1999/html">
+                            {% csrf_token %}
+                            <div class="col-md-12" id="content-list" style="float: left; margin-top: 10px; padding-right: 0px;">
+                                <div class="col-md-2" id="content-div" style="float: left; padding: 0px;">
+                                    <h3 class="content-label">Content</h3>
+                                </div>
+                                <div class="col-md-7"
+                                     style="overflow:scroll; overflow-y:auto; overflow-x:hidden; height:70px;float: left;">
+                                    <div class="col-md-6" style="padding-left:0px; padding-top: 14px;float:left;"
+                                         id="filepreview">
+                                        <div style="overflow: hidden; text-overflow: ellipsis"></div>
+                                    </div>
+                                    <div class="col-md-6" style="padding-top:15px;float: left;" id="remove-File">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                {% if permissions.can_add_activate_deactivate_topic or entity_permissions.can_add_activate_deactivate_topic %}
+                                {% if not topic.deleted %}
+                                <div class="col-md-3" style="margin-top: 10px; float: left;">
+                                    <div id="topic-file-upload-2">
+                                        <div style="position: relative;">
+                                            <input type="file" id="Filehandle" class="file" name="attachment" style=""/>
+                                            <div id="topic-file-image-2" style="width: 138px;">
+                                                    <span id="topic-upload-image" style="">
+                                                        <img id="topic-add-content"
+                                                             src="{% static 'images/add_button.png' %}"
+                                                             width="20px" height="20px"/> Upload Content
+                                                    </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </form>
+                        {% else %}
+                        <h3 style="margin-left:12px;" class="content-label">Content</h3>
+                        {% endif %}
+                        <div class="modal-resource" id="myModal-resource" style="float: left; width: 100%;">
+                            {% for content in topic.contents.all %}
+                            {% if not content.deleted %}
+                            <div class="video" id="content-column{{ content.id }}">
+                                <div class="v-media col-md-7" style="float:left;    padding-left: 0px;">
+                                    <div class="media">
+                                        <a class="pull-left content-image" style="padding: 10px;">
+                                            {% if content.content_type == "Video" %}
+                                            <img class="media-object topic-popup-content"
+                                                 src="{% static 'images/video_icon.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if content.content_type == "Image" %}
+                                            <img class="media-object topic-popup-content"
+                                                 src="{% static 'images/image_icon.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                            {% if content.content_type == "Document" %}
+                                            <img class="media-object topic-popup-content"
+                                                 src="{% static 'images/pdf_icon.png' %}"
+                                                 alt="Media Object">
+                                            {% endif %}
+                                        </a>
+                                        <div class="media-body humain-media-content" style="padding-top: 10px; padding-left: 10px;">
+                                            <h4 class="media-heading resource-media-heading" id="myModal-media">
+                                                {{ content.name }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="float: left; padding-top: 10px;">
+                                    <form hidden class="download-content" id="download-content{{ content.id }}" method="POST" >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="content_name" id="content_name" value="{{ content.name }}">
+                                        <input type="hidden" name="content_url" id="content_url" value="{{ content.content_url }}">
+                                        <button type="submit" value="submit" id="DownloadSubmit{{ content.id }}" hidden></button>
+                                    </form>
+                                    <input type="image" style="height: 15px;margin-left: 18px;" id="download-content-image"
+                                               value="{{ content.id }}"
+                                               src="{% static 'assets/download_content.png' %}">
+                                    <a id="content_download_btn" class="content-download-text" data-auth="{{ content.id }}" style="cursor: pointer;margin-left: 8px;">Download</a>
+                                </div>
+                                <div class="col-md-2" style="float: right; padding-top: 13px;">
+                                    {% if content.content_type == "Video" %}
+                                    <div class="v-download col-md-4" style="float:left;">
+                                        <a href="{{ content.vimeo_url }}" target="_blank"
+                                           class="modal-download">View</a>
+                                    </div>
+                                    {% else %}
+                                    <div class="v-download col-md-4" style="float:left;">
+                                        <a href="{{ content.content_url }}" target="_blank"
+                                           class="modal-download">View</a>
+                                    </div>
+                                    {% endif %}
+                                    {% if permissions.can_add_activate_deactivate_topic or entity_permissions.can_add_activate_deactivate_topic %}
+                                    {% if topic.is_session_linked == False %}
+                                    {% if not topic.deleted %}
+                                    <div class="v-delete col-md-2" style="    margin-left: 40px;">
+                                        <input type="image" style="height: 15px;" id="delete-content-button"
+                                               value="{{ content.id }}"
+                                               src="{% static 'admin_deactivate_program/drawable-mdpi/noun_minus_138536.png' %}">
+                                    </div>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <hr class="topic-content-bottom-border" id="content-column-bottom-border{{ content.id }}">
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div style="padding-right: 45px; padding-bottom: 10px;">
+<!--                        Deactivate Topic button-->
+                        <form method="post" id="content-UpdateForm" data-url="{% url 'content_update' pk=topic.id %}"
+                              class="update-content-form" xmlns="http://www.w3.org/1999/html">
+                            {% csrf_token %}
+                             {% if permissions.can_add_activate_deactivate_topic or entity_permissions.can_add_activate_deactivate_topic %}
+                             {% if not topic.deleted %}
+                            <a id="deactivate-topic-popup-btn" data-toggle="modal"
+                               data-target="#deactivate-topic{{ topic.id }}"
+                               data-dismiss="modal" class="topic-view view">DEACTIVATE
+                            </a>
+                            {% endif %}
+                            {% endif %}
+                            {% if topic.is_session_linked == False %}
+                            {% if not topic.deleted %}
+                            <button type="submit" id="topic-save" class="btn btn-primary topic-save" style="display: none;">
+                                Save & Close
+                            </button>
+                            {% endif %}
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Memeber Panel-->
+        <div class="col-lg-3 col-md-3 col-sm-3 panel-group" id="accordion" role="tablist" aria-multiselectable="true" style="padding-right: 0px;">
+            <!--  Program Administrator Panel-->
+            <div class="members card panel panel-default">
+                <div class="card-header panel-heading active row" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <div class="d-flex justify-content-between panel-title">
+                        <div>
+                            <a class="btn btn-link panel-button text-left" role="button" >
+                              Program Administrators
+                            </a>
+                            <p class="member-count">{{ PROGRAM_ADMIN_ACTIVE_COUNT }} members</p>
+                        </div>
+                        {% if permissions.can_add_program_member or entity_permissions.can_add_program_member %}
+                        {% if not program.deleted %}
+                        <div class="add-content add-admin float-right" data-toggle="modal" data-action="PROGRAM_ADMIN"
+                             style="cursor:pointer;padding-left: 8px;border-radius: 6px;margin-right:8px; background-color: white; border: 1px solid #b4b4b4;height: 28px; width: 60px;">
+                            <div class="admins-add-button" style="margin-top:8px; color:#b9524a;">
+                                <div style="margin-top:6px; color:#b9524a;">
+                                    <i class="fa fa-plus" style="margin-right:5px;"></i>
+                                    Add
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="program-admin-panel sublinks" id="programadminlist">
+                    <div id="collapseOne" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                        <form class="form-inline" id="adminpanelSearchForm"
+                              style="margin-left:0px !important;color:gray;    margin-bottom: 10px;">
+                            <input class="form-control"
+                                   onkeyup="SearchMembers('searchProgramAdmin', 'programMemberListPanel')"
+                                   id="searchProgramAdmin"
+                                   type="text" placeholder="Search" autocomplete="off"
+                                   aria-label="Search"
+                                   style="width:96%;margin-left:7px !important;margin-top: 4px;height: 32px;    border-radius: 4px;box-shadow: none;font-size:12px;"/>
+                        </form>
+                        {% for program_admin in PROGRAM_ADMIN %}
+                        <div class="member-row programMemberListPanel panel-body">
+                            {% if not program_admin.deactivated %}
+                            <div class="media base-header card-body member-card">
+                                {% if program_admin.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;padding-left: 0.5px;">
+                                    <img id="admin" class="media-object" src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="admin-image" src="{{program_admin.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                <div>
+                                    <input type="image"
+                                           src="{% static 'assets/deactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#deactivate-program-member{{ program_admin.userId }}"
+                                           id="trainer-deactivate"/>
+                                </div>
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ program_admin.userId }}">
+                                    <p class="media-heading humain-media-heading admin-name">{{ program_admin.name }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="media base-header card-body" style="opacity: 0.3;">
+                                {% if program_admin.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;">
+                                    <img id="admin" class="media-object" src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="admin-image" src="{{program_admin.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                {% if not program.deleted %}
+                                <div class="reactivate-member" style="height: 20px; float: right;">
+                                    <input type="image"
+                                           src="{% static 'assets/reactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#reactivate-program-member{{ program_admin.userId }}" style="font-size: 18px; color: green; padding: 5px; cursor: pointer;"/>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ program_admin.userId }}">
+                                    <p class="media-heading humain-media-heading admin-name">{{ program_admin.name }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!--  Content Administrator-->
+            <div class="members card panel panel-default">
+                <div class="card-header row panel-heading" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    <div class="d-flex justify-content-between panel-title">
+                        <div>
+                            <a class="btn btn-link panel-button text-left" role="button" >
+                              Content Administrators
+                            </a>
+                            <p class="member-count">{{ CONTENT_ADMIN_ACTIVE_COUNT }} members</p>
+                        </div>
+                        {% if permissions.can_add_program_member or entity_permissions.can_add_program_member %}
+                        {% if not program.deleted %}
+                        <div class="add-content add-admin float-right" data-toggle="modal"
+                             data-action="CONTENT_ADMIN"
+                             style="cursor:pointer;padding-left: 10px;border-radius: 6px;margin-left: 10px; margin-right:9px; background-color: white; border: 1px solid #b4b4b4;height: 28px; width: 60px;">
+                            <div class="admins-add-button" style="margin-top:8px; color:#b9524a;">
+                                <div style="margin-top:6px; color:#b9524a;">
+                                    <i class="fa fa-plus" style="margin-right:5px;"></i>
+                                    Add
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="content-admin-panel sublinks" id="contentadminlist">
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <form class="form-inline" id="adminpanelSearchForm"
+                              style="margin-left:0px !important;color:gray;    margin-bottom: 10px;">
+                            <input class="form-control"
+                                   onkeyup="SearchMembers('searchContentAdmin', 'ContentMemberListPanel')"
+                                   id="searchContentAdmin"
+                                   type="text" placeholder="Search" autocomplete="off"
+                                   aria-label="Search"
+                                   style="width:96%;margin-left:7px !important;margin-top: 4px;height: 32px;    border-radius: 4px;box-shadow: none;font-size:12px;">
+                        </form>
+                        {% for content_admin in CONTENT_ADMIN %}
+                        <div class="member-row ContentMemberListPanel">
+                            {% if not content_admin.deactivated %}
+                            <div class="media base-header card-body member-card">
+                                {% if content_admin.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;padding-left: 0.5px;">
+                                    <img id="content" class="media-object" src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="content-image" src="{{content_admin.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                <div>
+                                    <input type="image"
+                                           src="{% static 'assets/deactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#deactivate-content-member{{ content_admin.userId }}"
+                                           id="trainer-deactivate"/>
+                                </div>
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ content_admin.userId }}">
+                                    <p class="media-heading humain-media-heading admin-name">{{ content_admin.name }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="media base-header card-body" style="opacity: 0.3;">
+                                {% if content_admin.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;">
+                                    <img id="content" class="media-object" src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="content-image" src="{{content_admin.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                {% if not program.deleted %}
+                                <div class="reactivate-member" style="height: 20px; float: right;">
+                                    <input type="image"
+                                           src="{% static 'assets/reactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#reactivate-content-member{{ content_admin.userId }}" style="font-size: 18px; color: green; padding: 5px; cursor: pointer;"/>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ content_admin.userId }}">
+                                    <h4 class="media-heading humain-media-heading admin-name">{{ content_admin.name }}</h4>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="members card panel panel-default">
+                <div class="card-header row panel-heading" role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                    <div class="d-flex justify-content-between panel-title">
+                        <div>
+                            <a class="btn btn-link panel-button text-left" role="button">
+                               Trainers
+                            </a>
+                            <p class="member-count">{{ TRAINER_ACTIVE_COUNT }} members</p>
+                        </div>
+                        {% if permissions.can_add_program_member or entity_permissions.can_add_program_member %}
+                        {% if not program.deleted %}
+                        <div class="add-content add-admin" data-toggle="modal" data-action="TRAINER"
+                             style="cursor:pointer;padding-left: 10px;border-radius: 6px;margin-left: 10px; margin-right:8px; background-color: white; border: 1px solid #b4b4b4;height: 28px; width: 60px;">
+                            <div class="admins-add-button" style="margin-top:8px; color:#b9524a;">
+                                <div style="margin-top:6px; color:#b9524a;">
+                                    <i class="fa fa-plus" style="margin-right:5px;"></i>
+                                    Add
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <!--  Trainers Panel-->
+                <div class="trainer-panel sublinks" id="trainerlist">
+                    <div class="panel-collapse collapse" role="tabpanel" id="collapseThree" aria-labelledby="headingThree" data-parent="#accordion">
+                        <form class="form-inline" id="adminpanelSearchForm"
+                              style="margin-left:0px !important;color:gray;    margin-bottom: 10px;">
+                            <input class="form-control"
+                                   onkeyup="SearchMembers('searchTrainer', 'TrainerMemberListPanel')"
+                                   id="searchTrainer"
+                                   type="text" placeholder="Search" autocomplete="off"
+                                   aria-label="Search"
+                                   style="width:96%;margin-left:7px !important;margin-top: 4px;height: 32px;    border-radius: 4px;box-shadow: none;font-size:12px;">
+                        </form>
+                        {% for trainer in TRAINER %}
+                        <div class="member-row TrainerMemberListPanel panel-body">
+                            {% if not trainer.deactivated %}
+                            <div class="media base-header card-body member-card">
+                                {% if trainer.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;padding-left: 0.5px;">
+                                    <img id="trainer" class="media-object"
+                                         src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="trainer-image" src="{{trainer.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                <div>
+                                    <input type="image"
+                                           src="{% static 'assets/deactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#deactivate-trainer-member{{ trainer.userId }}"
+                                           id="trainer-deactivate"/>
+                                </div>
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ trainer.userId }}">
+                                    <!--  define td tag-->
+                                    <p class="media-heading humain-media-heading admin-name"
+                                        id="{{ trainer.userId }}">{{ trainer.name }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="media base-header card-body" style="opacity: 0.3;">
+                                {% if trainer.photo == "" %}
+                                <a class="pull-left picture" style="padding-right: 10px;">
+                                    <img id="trainer" class="media-object"
+                                         src="{% static 'images/images.png' %}"
+                                         alt="Media Object">
+                                </a>
+                                {% else %}
+                                <a class="pull-left  picture" style="padding-right: 10px;">
+                                    <img class="media-object" id="trainer-image" src="{{trainer.photo}}"
+                                         alt="Media Object">
+                                </a>
+                                {% endif %}
+                                {% if permissions.can_activate_deactivate_program_member or entity_permissions.can_activate_deactivate_program_member %}
+                                {% if not program.deleted %}
+                                <div class="reactivate-member" style="height: 20px; float: right;">
+                                    <input type="image"
+                                           src="{% static 'assets/reactivate_button.png' %}"
+                                           data-toggle="modal"
+                                           data-target="#reactivate-trainer-member{{ trainer.userId }}" style="font-size: 18px; color: green; padding: 5px; cursor: pointer;"/>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                                <div class="media-body member-media-content d-flex align-items-center" data-toggle="modal"
+                                     data-target="#myModalQr{{ trainer.userId }}">
+                                    <!--  define td tag-->
+                                    <h4 class="media-heading humain-media-heading admin-name"
+                                        id="{{ trainer.userId }}">{{ trainer.name }}</h4>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Documents Panel -->
+            <div class="col-sm document-panel-program">
+                <div class="document-head" style="height: 45px;">
+                    <div class="program-docs float-left">Program Documents</div>
+                    {% if "Admin" in request.user.roles or permissions.upload_program_level_documents or entity_permissions.upload_program_level_documents %}
+                    {% if not program.deleted %}
+                    <div class="add-content admins-add-button float-right" id="add-program-document"
+                         style="margin-top:8px; padding: 0px;border-radius: 6px;margin-left: 10px; margin-right:28px; background-color: white; border: 1px solid #b4b4b4;height: 28px; width: 60px;">
+                        <form hidden>
+                            {% csrf_token %}
+                        </form>
+                        <input type="file" id="programFileUploader" class="file program-doc-upload" name="attachment" style="position:absolute; width: 58px; height: 26px;"/>
+                        <div style="margin-top:8px; color:#b9524a; font-size:12px; padding-left: 10px;">
+                            <i class="fa fa-plus" style="margin-right:5px;"></i>
+                            Add
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% if not documents %}
+                <div class="document-body-empty-program">
+                    <p class="document-label">No documents uploaded for this Program</p>
+                </div>
+                {% else %}
+                <div class="document-body">
+                    {% for document in documents %}
+                    <div class="row program-document" id="program-document-row{{ document.id }}">
+                        <div class="document-border">
+                            <a class="document-image">
+                                {% if document.content_type == "Video" %}
+                                <img class="media-object" style="width: 24px;height:28px;"
+                                     src="{% static 'images/video_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if document.content_type == "Image" %}
+                                <img class="media-object" style="width: 24px;height:28px;"
+                                     src="{% static 'images/image_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if document.content_type == "Document" %}
+                                <img class="media-object" style="width: 24px;height:28px;"
+                                     src="{% static 'images/pdf_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="program-document-view">
+                            {% if document.content_type == "Video" %}
+                            <div class="v-download" style="height: 20px; overflow: hidden;" title="{{ document.name }}">
+                                <a href="{{ document.vimeo_url }}" target="_blank" style="color: #000000;"
+                                   class="view-image-document-panel">{{ document.name|truncatechars:35 }}</a>
+                            </div>
+                            {% else %}
+                            <div class="v-download" style="height: 20px; overflow: hidden;" title="{{ document.name }}">
+                                <a href="{{ document.content_url }}" target="_blank" style="color: #000000;"
+                                   class="view-image-document-panel">{{ document.name|truncatechars:35 }}</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if "Admin" in request.user.roles or permissions.upload_program_level_documents or entity_permissions.upload_program_level_documents %}
+                        {% if not program.deleted %}
+                        <div class="doc-delete">
+                            <input type="image" src="{% static 'assets/deactivate_button.png' %}" style="height: 14px;"
+                              data-toggle="modal" data-target="#delete-program-document{{ document.id }}" id="delete-program-document-btn">
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!--  Delete Program Document POPUP  -->
+        {% for document in documents %}
+        <div class="modal" id="delete-program-document{{ document.id }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-program-dialog">
+                <div class="modal-content" id="deactivate-program-content">
+                    <div class="modal-header base-header" id="deactivate-program-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <p id="deactivate-program-p">Are you sure you want to Delete this Document?</p>
+                        <div class="document-border" style="float: left; margin-top: 5%;">
+                            <a class="document-image">
+                                {% if document.content_type == "Video" %}
+                                <img class="media-object" style="width: 34.9px;"
+                                     src="{% static 'images/video_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if document.content_type == "Image" %}
+                                <img class="media-object"
+                                     src="{% static 'images/image_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                                {% if document.content_type == "Document" %}
+                                <img class="media-object"
+                                     src="{% static 'images/pdf_icon.png' %}"
+                                     alt="Media Object">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="media-body member-media-content" id="delete-program-document" style="padding-left: 12%; margin-top: 6%;">
+                            <h3 class="wheel-title">{{ document.name }}</h3>
+                        </div>
+                        <div class="remove" id="deactivate-program-remove">
+                            <button type="button" class="view" data-dismiss="modal" id="deactivate-program-cancel">
+                                Cancel
+                            </button>
+                            <a href="{% url 'delete-program-document' pk=document.id %}" id="deactivate-program-session"
+                               class="session-view view" onclick="disableScreen()">Delete Document
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for topic in contents %}
+        <div class="modal" id="deactivate-topic{{ topic.id }}" role="dialog">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div style="text-align:center;margin-block-end: 0em;">
+                        <div class="modal-header" style="border-bottom: none;">
+                            <button type="button" class="close close-pop-up" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" style="padding:0;">
+                            <div style="margin-left:20px;margin-right:20px;">
+                                <h5 class="modal-title"
+                                    style="font-family: AvenirNext-DemiBold; font-size: 18px; color: #333333;">
+                                    Deactivate Topic</h5>
+                                <div class="d-flex text-center error-page-image justify-content-center"
+                                     style="margin-top:22px;">
+                                    <img src="{% static 'assets/plug.png' %}"
+                                         srcset="{% static 'assets/plug@2x.png' %} 2x, {% static 'assets/plug@3x.png' %} 3x"
+                                         class="group">
+                                </div>
+
+                                <div style="font-family: NotoSans; font-size: 12px; font-weight: normal; font-style: normal; font-stretch: normal; line-height: 1.67; letter-spacing: normal; text-align: center;color: #333333;margin-top:56px;">
+                                    Are you sure you want to deactivate this topic?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center"
+                             style="border-top: none;padding:20px;margin-top:34px">
+                            <a href="#" style="font-family: AvenirNext-Medium; font-size: 12px;font-weight: 500; font-style: normal;font-stretch: normal; line-height: 1.83; letter-spacing: normal;color: #c35f57;margin-right:32px"
+                               data-dismiss="modal">CANCEL
+                            </a>
+                            <a class="session-view view" href="{% url 'delete-topic' pk=topic.id %}"
+                                id="deactivate-member-session" onclick="disableScreen()">DEACTIVATE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Deactivate Program Admin POPUP  -->
+        {% for member in PROGRAM_ADMIN %}
+        <div class="modal" id="deactivate-program-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title">Remove Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to remove this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class="btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_deactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REMOVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Reactivate Program Admin POPUP  -->
+        {% for member in PROGRAM_ADMIN %}
+        <div class="modal" id="reactivate-program-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title" style="width: 160px;">Reactivate Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to Reactivate this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;    padding-top: 20px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class="btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_reactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REACTIVATE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Deactivate Content Admin POPUP  -->
+        {% for member in CONTENT_ADMIN %}
+        <div class="modal" id="deactivate-content-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title">Remove Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to remove this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class="btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_deactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REMOVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Reactivate Content Admin POPUP  -->
+        {% for member in CONTENT_ADMIN %}
+        <div class="modal" id="reactivate-content-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title" style="width: 160px;">Reactivate Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to reactivate this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;    padding-top: 20px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class="btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_reactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REACTIVATE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Deactivate Trainer POPUP  -->
+        {% for member in TRAINER %}
+        <div class="modal" id="deactivate-trainer-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title">Remove Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to remove this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class=" btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_deactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REMOVE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Reactivate Trainer POPUP  -->
+        {% for member in TRAINER %}
+        <div class="modal" id="reactivate-trainer-member{{ member.userId }}" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-member-dialog">
+                <div class="modal-content" id="deactivate-member-content">
+                    <div class="modal-header  base-header" id="deactivate-member-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <b><p class="deactivate-member-title" style="width: 160px;">Reactivate Member</p></b>
+                        <p id="deactivate-member-p">Are you sure you want to reactivate this member?</p>
+                        <div style="padding-top:15px;">
+                            <div class="member-row-modal">
+                                <div class="media">
+                                    {% if member.photo == "" %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{% static 'images/images.png' %}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% else %}
+                                    <a class="pull-left">
+                                        <img class="media-object" id="member-image" src="{{member.photo}}"
+                                             alt="Media Object">
+                                    </a>
+                                    {% endif %}
+                                    <div class="media-body member-media-content">
+                                        <h4 class="media-heading humain-media-heading" style="padding-left:10px;    padding-top: 20px;">
+                                            {{member.name}}</h4>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;" title="{{member.emailId}}">
+                                            Contact Email &nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;text-decoration: underline;">{{member.emailId|truncatechars:25 }}</span>
+                                        </div>
+                                        <div style="line-height:20px;font-family: AvenirNext-Medium; font-size: 12px; color: #333333;padding-left: 10px;">
+                                            Contact No. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                            <span style="font-family: AvenirNext-Regular; font-size: 12px; color: #555555;">{{member.phoneNumber}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remove" id="deactivate-member-remove">
+                                <button type="button" class=" btn btn-outline-secondary view" data-dismiss="modal" id="deactivate-program-cancel">
+                                    Cancel
+                                </button>
+                                <a href="{% url 'program_member_reactivate' pk=program.id user_id=member.userId role=member.role admin_username=member.name %}"
+                                   class="session-view view" style="text-decoration: none;color: white;" id="deactivate-member-session" onclick="disableScreen()">REACTIVATE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--  Deactivate Program POPUP  -->
+        <div class="modal" id="deactivate-program" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-program-dialog">
+                <div class="modal-content" id="deactivate-program-content">
+                    <div class="modal-header base-header" id="deactivate-program-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <p id="deactivate-program-p">Are you sure you want to deactivate this program?</p>
+                        <div class="media-body member-media-content" id="deactivate-program-media">
+                            <h3 class="wheel-title">{{ program.name|truncatechars:100 }}</h3>
+                            <p class="resource-para">{{ program.description|truncatechars:150 }}</p>
+                        </div>
+                        <div class="remove" id="deactivate-program-remove">
+                            <button type="button" class="view" data-dismiss="modal" id="deactivate-program-cancel">
+                                Cancel
+                            </button>
+                            <a href="{% url 'delete-program' pk=program.id %}" id="deactivate-program-session"
+                               class="session-view view" style="text-decoration: none;color: white;" onclick="disableScreen()">Deactivate Program
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  Reactivate Program POPUP  -->
+        <div class="modal" id="reactivate-program" role="dialog">
+            <div class="modal-dialog modal-md" id="deactivate-program-dialog">
+                <div class="modal-content" id="deactivate-program-content">
+                    <div class="modal-header base-header" id="deactivate-program-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <p id="deactivate-program-p">Are you sure you want to Reactivate this Program?</p>
+                        <div class="media-body member-media-content" id="reactivate-program-media">
+                            <h3 class="wheel-title">{{ program.name|truncatechars:100 }}</h3>
+                            <p class="resource-para">{{ program.description|truncatechars:150 }}</p>
+                        </div>
+                        <div class="remove" id="deactivate-program-remove">
+                            <button type="button" class="view" data-dismiss="modal" id="deactivate-program-cancel">
+                                Cancel
+                            </button>
+                            <a href="{% url 'reactivate-program' pk=program.id %}" id="deactivate-program-session"
+                               class="session-view view" style="text-decoration: none;color: white;" onclick="disableScreen()">Reactivate Program
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% for member in MEMBERS %}
+        <div class="modal" id="myModalQr{{member.userId}}" role="dialog">
+            <div class="modal-dialog modal-sm" id="myModalQr-dialog">
+                <div class="modal-content" id="myModalQr-content">
+                    <h4 class="media-heading humain-media-heading" id="myModalQr-heading">{{member.name}}</h4>
+                    <div class="media modal-media" id="myModalQr-media">
+                        <a class="qr_img">
+                            <div id="myModalQr-qr">
+                                {% qr_from_text member.encryptedUserId image_format="png" size=6 %}
+                            </div>
+                        </a>
+                    </div>
+                    <div id="myModalQr-dismiss">
+                        <button type="button" class="close-qr" id="myModalQr-close" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="modal" id="modal-book">
+            <div class="modal-dialog" id="detail-modal-dialog">
+                <div class="modal-content" id="topic-modal-content">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal-popup">
+            <div class="modal-dialog" style="margin-top:100px;max-width:526px;max-height:357px;">
+                <div class="modal-content">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<style>
+    input.file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+    .file {
+        position: relative;
+        text-align: right;
+        -moz-opacity:0 ;
+        filter:alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+</style>
+
+{% endblock %}
+
+{% block javascript %}
+
+<!--for multiple tabs datatable-->
+<script>
+    function filterGlobal () {
+        $('#topic-tab, #completed-session, #upcoming-session').DataTable().search(
+            $('#global_filter').val(),
+        ).draw();
+    }
+
+//topic-tab
+    $(document).ready(function(){
+     $.fn.dataTable.moment( 'DD-MMM-YYYY' );
+       $('#topic-tab').DataTable({
+           info: false,
+           "bSearchable": false,
+            pagingType: "full_numbers",
+            "order": [[ 1, "asce" ]],
+           bPaginate: $('#topic-tab tbody tr').length>10,
+           iDisplayLength: 10,
+            "autoWidth": false,
+           lengthChange: false,
+           fixedColumns: {
+                leftColumns: 1
+         },
+         "columnDefs": [
+                     //date-fields
+                     {
+                        "targets":1,
+                        "type": 'date'
+                     },
+                     { "width": "30%", "targets": 0 },
+                     { "width": "17%", "targets": 1 },
+                      { "width": "17%", "targets": 2 },
+                      { "width": "17%", "targets": 3 },
+                ],
+          language:
+                {
+                    search: '', searchPlaceholder: "Search",
+                    emptyTable: "<p align='center'>There are no topics created for this program</p>",
+                    paginate:
+                    {
+                                       previous:'<i class="fa fa-angle-left">' ,
+                                       next: '<i class="fa fa-angle-right">',
+                                       first: '<i class="fa fa-angle-double-left">',
+                                       last: '<i class="fa fa-angle-double-right">',
+                    }
+                },
+
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+      $($.fn.dataTable.tables({ visible: true, api: true })).DataTable()
+
+       });
+    });
+
+    $('input.global_filter').on( 'keyup', function () {
+        filterGlobal();
+    } );
+
+    $('#global_filter').keypress(function (e) {
+    //to prevent refresh page on enter
+           if (e.which == 13) {
+                e.preventDefault();
+           }
+    });
+
+    $('#activated').on('click', 'tbody td', function () {
+        window.location = $(this).closest('tr').find('td:eq(0) a').attr('href');
+    });
+
+//completed-session
+    $(document).ready(function(){
+     $.fn.dataTable.moment( 'DD-MMM-YYYY' );
+       $('#completed-session').DataTable({
+           info: false,
+            pagingType: "full_numbers",
+            "order": [[ 1, "asce" ]],
+           bPaginate: $('#completed-session tbody tr').length>10,
+           iDisplayLength: 10,
+            "autoWidth": false,
+           "bSearchable": false,
+           lengthChange: false,
+           fixedColumns: {
+                leftColumns: 1
+         },
+         "columnDefs": [
+                     //date-fields
+                     {
+
+                        "targets":[ 1,2],
+                        "type": 'date'
+                     },
+                     { "width": "28%", "targets": 0 },
+                     { "width": "18%", "targets": 1 },
+                      { "width": "18%", "targets": 2 },
+                      { "width": "16%", "targets": 3 },
+                      { "width": "16%", "targets": 4 },
+                ],
+          language:
+                {
+                    search: '', searchPlaceholder: "Search",
+                    emptyTable: "<p align='center'>No sessions completed under this program</p>",
+                    paginate:
+                    {
+                                       previous:'<i class="fa fa-angle-left">' ,
+                                       next: '<i class="fa fa-angle-right">',
+                                       first: '<i class="fa fa-angle-double-left">',
+                                       last: '<i class="fa fa-angle-double-right">',
+                    }
+                },
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+      $($.fn.dataTable.tables({ visible: true, api: true })).DataTable()
+       });
+    });
+
+    $('input.global_filter').on( 'keyup', function () {
+        filterGlobal();
+    });
+
+    $('#global_filter').keypress(function (e) {
+    //to prevent refresh page on enter
+           if (e.which == 13) {
+                e.preventDefault();
+           }
+    });
+
+    $('#activated').on('click', 'tbody td', function () {
+        window.location = $(this).closest('tr').find('td:eq(0) a').attr('href');
+    });
+
+//upcoming-sessions
+    $(document).ready(function(){
+    $.fn.dataTable.moment( 'DD-MMM-YYYY' );
+       $('#upcoming-session').DataTable({
+           info: false,
+           "autoWidth": false,
+           "bSearchable": false,
+            pagingType: "full_numbers",
+            "order": [[ 1, "asce" ]],
+           bPaginate: $('#upcoming-session tbody tr').length>10,
+           iDisplayLength: 10,
+           lengthChange: false,
+           fixedColumns: {
+                leftColumns: 1
+         },
+         "columnDefs": [
+
+                     //date-fields
+                     {
+
+                        "targets":[ 1,2],
+                        "type": 'date'
+                     },
+                     { "width": "30%", "targets": 0 },
+                     { "width": "17%", "targets": 1 },
+                      { "width": "17%", "targets": 2 },
+                      { "width": "15%", "targets": 3 },
+                ],
+          language:
+                {
+                    search: '', searchPlaceholder: "Search",
+                    emptyTable: "<p align='center'>No sessions scheduled under this program</p>",
+                    paginate:
+                    {
+                                       previous:'<i class="fa fa-angle-left">' ,
+                                       next: '<i class="fa fa-angle-right">',
+                                       first: '<i class="fa fa-angle-double-left">',
+                                       last: '<i class="fa fa-angle-double-right">',
+                    }
+                },
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+      $($.fn.dataTable.tables({ visible: true, api: true })).DataTable()
+       });
+    });
+
+    $('input.global_filter').on( 'keyup', function () {
+        filterGlobal();
+    });
+
+    $('#global_filter').keypress(function (e) {
+    //to prevent refresh page on enter
+           if (e.which == 13) {
+                e.preventDefault();
+           }
+    });
+
+    $('#activated').on('click', 'tbody td', function () {
+        window.location = $(this).closest('tr').find('td:eq(0) a').attr('href');
+    });
+</script>
+
+<!--for setting default tab-->
+<script>
+$(document).ready(function() {
+    var abc = document.getElementById('active-tab').click();
+});
+</script>
+<!--For Collapse Expand view-->
+<script>
+$(document).ready(function(){
+   $('.panel-collapse').on('show.bs.collapse', function () {
+    $(this).parent('.sublinks').siblings('.panel-heading').addClass('active');
+  });
+
+  $('.panel-collapse').on('hide.bs.collapse', function () {
+    $(this).parent('.sublinks').siblings('.panel-heading').removeClass('active');
+  });
+});
+</script>
+
+<!--for searching in topic datatable-->
+<script>
+    function myFunction() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("example");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+</script>
+
+<!--for searching in admin panel-->
+<script>
+    function SearchMembers(searchInput, membersList) {
+      var input, filter, list, i, txtValue;
+      input = document.getElementById(searchInput);
+      filter = input.value.toUpperCase();
+      card = document.getElementsByClassName(membersList);
+      for (i = 0; i < card.length; i++) {
+        memberName = card[i].innerText;
+        if (memberName != undefined) {
+          txtValue = memberName;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            card[i].style.display = "block";
+          } else {
+            card[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+</script>
+
+<!--for deleting content from topic-->
+<script>
+    $(document).on("click", "#delete-content-button", function (e) {
+      e.preventDefault();
+      if (confirm("Do you want to DELETE this file!!??")) {
+          var content_id = $(this).attr("value");
+          $('#content-column'+ content_id +' ').remove();
+          $('#content-column-bottom-border'+ content_id +' ').remove();
+          var data_url = "/program/" + content_id + "/deletecontent/";
+          $.ajax({
+              url: data_url,
+              type: 'get',
+              dataType: 'json',
+          });
+      }
+    });
+</script>
+
+<!--For Restricting page refresh on enter in admin search-->
+<script>
+    $('#adminpanelSearchForm,#searchContentAdmin,#searchProgramAdmin,#searchTrainer').keypress(function (e) {
+    //to prevent refresh page on enter
+           if (e.which == 13) {
+                e.preventDefault();
+           }
+    });
+</script>
+
+<!--For setting auto height in admin panel-->
+<script>
+   $('#accordion').collapse('show').height('auto');
+</script>
+
+<script>
+    $(document).on("click", ".topic-save", function (e) {
+        $('.loaderElement').show();
+    });
+</script>
+
+<!-- Function to Download Content -->
+
+<script>
+    $(document).on("click", "#content_download_btn", function (e) {
+        var id = $(this).data("auth");
+        document.getElementById("DownloadSubmit" + id).click();
+    });
+</script>
+
+<script>
+    $(document).on("submit", ".download-content", function(event) {
+        disableScreen();
+        var form = $(this);
+        var download_url = "/program/download-content/";
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        $.ajax(download_url, {
+            data: form.serialize(),
+            type: form.attr("method"),
+            dataType: 'json',
+            success: function (data) {
+                if (data.downloaded) {
+                    var link = document.createElement("a");
+                    link.href = data.file_url;
+                    link.download=$('#content_name').val();
+                    link.click();
+                    link.remove();
+                    $('.loader-overlay').remove();
+                }
+                else {
+                      alert("Couldn't Download File!!");
+                      $('.loader-overlay').remove();
+                }
+            }
+        })
+    });
+</script>
+
+<script>
+    function getCookie(c_name) {
+        if(document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if(c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if(c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+  // Upload Program Documents
+      var file = {};
+      $(document).on("change", "#programFileUploader", function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        disableScreen();
+        var programId = document.getElementById("programDetailId").value;
+        var contentFileList = document.getElementById("programFileUploader").files;
+        for (var i = 0; i < contentFileList.length; i++) {
+          file[Math.random()] = contentFileList[0];
+        }
+        var formData = new FormData();
+        var files = Object.values(file);
+        var ext = $('#programFileUploader').val().split('.').pop().toLowerCase();
+        if($.inArray(ext, ['mp4', 'mpeg', 'flv', 'png', 'jpg', 'jpeg', 'pdf', 'mov']) == -1) {
+            alert('Invalid File Type! Only Files with format of mp4, mpeg, mov, flv, png, jpg, jpeg, pdf will be uploaded!!');
+            file = {};
+            document.getElementById("programFileUploader").value = "";
+            $('.loader-overlay').remove();
+            }
+        else {
+            formData.append("inline[]", files[0]);
+            var dataUrl = "/program/" + programId + "/upload-program-doc";
+            $.ajax(dataUrl, {
+              beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+              },
+              data: formData,
+              method: "POST",
+              dataType: false,
+              contentType: false,
+              processData: false,
+                })
+                .done(function () {
+                    file.length = 0;
+                    window.location.reload();
+                  })
+                .fail(function () {
+                    alert('Something went Wrong!!');
+                    window.location.reload();
+                });
+            }
+       });
+</script>
+{% endblock javascript %}

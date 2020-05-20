@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css">
+
+<link rel="stylesheet" href="{% static 'form.css' %}" type="text/css">
+{% endblock %}
+
+<form method="post" data-url="{% url 'topic_update_1' form.instance.pk %}" class="update-form" xmlns="http://www.w3.org/1999/html"
+	enctype="multipart/form-data" >
+	{% csrf_token %}
+		<div class="modal-header" id="topic-update-header" style="border:none; font-size:20px;">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body" class="form-style-10" id="topic-update-1">
+			<div>
+				<p id="topic-update-p"><b>Topic</b></p>
+				<b class="topic-name-field">
+				{% with WIDGET_ERROR_CLASS='my_error' WIDGET_REQUIRED_CLASS='my_required' %}
+					{{ form.name|attr:"onkeypress: return AvoidSpace(event, 'id_name')"|attr:"onkeyup: return RemoveSpace(event, 'id_name')" }}
+				{% endwith %}
+				</b>
+			</div>
+			<div>
+				<p id="topic-update-description"><b>Description</b></p>
+				{% with WIDGET_ERROR_CLASS='my_error' WIDGET_REQUIRED_CLASS='my_required' %}
+					{{ form.description|attr:"type:textarea"|attr:"onkeypress: return AvoidSpace(event, 'id_description')"|attr:"onkeyup: return RemoveSpace(event, 'id_description')" }}
+				{% endwith %}
+			</div>
+		</div>
+		<div class="modal-footer" id="topic-update-footer">
+			<button type="submit" id="topic-update-save"  class="btn btn-primary" style="">Save & Close</button>
+		</div>
+</form>
+
