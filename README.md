@@ -271,5 +271,4 @@ Run the below commands :-
 
 ```
 ---
-### License
-This project is licensed under Socion.
+Please refer to [Wiki](https://github.com/PDA-Open-Source/PDA-WEB/wiki) for further details.
