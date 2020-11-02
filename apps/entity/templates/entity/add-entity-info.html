@@ -34,14 +34,14 @@
                 </div>
             </div>
             <div>
-                <input type="text" name="socionEntityAdminUser" id="entityAdminUser" value="" hidden>
+                <input type="text" name="pdaEntityAdminUser" id="entityAdminUser" value="" hidden>
                 <div class="form-group">
-                    <label class="form-field-label" for="socionEntityName"
+                    <label class="form-field-label" for="pdaEntityName"
                            style="font-family: AvenirNext-DemiBold; font-size: 16px; color: #666666;float:left;">
                         ENTER ENTITY NAME
                     </label>
-                    <input type="text" class="form-control placeholder-text" name="socionEntityName" id="socionEntityName"
-                           placeholder="e.g ASLM" style="border: solid 1px rgba(249, 117, 107, 0.42);" required onkeypress="return AvoidSpace(event, 'socionEntityName')" onkeyup="return RemoveSpace(event, 'socionEntityName')">
+                    <input type="text" class="form-control placeholder-text" name="pdaEntityName" id="pdaEntityName"
+                           placeholder="e.g ASLM" style="border: solid 1px rgba(249, 117, 107, 0.42);" required onkeypress="return AvoidSpace(event, 'pdaEntityName')" onkeyup="return RemoveSpace(event, 'pdaEntityName')">
                     <div id="entityNameError" class="hidden invalid-number">
                         <span class="invalid-number-text">Please enter an entity name</span>
                     </div>
@@ -60,13 +60,13 @@
 </form>
 <script>
     $(function (){
-        $('#socionEntityName').on("blur",function(){
-            var socionEntityName = $('#socionEntityName').val();
-            if(socionEntityName !== ''){
-                localStorage.setItem('socionEntityName', socionEntityName);
+        $('#pdaEntityName').on("blur",function(){
+            var pdaEntityName = $('#pdaEntityName').val();
+            if(pdaEntityName !== ''){
+                localStorage.setItem('pdaEntityName', pdaEntityName);
             }
             else{
-                localStorage.removeItem('socionEntityName');
+                localStorage.removeItem('pdaEntityName');
             }
         });
     });
@@ -74,10 +74,10 @@
 </script>
 <script>
     $(document).ready(function(){
-        var socionEntityName = localStorage.getItem('socionEntityName');
-        console.log(socionEntityName);
-        if(socionEntityName !== 'null'){
-            $('#socionEntityName').val(socionEntityName);
+        var pdaEntityName = localStorage.getItem('pdaEntityName');
+        console.log(pdaEntityName);
+        if(pdaEntityName !== 'null'){
+            $('#pdaEntityName').val(pdaEntityName);
         }
 
         var config = {

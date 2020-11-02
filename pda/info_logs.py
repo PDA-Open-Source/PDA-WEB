@@ -5,9 +5,9 @@ from decouple import config
 
 home = os.path.expanduser("~")
 PATH = os.path.join(home, "Logs")
-logstash_info_handler = logstash.TCPLogstashHandler(host=config('LOGSTASH_HOST'), port=config('LOGSTASH_PORT'), version=1, message_type='socion-staging-web-app')
+logstash_info_handler = logstash.TCPLogstashHandler(host=config('LOGSTASH_HOST'), port=config('LOGSTASH_PORT'), version=1, message_type='pda-staging-web-app')
 logstash_info_handler.setLevel(logging.INFO)
-logstash_error_handler = logstash.TCPLogstashHandler(host=config('LOGSTASH_HOST'), port=config('LOGSTASH_PORT'), version=1, message_type='socion-staging-web-app')
+logstash_error_handler = logstash.TCPLogstashHandler(host=config('LOGSTASH_HOST'), port=config('LOGSTASH_PORT'), version=1, message_type='pda-staging-web-app')
 logstash_error_handler.setLevel(logging.ERROR)
 
 """Info/Error Logging for CORE APP!!"""

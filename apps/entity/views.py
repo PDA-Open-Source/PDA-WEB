@@ -5,7 +5,7 @@ from django.db import transaction, connection
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
-from socion.storage_backends import s3_file_upload
+from pda.storage_backends import s3_file_upload
 from django.urls import reverse
 import vimeo
 from django.db.models import Prefetch
@@ -17,7 +17,7 @@ from apps.program.models import Program, Program_Roles, Topic
 from core.models import Session
 from decouple import config
 from core.views import Notifications
-from socion.info_logs import entity_logger
+from pda.info_logs import entity_logger
 import uuid
 import mimetypes
 import boto3
@@ -38,7 +38,7 @@ class EntityListView(ListView):
 
     def get_queryset(self):
         user_id = self.request.user.user_id
-        if settings.SOCION_SUPER_ADMIN in self.request.user.roles:
+        if settings.PDA_SUPER_ADMIN in self.request.user.roles:
             return super().get_queryset()
         else:
             entity_admin_ids = Entity_Role.objects.values_list("entity_id").filter(user_id=user_id, deleted=False)
@@ -50,7 +50,7 @@ class EntityListView(ListView):
         registered_entities = []
         # List those entities in which User is part of any program
         program_ids = Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=self.request.user.user_id, deleted=False)
-        program_admin_ids = Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=self.request.user.user_id, role=settings.SOCION_PROGRAM_ADMIN)
+        program_admin_ids = Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=self.request.user.user_id, role=settings.PDA_PROGRAM_ADMIN)
         net_program_ids = set().union(program_ids, program_admin_ids)
         entity_list_ids = Program.objects.values_list("entity_id", flat=True).filter(pk__in=net_program_ids)
         entity = list(Entity.objects.filter(pk__in=entity_list_ids))
@@ -86,21 +86,21 @@ def pop_add_entity(template_name, request, **kwargs):
         context = {'qr_value': qr_value}
     if request.method == 'POST':
         created_by = request.user.user_id
-        user_id = request.POST.get('socionEntityAdminUser')
-        entity_name = request.POST.get('socionEntityName')
+        user_id = request.POST.get('pdaEntityAdminUser')
+        entity_name = request.POST.get('pdaEntityName')
         entity = Entity.objects.create(name=entity_name, created_by=created_by)
-        Entity_Role.objects.create(entity_id=entity.id, role=settings.SOCION_ENTITY_ADMIN, user_id=user_id, created_at=datetime.now(),
+        Entity_Role.objects.create(entity_id=entity.id, role=settings.PDA_ENTITY_ADMIN, user_id=user_id, created_at=datetime.now(),
                                    updated_at=datetime.now(), deleted=bool(False), created_by=created_by)
         Notifications.notification_save(title='Invite Entity',
                                         description=f"Entity {entity_name} has been invited to register.",
                                         notification_type=settings.NOTIFICATION_TYPE["USER"],
                                         date_time=datetime.now(), is_deleted=False, is_read=False,
-                                        role=settings.SOCION_SUPER_ADMIN, user_id=created_by, session_id=None)
+                                        role=settings.PDA_SUPER_ADMIN, user_id=created_by, session_id=None)
         Notifications.notification_save(title='Receive Invitation',
                                         description=f"Congratulations! You have been invited to register your entity. Please complete the registration process.",
                                         notification_type=settings.NOTIFICATION_TYPE["USER"],
                                         date_time=datetime.now(), is_deleted=False, is_read=False,
-                                        role=settings.SOCION_ENTITY_ADMIN, user_id=user_id, session_id=None)
+                                        role=settings.PDA_ENTITY_ADMIN, user_id=user_id, session_id=None)
         data['form_is_valid'] = True
         entity_logger.info('Successfully Invited an Entity %s.' % entity_name)
     else:
@@ -136,7 +136,7 @@ def pop_add_entity_admin(template_name, request, **kwargs):
         entity_id = request.POST.get('entityId')
         member_name = request.POST.get('entityName')
         entity = get_object_or_404(Entity, pk=entity_id)
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=entity_id, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=entity_id, deleted=False).distinct())
         query = '''INSERT INTO Entity_Role (entity_id, role, user_id, created_at, updated_at, created_by, deleted) VALUES (%s,%s,%s,%s,%s,%s,%s)'''
         try:
             query_data = (entity_id, role, user_id, datetime.now(), datetime.now(), request.user.user_id, False)
@@ -147,17 +147,17 @@ def pop_add_entity_admin(template_name, request, **kwargs):
                                                 description=f"{member_name} has onboarded as Entity Admin to entity {entity.name}.",
                                                 notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                 date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                                role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
             Notifications.notification_save(title='Add Entity Admin.',
                                             description=f"{member_name} has onboarded as Entity Admin to entity {entity.name}.",
                                             notification_type=settings.NOTIFICATION_TYPE["USER"],
                                             date_time=datetime.now(), is_deleted=False, is_read=False,
-                                            role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                            role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
             Notifications.notification_save(title='Add Entity Admin.',
                                             description=f"You have been onboarded as Entity admin to entity {entity.name}.",
                                             notification_type=settings.NOTIFICATION_TYPE["USER"],
                                             date_time=datetime.now(), is_deleted=False, is_read=False,
-                                            role=settings.SOCION_ENTITY_ADMIN, user_id=user_id, session_id=None)
+                                            role=settings.PDA_ENTITY_ADMIN, user_id=user_id, session_id=None)
             data['form_is_valid'] = True
             entity_logger.info('Successfully Added an Entity Admin to Entity with ID : %s.' % entity_id)
         except (Exception, ValueError):
@@ -217,7 +217,7 @@ class RegisterEntity(FormView):
                     ext = file.name.split(".")[-1]
                     mimetype = mimetypes.MimeTypes().guess_type(file.name)[0]
                     uuId = uuid.uuid1()
-                    if ext in settings.SOCION_VIDEO_FORMAT:
+                    if ext in settings.PDA_VIDEO_FORMAT:
                         v = vimeo.VimeoClient(token=config('VIMEO_ACCESS_TOKEN'))
                         path = file.temporary_file_path()
                         try:
@@ -245,7 +245,7 @@ class RegisterEntity(FormView):
                             entity_logger.error('Could not Add Video to an Entity with ID : %s.' % entity.id)
                             pass
 
-                    elif ext in settings.SOCION_IMAGE_FORMAT:
+                    elif ext in settings.PDA_IMAGE_FORMAT:
                         file_key = "%s%s%s%s" % ("entity-docs/image/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -254,7 +254,7 @@ class RegisterEntity(FormView):
                         attachment.save()
                         entity_logger.info('Successfully Added an Image to an Entity with ID : %s.' % entity.id)
 
-                    elif ext in settings.SOCION_DOC_FORMAT:
+                    elif ext in settings.PDA_DOC_FORMAT:
                         file_key = "%s%s%s%s" % ("entity-docs/document/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -269,12 +269,12 @@ class RegisterEntity(FormView):
                                                     description=f"Document(s) have been uploaded to entity {entity.name} profile.",
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                                    role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
                     Notifications.notification_save(title='Entity upload document.',
                                                     description=f"Document(s) have been uploaded to entity {entity.name} profile.",
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_ENTITY_ADMIN, user_id=userId, session_id=None)
+                                                    role=settings.PDA_ENTITY_ADMIN, user_id=userId, session_id=None)
             if form.is_valid():
                 if entity_user_id:
                     userId = entity_user_id[0]
@@ -282,12 +282,12 @@ class RegisterEntity(FormView):
                                                     description=f"Entity {entity.name} has been registered.",
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                                    role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
                     Notifications.notification_save(title='Invite Entity',
                                                     description=f"Entity {entity.name} has been registered.",
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_ENTITY_ADMIN, user_id=userId, session_id=None)
+                                                    role=settings.PDA_ENTITY_ADMIN, user_id=userId, session_id=None)
                     entity.register()
                 entity_logger.info('Successfully Registered an Entity with ID : %s.' % entity.id)
             return save_all(request, form=form, template_name=template)
@@ -347,19 +347,19 @@ class EditEntityProfile(FormView):
             elif get_object_or_404(Entity, pk=pk).address_line2 != request.POST['address_line2']:
                 title = f"Edit Entity Address."
                 description = f"Entity {get_object_or_404(Entity, pk=pk).name} Address has been updated."
-            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
+            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
             if count_of_values_changed(get_object_or_404(Entity, pk=pk), request.POST) != 0:
                 for entity_admin_id in entity_admin_ids:
                     Notifications.notification_save(title=title,
                                                     description=description,
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                                    role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
                 Notifications.notification_save(title=title,
                                                 description=description,
                                                 notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                 date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                                role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
         return save_all(request, form=form, template_name=template)
 
 
@@ -392,11 +392,11 @@ class EntityMixin(UserPassesTestMixin):
             Entity_Role.objects.values_list("role", flat=True).filter(user_id=user_id, entity_id=pk, deleted=False).distinct()
         )
         program_ids = Program.objects.values_list("id", flat=True).filter(entity_id=pk)
-        socion_roles = list(
+        pda_roles = list(
             Program_Roles.objects.values_list("role", flat=True).filter(user_id=user_id, program_id__in=program_ids, deleted=False).distinct()
         )
-        entity_role.extend(socion_roles)
-        if settings.SOCION_SUPER_ADMIN not in self.request.user.roles:
+        entity_role.extend(pda_roles)
+        if settings.PDA_SUPER_ADMIN not in self.request.user.roles:
             if entity_role:
                 return True
             else:
@@ -450,7 +450,7 @@ class EntityProfile(EntityMixin, DetailView):
         context['ENTITY_ADMIN'] = sorted(entity_admin, key=lambda i: i['deactivated'])
         context["ENTITY_ADMIN_ACTIVE"] = sum(admin['deactivated'] == False for admin in entity_admin)
         context['ENTITY_ADMIN_ACTIVE_COUNT'] = len(list(filter(lambda i: i['deactivated'] is False, entity_admin)))
-        if settings.SOCION_SUPER_ADMIN in self.request.user.roles:
+        if settings.PDA_SUPER_ADMIN in self.request.user.roles:
             context["programs"] = get_programs(pk)
         else:
             entity_id = list(Entity_Role.objects.values_list("entity_id", flat=True).filter(entity_id=pk, user_id=self.request.user.user_id, deleted=False))
@@ -463,8 +463,8 @@ class EntityProfile(EntityMixin, DetailView):
             Entity_Role.objects.values_list("role", flat=True).filter(user_id=user_id, entity_id=pk,
                                                                       deleted=False).distinct()
         )
-        if settings.SOCION_SUPER_ADMIN not in self.request.user.roles:
-            if settings.SOCION_ENTITY_ADMIN in entity_role:
+        if settings.PDA_SUPER_ADMIN not in self.request.user.roles:
+            if settings.PDA_ENTITY_ADMIN in entity_role:
                 context["entity_permissions"] = settings.ENTITY_PERMISSIONS
         return context
 
@@ -506,7 +506,7 @@ class ReactivateEntity(View):
 
     def get(self, request, pk=None):
         entity = get_object_or_404(Entity, pk=pk)
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
         user_detail_url = f"{settings.BASE_URL}user/private/details/{request.user.user_id}"
         response = requests.get(user_detail_url)
         if response.status_code == 200:
@@ -519,12 +519,12 @@ class ReactivateEntity(View):
                                                 description=f"Entity {entity.name} has been reactivated by {member_name}.",
                                                 notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                 date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                                role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
             Notifications.notification_save(title='Remove Entity Admin.',
                                             description=f"Entity {entity.name} has been reactivated by {member_name}.",
                                             notification_type=settings.NOTIFICATION_TYPE["USER"],
                                             date_time=datetime.now(), is_deleted=False, is_read=False,
-                                            role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                            role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
             entity_logger.info('Successfully Reactivated an Entity with ID : %s.' % entity.id)
             return HttpResponseRedirect(reverse('index'))
         else:
@@ -539,7 +539,7 @@ class DeactivateEntityAdmin(View):
         if Entity_Role.delete(request, pk=pk, user_id=user_id):
 
             entity = get_object_or_404(Entity, pk=pk)
-            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
+            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
             admin_user_ids = [user_id, entity.created_by, ]
             net_admin_ids = list(set().union(entity_admin_ids, admin_user_ids))
             if net_admin_ids:
@@ -553,7 +553,7 @@ class DeactivateEntityAdmin(View):
                                                     description=description,
                                                     notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                     date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                    role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                                    role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
             entity_logger.info('Successfully Deactivated an Entity Admin from an Entity with ID : %s.' % entity.id)
             return HttpResponseRedirect(reverse('entity-profile', kwargs={'pk': pk}))
         else:
@@ -591,11 +591,11 @@ class UploadEntityDocument(View):
     def post(self, request, pk):
 
         entity = get_object_or_404(Entity, pk=pk)
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=pk, deleted=False).distinct())
         for file in request.FILES.getlist('inline[]'):
             print(file.size)
             ext = file.name.split(".")[-1]
-            if ext in settings.SOCION_VIDEO_FORMAT:
+            if ext in settings.PDA_VIDEO_FORMAT:
                 v = vimeo.VimeoClient(token=config('VIMEO_ACCESS_TOKEN'))
                 path = file.temporary_file_path()
                 try:
@@ -623,7 +623,7 @@ class UploadEntityDocument(View):
                     entity_logger.error('Could not Add Video to an Entity with ID : %s.' % entity.id)
                     pass
 
-            elif ext in settings.SOCION_IMAGE_FORMAT:
+            elif ext in settings.PDA_IMAGE_FORMAT:
                 file_key = s3_file_upload(request, bucket_name="entity-docs/image/")
                 if file_key is not None:
                     url = "%s%s" % (URL, file_key)
@@ -631,7 +631,7 @@ class UploadEntityDocument(View):
                                                 created_by=request.user.user_id, content_url=url)
                     attachment.save()
                     entity_logger.info('Successfully Added an Image to an Entity with ID : %s.' % entity.id)
-            elif ext in settings.SOCION_DOC_FORMAT:
+            elif ext in settings.PDA_DOC_FORMAT:
                 file_key = s3_file_upload(request, bucket_name="entity-docs/document/")
                 if file_key is not None:
                     url = "%s%s" % (URL, file_key)
@@ -645,12 +645,12 @@ class UploadEntityDocument(View):
                                             description=f"Document(s) have been uploaded to entity {entity.name} profile.",
                                             notification_type=settings.NOTIFICATION_TYPE["USER"],
                                             date_time=datetime.now(), is_deleted=False, is_read=False,
-                                            role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                            role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
         Notifications.notification_save(title='Entity upload document.',
                                         description=f"Document(s) have been uploaded to entity {entity.name} profile.",
                                         notification_type=settings.NOTIFICATION_TYPE["USER"],
                                         date_time=datetime.now(), is_deleted=False, is_read=False,
-                                        role=settings.SOCION_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
+                                        role=settings.PDA_SUPER_ADMIN, user_id=entity.created_by, session_id=None)
         return HttpResponseRedirect(reverse('entity-profile', kwargs={'pk': pk}))
 
 
@@ -660,14 +660,14 @@ class DeleteDocument(View):
         document = get_object_or_404(EntityDocument, pk=pk)
         entity_id = document.entity_id
         entity = get_object_or_404(Entity, pk=entity_id)
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=entity_id, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=entity_id, deleted=False).distinct())
         if EntityDocument.delete(request, pk=pk):
             for entity_admin_id in entity_admin_ids:
                 Notifications.notification_save(title='Entity delete document.',
                                                 description=f"Document(s) have been deleted from entity {entity.name} profile.",
                                                 notification_type=settings.NOTIFICATION_TYPE["USER"],
                                                 date_time=datetime.now(), is_deleted=False, is_read=False,
-                                                role=settings.SOCION_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
+                                                role=settings.PDA_ENTITY_ADMIN, user_id=entity_admin_id, session_id=None)
             entity_logger.info('Successfully Deleted a Document from an Entity with ID : %s.' % entity.id)
             return HttpResponseRedirect(reverse('entity-profile', kwargs={'pk': entity_id}))
         else:

@@ -423,10 +423,10 @@
                             <div class="input-group-prepend">
                                 <select class="input-group-text placeholder-text"
                                         style="width: 56px; padding: 0; padding-left:1.5px; background-color: #ffffff;"
-                                        id="socionUserCountryCode">
+                                        id="pdaUserCountryCode">
                                 </select>
                             </div>
-                            <input id="socionPhoneNumber" class="form-control placeholder-text"
+                            <input id="pdaPhoneNumber" class="form-control placeholder-text"
                                    placeholder="e.g 9999999999"
                                    style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">
                             <div class="input-group-append hidden" id="mobio-invalid">
@@ -448,7 +448,7 @@
     </div>
 
     <!--     Change User Name -->
-    
+
     <div class="modal fade" id="modal-popup-username" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -462,9 +462,9 @@
                   </div>
                   <div class="modal-body">
                       <div class="form-group">
-                            <label class="form-field-label" for="socionUserName">NAME</label>
-                            <input type="text" class="form-control placeholder-text" id="socionUserName"
-                                   placeholder="e.g Anand ML" required onkeypress="return AvoidSpace(event, 'socionUserName')" onkeyup="return RemoveSpace(event, 'socionUserName')">
+                            <label class="form-field-label" for="pdaUserName">NAME</label>
+                            <input type="text" class="form-control placeholder-text" id="pdaUserName"
+                                   placeholder="e.g Anand ML" required onkeypress="return AvoidSpace(event, 'pdaUserName')" onkeyup="return RemoveSpace(event, 'pdaUserName')">
                             <div class="invalid-number">
                                 <span id="userNameErrorMessage" class="invalid-number-text hidden">Please enter a user name</span>
                             </div>
@@ -621,7 +621,7 @@ $(document).ready(function(){
         EmailSendOTP: "{{settings.BASE_URL}}" + "user/send-otp",
         UpdateEmailUrl: "{{settings.BASE_URL}}" + "user/update-email-id",
         ChangePasswordUrl: "{{settings.BASE_URL}}" + "user/change-password",
-        token : localStorage.getItem("socion_accessToken")
+        token : localStorage.getItem("pda_accessToken")
     }
     var osid = "";
     var crtdDttm = "";
@@ -708,7 +708,7 @@ $(document).ready(function(){
         var encryptednewPassword = config.getEncryptedPassword(newPassword);
         var PasswordCred = {currentPassword: encryptedcurrentPassword, newPassword: encryptednewPassword};
         var jsonData = JSON.stringify(PasswordCred);
-        accessToken = localStorage.getItem("socion_accessToken");
+        accessToken = localStorage.getItem("pda_accessToken");
         if(config.getPasswordField().val() === config.getConfirmPasswordField().val() && config.getConfirmPasswordField().val().length >= 1 && config.getOldPasswordField().val().length !== 0) {
             $.ajax(ChangePasswordUrl, {
                 method: "POST",
@@ -805,7 +805,7 @@ $(document).ready(function(){
         var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
         var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
         var SendOTP = config.EmailSendOTP + "?phoneNumber=" + phoneNumber + "&typeOfOTP=UpdateEmail-OTP&countryCode="+ countryCode;
-        accessToken = localStorage.getItem("socion_accessToken");
+        accessToken = localStorage.getItem("pda_accessToken");
         $.ajax(SendOTP, {
             method: "GET",
             headers: { "access-token": accessToken },
@@ -850,7 +850,7 @@ $(document).ready(function(){
         var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
         var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
         var SendOTP = config.EmailSendOTP + "?phoneNumber=" + phoneNumber + "&typeOfOTP=UpdateEmail-OTP&countryCode="+ countryCode;
-        accessToken = localStorage.getItem("socion_accessToken");
+        accessToken = localStorage.getItem("pda_accessToken");
         $.ajax(SendOTP, {
             method: "GET",
             headers: { "access-token": accessToken },
@@ -959,7 +959,7 @@ $(document).ready(function(){
         emailID = document.getElementById("InputEmail").value;
         var EmailUpdateUrl = config.UpdateEmailUrl + "?emailId=" + emailID;
         if(emailID !== ""){
-            accessToken = localStorage.getItem("socion_accessToken");
+            accessToken = localStorage.getItem("pda_accessToken");
             $.ajax(EmailUpdateUrl, {
                 method: "GET",
                 headers: { "access-token": accessToken },
@@ -1008,7 +1008,7 @@ $(document).ready(function(){
         var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
         var EmailSendOTPUrl = config.EmailSendOTP + "?phoneNumber=" + userPhone + "&typeOfOTP=UpdatePhone-OTP&countryCode="+ countryCode;
         if(emailId !== ""){
-            accessToken = localStorage.getItem("socion_accessToken");
+            accessToken = localStorage.getItem("pda_accessToken");
             $.ajax(EmailSendOTPUrl, {
                 method: "GET",
                 headers: { "access-token": accessToken },
@@ -1042,7 +1042,7 @@ $(document).ready(function(){
         var userPhone = document.getElementById("userPhoneNumber").getAttribute("data-action");
         var countryCode = document.getElementById("userPhoneNumber").getAttribute("data-auth");
         var EmailSendOTPUrl = config.EmailSendOTP + "?phoneNumber=" + userPhone + "&typeOfOTP=UpdatePhone-OTP&countryCode="+ countryCode;
-        accessToken = localStorage.getItem("socion_accessToken");
+        accessToken = localStorage.getItem("pda_accessToken");
         $.ajax(EmailSendOTPUrl, {
             method: "GET",
             headers: { "access-token": accessToken },
@@ -1218,14 +1218,14 @@ $(document).ready(function(){
     $(document).on("submit", "#enter-phone-number-form", function (event) {
         disableScreen();
         event.preventDefault();
-        var userPhone = document.getElementById("socionPhoneNumber").value;
-        var countryCode = document.getElementById("socionUserCountryCode").value;
-        localStorage.setItem("socion_userPhoneNumber",userPhone);
-        localStorage.setItem("socion_userCountryCode",countryCode);
-        var socionSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
+        var userPhone = document.getElementById("pdaPhoneNumber").value;
+        var countryCode = document.getElementById("pdaUserCountryCode").value;
+        localStorage.setItem("pda_userPhoneNumber",userPhone);
+        localStorage.setItem("pda_userCountryCode",countryCode);
+        var pdaSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
         if(userPhone !== "" && checkPhoneNumberLength(userPhone)){
-            accessToken = localStorage.getItem("socion_accessToken");
-            $.ajax(socionSendOTPUrl, {
+            accessToken = localStorage.getItem("pda_accessToken");
+            $.ajax(pdaSendOTPUrl, {
                 method: "GET",
                 headers: { "access-token": accessToken },
                 contentType: "application/json",
@@ -1283,12 +1283,12 @@ $(document).ready(function(){
 
     $("#resend-phone-otp-button").click(function(event){
         event.preventDefault();
-        var userPhone = localStorage.getItem("socion_userPhoneNumber");
-        var countryCode = localStorage.getItem("socion_userCountryCode");
-        var socionSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
+        var userPhone = localStorage.getItem("pda_userPhoneNumber");
+        var countryCode = localStorage.getItem("pda_userCountryCode");
+        var pdaSendOTPUrl = config.sendOTPUrl + "?phoneNumber=" + userPhone + "&countryCode="+ countryCode;
         if(userPhone !== ""){
-            accessToken = localStorage.getItem("socion_accessToken");
-            $.ajax(socionSendOTPUrl, {
+            accessToken = localStorage.getItem("pda_accessToken");
+            $.ajax(pdaSendOTPUrl, {
                 method: "GET",
                 headers: { "access-token": accessToken },
                 contentType: "application/json",
@@ -1335,7 +1335,7 @@ $(document).ready(function(){
         event.preventDefault();
         var ValidateOTPUrl = config.validateOTPUrl;
         var phoneNumber = document.getElementById("userPhoneNumber").getAttribute("data-action");
-        var countryCode = localStorage.getItem("socion_userCountryCode");
+        var countryCode = localStorage.getItem("pda_userCountryCode");
         var otp = config.getInputOTPField().children().toArray();
         var otpText = "";
         otp.forEach(function(item){
@@ -1403,7 +1403,7 @@ $(document).ready(function(){
     });
 
    $('.edit-pencil').click(function () {
-       $("#change-user-name .modal-body #socionUserName").val($("#userName").text());
+       $("#change-user-name .modal-body #pdaUserName").val($("#userName").text());
        $("#modal-popup-username").modal("show");
    });
 
@@ -1412,7 +1412,7 @@ $(document).ready(function(){
         event.preventDefault();
         var updateProfileURL = "{{settings.BASE_URL}}" + "user/update-profile";
         var profileData = {
-            name:$('#socionUserName').val(),
+            name:$('#pdaUserName').val(),
             emailId:config.getEmailField().text(),
             salutation:"",
             phoneNumber:config.getPhoneNumberField().attr("data-action"),
@@ -1537,7 +1537,7 @@ $(document).ready(function(){
                     allData["userName"] = phoneNumber;
                     var bodyData = JSON.stringify(allData);
                     var updateProfileUrl = "{{settings.BASE_URL}}" + "user/update-profile";
-                    accessToken = localStorage.getItem("socion_accessToken");
+                    accessToken = localStorage.getItem("pda_accessToken");
                     $.ajax(updateProfileUrl, {
                         method: "PUT",
                         headers: { "access-token": accessToken },
@@ -1588,7 +1588,7 @@ $(document).ready(function(){
         allData["userName"] = phoneNumber;
         var bodyData = JSON.stringify(allData);
         var updateProfileUrl = "{{settings.BASE_URL}}" + "user/update-profile";
-        accessToken = localStorage.getItem("socion_accessToken");
+        accessToken = localStorage.getItem("pda_accessToken");
         $.ajax(updateProfileUrl, {
             method: "PUT",
             headers: { "access-token": accessToken },
@@ -1623,14 +1623,14 @@ $(document).ready(function(){
 
    $('.modal').on('hidden.bs.modal', function(){
      $('#enter-password-form .modal-body #InputPassword').val('');
-     $('#enter-phone-number-form .modal-body #socionPhoneNumber').val('');
+     $('#enter-phone-number-form .modal-body #pdaPhoneNumber').val('');
      $("#mobio-invalid").addClass("hidden");
      $("#ContactNumber").removeClass("input-field-error");
      $('#enter-phone-number-form .modal-body #phoneNumberErrorMessage').addClass("hidden");
      $('#Change-Password-Form .modal-body .form-group input').val('');
      $('#add-email-form .modal-body .form-group input#InputEmail').val('');
      $('.user-otp-inputs').children().val('');
-     $('#change-user-name .modal-body .form-group #socionUserName').val('');
+     $('#change-user-name .modal-body .form-group #pdaUserName').val('');
      $('#change-user-name .modal-body .form-group #userNameErrorMessage').addClass('hidden');
      $('#currentPasswordErrorMessage, #newPasswordErrorMessage, #newConfirmPasswordErrorMessage').addClass('hidden');
      $("#currentPassword").attr('type','password');

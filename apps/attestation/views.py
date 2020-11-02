@@ -4,7 +4,7 @@ from django.template.response import TemplateResponse
 from apps.program.models import Program
 from django.views.generic import DetailView
 from django.conf import settings
-from socion.info_logs import attestation_logger
+from pda.info_logs import attestation_logger
 from dateutil import parser
 
 

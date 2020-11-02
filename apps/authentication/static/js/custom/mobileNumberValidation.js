@@ -5,10 +5,10 @@ $(document).ready(function () {
   var filter = /^\d*(?:\.\d{1,2})?$/;
   var phoneNumberLength = 10;
 
-  var mobileNumberLength = $("#socionUserCountryCode").on("blur", function(){
+  var mobileNumberLength = $("#pdaUserCountryCode").on("blur", function(){
       selectedCountryCode = $(this).val();
-      var mobNum = $("#socionPhoneNumber").val();
-      countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
+      var mobNum = $("#pdaPhoneNumber").val();
+      countryCodes = JSON.parse(localStorage.getItem("pda_countryCodes"));
       countryCodes.forEach(function (item){
            if(item.code == selectedCountryCode){
                 phoneNumberLength = item.phoneNumberLength;
@@ -19,10 +19,10 @@ $(document).ready(function () {
       mobileNumberLengthValidation(filter, mobNum);
   });
 
-  $("#socionPhoneNumber").on("blur", function () {
+  $("#pdaPhoneNumber").on("blur", function () {
     var mobNum = $(this).val();
-    selectedCountryCode = $("#socionUserCountryCode").val();
-    countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
+    selectedCountryCode = $("#pdaUserCountryCode").val();
+    countryCodes = JSON.parse(localStorage.getItem("pda_countryCodes"));
     countryCodes.forEach(function (item){
          if(item.code == selectedCountryCode){
                phoneNumberMaxLength = item.phoneNumberSizeMax;
@@ -32,18 +32,7 @@ $(document).ready(function () {
     mobileNumberLengthValidation(filter, mobNum);
   });
 
-  /*$("#socionPassword").on("blur", function () {
-    var password = $(this).val();
-      if (password.length > 0) {
-        $("#passwordErrorMessage").addClass("hidden");
-      } else {
-        $("#passwordErrorMessage").text("Please enter your password");
-        $("#passwordErrorMessage").removeClass("hidden");
-        return false;
-      }
-  });*/
-
-  $("#socionUserName").on("blur", function () {
+  $("#pdaUserName").on("blur", function () {
     var userName = $(this).val();
       if (userName.length > 0) {
         $("#userNameErrorMessage").addClass("hidden");
@@ -59,8 +48,8 @@ $(document).ready(function () {
       if (mobNum.length >= phoneNumberMinLength && mobNum.length <= phoneNumberMaxLength) {
         $("#phoneNumberErrorMessage").addClass("hidden");
         $("#mobio-invalid").addClass("hidden");
-        $("#socionPhoneNumber").css("border-top-right-radius", "0.25rem");
-        $("#socionPhoneNumber").css("border-bottom-right-radius", "0.25rem");
+        $("#pdaPhoneNumber").css("border-top-right-radius", "0.25rem");
+        $("#pdaPhoneNumber").css("border-bottom-right-radius", "0.25rem");
         $("#phoneNumber").removeClass("input-field-error");
         $("#addByPhoneNumber .mobile-placeholder-text").css("height", "48px");
         $("#addByPhoneNumber .mobile-placeholder-text").css("border", "solid 0.5px #f9cfcc");
@@ -75,12 +64,12 @@ $(document).ready(function () {
         $("#phoneNumberErrorMessage").removeClass("hidden");
         $("#mobio-invalid").removeClass("hidden");
         $("#phoneNumber").addClass("input-field-error");
-        $("#socionPhoneNumber").removeAttr("style");
+        $("#pdaPhoneNumber").removeAttr("style");
         setTimeout(function(){
             $("#phoneNumberErrorMessage").addClass("hidden");
             $("#mobio-invalid").addClass("hidden");
-            $("#socionPhoneNumber").css("border-top-right-radius", "0.25rem");
-            $("#socionPhoneNumber").css("border-bottom-right-radius", "0.25rem");
+            $("#pdaPhoneNumber").css("border-top-right-radius", "0.25rem");
+            $("#pdaPhoneNumber").css("border-bottom-right-radius", "0.25rem");
             $("#phoneNumber").removeClass("input-field-error");
             $("#addByPhoneNumber .mobile-placeholder-text").css("height", "48px");
             $("#addByPhoneNumber .mobile-placeholder-text").css("border", "solid 0.5px #f9cfcc");
@@ -93,15 +82,15 @@ $(document).ready(function () {
       $("#phoneNumberErrorMessage").removeClass("hidden");
       $("#mobio-invalid").removeClass("hidden");
       $("#phoneNumber").addClass("input-field-error");
-      $("#socionPhoneNumber").removeAttr("style");
+      $("#pdaPhoneNumber").removeAttr("style");
       return false;
     }
   }
 });
 
 function checkPhoneNumberLength(mobnum){
-    selectedCountryCode = $("#socionUserCountryCode").val();
-    countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
+    selectedCountryCode = $("#pdaUserCountryCode").val();
+    countryCodes = JSON.parse(localStorage.getItem("pda_countryCodes"));
     countryCodes.forEach(function (item){
          if(item.code == selectedCountryCode){
                phoneNumberLength = item.phoneNumberLength;
@@ -130,6 +119,6 @@ function setInputFilter(textbox, inputFilter) {
 }
 
 // Install input filters.
-setInputFilter(document.getElementById("socionPhoneNumber"), function(value) {
+setInputFilter(document.getElementById("pdaPhoneNumber"), function(value) {
   return /^\d*$/.test(value);
 });

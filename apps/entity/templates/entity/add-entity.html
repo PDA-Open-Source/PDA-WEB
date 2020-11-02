@@ -33,10 +33,10 @@
                         <div class="input-group-prepend">
                             <select class="input-group-text code-placeholder-text"
                                     style="width: 67px; padding: 0; padding-left:2px; background-color: #ffffff;border: solid 0.5px #f9cfcc;"
-                                    id="socionUserCountryCode">
+                                    id="pdaUserCountryCode">
                             </select>
                         </div>
-                        <input id="socionPhoneNumber" class="form-control mobile-placeholder-text" placeholder="Enter mobile number" required
+                        <input id="pdaPhoneNumber" class="form-control mobile-placeholder-text" placeholder="Enter mobile number" required
                                style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;height:48px;border: solid 0.5px #f9cfcc;">
                         <div class="input-group-append hidden" id="mobio-invalid">
                             <i class="input-group-text fa fa-exclamation-circle"
@@ -54,12 +54,12 @@
             </div>
             <div>
                 <div class="form-group">
-                    <label class="form-field-label" for="socionEntityName"
+                    <label class="form-field-label" for="pdaEntityName"
                            style="font-family: AvenirNext-DemiBold; font-size: 12px; color: #666666;float:left;">
                         ENTER ENTITY NAME
                     </label>
-                    <input type="text" class="form-control placeholder-text" id="socionEntityName"
-                           placeholder="e.g ASLM" style="border: solid 1px #f9cfcc;" onkeypress="return AvoidSpace(event, 'socionEntityName')" onkeyup="return RemoveSpace(event, 'socionEntityName')">
+                    <input type="text" class="form-control placeholder-text" id="pdaEntityName"
+                           placeholder="e.g ASLM" style="border: solid 1px #f9cfcc;" onkeypress="return AvoidSpace(event, 'pdaEntityName')" onkeyup="return RemoveSpace(event, 'pdaEntityName')">
                     <div id="entityNameError" class="hidden invalid-number">
                         <span class="invalid-number-text">Please enter an entity name</span>
                     </div>
@@ -78,13 +78,13 @@
 </form>
 <script>
     $(function (){
-        $('#socionEntityName').on("blur",function(){
-            var socionEntityName = $('#socionEntityName').val();
-            if(socionEntityName !== ''){
-                localStorage.setItem('socionEntityName', socionEntityName);
+        $('#pdaEntityName').on("blur",function(){
+            var pdaEntityName = $('#pdaEntityName').val();
+            if(pdaEntityName !== ''){
+                localStorage.setItem('pdaEntityName', pdaEntityName);
             }
             else{
-                localStorage.removeItem('socionEntityName');
+                localStorage.removeItem('pdaEntityName');
             }
         });
 
@@ -118,7 +118,7 @@
             });
         }
 
-        $("#socionPhoneNumber").on("blur", function () {
+        $("#pdaPhoneNumber").on("blur", function () {
             var mobNum = $(this).val();
             if (!checkPhoneNumberLength(mobNum)) {
                 $("#GetDetailsByPhoneNumber").prop("disabled", true);
@@ -130,30 +130,30 @@
 
         $('#GetDetailsByPhoneNumber').on("click",function(){
             $(".js-add-entity")[0].reportValidity();
-            var socion_userCountryCode = $('#socionUserCountryCode').val();
-            var socion_userPhoneNumber = $('#socionPhoneNumber').val();
+            var pda_userCountryCode = $('#pdaUserCountryCode').val();
+            var pda_userPhoneNumber = $('#pdaPhoneNumber').val();
             var getUserInfoByPhoneNumberUrl = "{{settings.BASE_URL}}" + "user/get-profile-from-phoneNumber";
             var postData = {
                 phoneNumbers:[{
-                   phoneNumber:socion_userPhoneNumber,
-                   countryCode:socion_userCountryCode
+                   phoneNumber:pda_userPhoneNumber,
+                   countryCode:pda_userCountryCode
                 }]
             }
             var jsonData = JSON.stringify(postData);
-            if(checkPhoneNumberLength(socion_userPhoneNumber)){
+            if(checkPhoneNumberLength(pda_userPhoneNumber)){
                 $.ajax(getUserInfoByPhoneNumberUrl, {
                     method: "POST",
                     contentType: "application/json",
                     data: jsonData,
                     headers: {
-                        "access-token":localStorage.getItem("socion_accessToken"),
+                        "access-token":localStorage.getItem("pda_accessToken"),
                     }
                 })
                 .done(function(data, textStatus, jqXHR){
                     if(jqXHR.status === 200){
                         if(data.responseCode === 200 && data.message === "SuccessFully fetch user Data"){
                             var userDetail;
-                            var user =  socion_userCountryCode.concat(socion_userPhoneNumber);
+                            var user =  pda_userCountryCode.concat(pda_userPhoneNumber);
                             data.response.forEach(function (item) {
                                 userDetail = item;
                             });
@@ -224,10 +224,10 @@
 </script>
 <script>
     $(document).ready(function(){
-        var socionEntityName = localStorage.getItem('socionEntityName');
-        console.log(socionEntityName);
-        if(socionEntityName !== 'null'){
-            $('#socionEntityName').val(socionEntityName);
+        var pdaEntityName = localStorage.getItem('pdaEntityName');
+        console.log(pdaEntityName);
+        if(pdaEntityName !== 'null'){
+            $('#pdaEntityName').val(pdaEntityName);
         }
     });
 </script>

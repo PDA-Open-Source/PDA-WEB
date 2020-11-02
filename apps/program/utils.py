@@ -9,7 +9,7 @@ class CookieUserMixin:
         function which checks user logged in or not
         """
         try:
-            return bool(self.request.COOKIES['socion_user_id'])
+            return bool(self.request.COOKIES['pda_user_id'])
         except KeyError:
             return False
 
@@ -17,6 +17,4 @@ class CookieUserMixin:
         """
         function which return login user id
         """
-        return self.request.COOKIES.get('socion_user_id', 1)
-
-
+        return self.request.COOKIES.get('pda_user_id', 1)

@@ -11,7 +11,7 @@ from apps.entity.models import Entity, Entity_Role
 from apps.program.models import Program, Topic, Content, Program_Roles, ProgramDocument
 from core.models import Session, Session_Links
 from .forms import ProgramForm, TopicForm, TopicUpdateForm, TopicUpdateForm1, ContentForm
-from socion.storage_backends import s3_file_upload
+from pda.storage_backends import s3_file_upload
 import vimeo
 from decouple import config
 import requests
@@ -19,7 +19,7 @@ from datetime import datetime
 from django.db.models import Prefetch
 import psycopg2
 from core.views import Notifications
-from socion.info_logs import program_logger
+from pda.info_logs import program_logger
 from dateutil import parser
 import botocore
 import boto3.session
@@ -62,19 +62,19 @@ def pop_add_admin(template_name, request, **kwargs):
             title = ""
             description = ""
             notification_roles = list()
-            if role == settings.SOCION_PROGRAM_ADMIN:
+            if role == settings.PDA_PROGRAM_ADMIN:
                 title = "Add Program Admin"
                 description = f"{admin_user_name} has been onboarded as a Program Administrator to the Program {program.name}"
-                admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=program.entity_id, deleted=False).distinct())
-                notification_roles = [settings.SOCION_PROGRAM_ADMIN, ]
-            elif role == settings.SOCION_CONTENT_ADMIN:
+                admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=program.entity_id, deleted=False).distinct())
+                notification_roles = [settings.PDA_PROGRAM_ADMIN, ]
+            elif role == settings.PDA_CONTENT_ADMIN:
                 title = "Add Content Admin"
                 description = f"{admin_user_name} has been onboarded as a Content  Administrator to the Program {program.name}"
-                notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
-            elif role == settings.SOCION_TRAINER:
+                notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
+            elif role == settings.PDA_TRAINER:
                 title = "Add Trainer"
                 description = f"{admin_user_name} has been onboarded as a Trainer to the Program {program.name}"
-                notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_TRAINER, ]
+                notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_TRAINER, ]
             program_member_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles, program_id=program_id, deleted=False).distinct())
             net_admin_ids = list(set().union(admin_ids, program_member_admin_ids))
             if net_admin_ids:
@@ -114,14 +114,14 @@ class ProgramList(ListView):
 
     def get_queryset(self, **kwargs):
         user_id = self.request.user.user_id
-        if settings.SOCION_SUPER_ADMIN in self.request.user.roles:
+        if settings.PDA_SUPER_ADMIN in self.request.user.roles:
             return super().get_queryset().order_by('deleted')
         else:
             entity_ids = list(Entity_Role.objects.values_list("entity_id", flat=True).filter(user_id=user_id, deleted=False))
             programs_id_from_entity = Program.objects.values_list("id", flat=True).filter(entity_id__in=entity_ids)
-            program_id_program_admin = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.SOCION_PROGRAM_ADMIN, deleted=False))
-            program_id_content_admin = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.SOCION_CONTENT_ADMIN, deleted=False))
-            program_id_trainer = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.SOCION_TRAINER, deleted=False))
+            program_id_program_admin = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.PDA_PROGRAM_ADMIN, deleted=False))
+            program_id_content_admin = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.PDA_CONTENT_ADMIN, deleted=False))
+            program_id_trainer = list(Program_Roles.objects.values_list("program_id", flat=True).filter(user_id=user_id, role=settings.PDA_TRAINER, deleted=False))
             net_program_ids = set().union(program_id_program_admin, program_id_content_admin, program_id_trainer, programs_id_from_entity)
             return super().get_queryset().filter(pk__in=net_program_ids).order_by('deleted')
 
@@ -134,11 +134,11 @@ class ProgramMixin(UserPassesTestMixin):
 
         user_id = self.request.user.user_id
         pk = self.kwargs[self.pk_url_kwarg]
-        socion_roles = list(
+        pda_roles = list(
             Program_Roles.objects.values_list("role", flat=True).filter(user_id=user_id, program_id=pk, deleted=False).distinct()
         )
-        socion_program_admin_roles = list(
-            Program_Roles.objects.values_list("role", flat=True).filter(user_id=user_id, program_id=pk, role=settings.SOCION_PROGRAM_ADMIN).distinct()
+        pda_program_admin_roles = list(
+            Program_Roles.objects.values_list("role", flat=True).filter(user_id=user_id, program_id=pk, role=settings.PDA_PROGRAM_ADMIN).distinct()
         )
         program_detail = Program.objects.get(pk=pk)
         entity_id = program_detail.entity.id
@@ -146,9 +146,9 @@ class ProgramMixin(UserPassesTestMixin):
             Entity_Role.objects.values_list("role", flat=True).filter(user_id=user_id, entity_id=entity_id,
                                                                       deleted=False).distinct()
         )
-        socion_roles.extend(entity_role)
-        if settings.SOCION_SUPER_ADMIN not in self.request.user.roles:
-            if socion_roles or socion_program_admin_roles:
+        pda_roles.extend(entity_role)
+        if settings.PDA_SUPER_ADMIN not in self.request.user.roles:
+            if pda_roles or pda_program_admin_roles:
                 return True
             else:
                 return False
@@ -267,11 +267,11 @@ class ProgramDetail(ProgramMixin, DetailView):
         trainer = list()
         other = list()
         for item in members:
-            if item['role'] == settings.SOCION_PROGRAM_ADMIN:
+            if item['role'] == settings.PDA_PROGRAM_ADMIN:
                 program_admin.append(item)
-            elif item['role'] == settings.SOCION_CONTENT_ADMIN:
+            elif item['role'] == settings.PDA_CONTENT_ADMIN:
                 content_admin.append(item)
-            elif item['role'] == settings.SOCION_TRAINER:
+            elif item['role'] == settings.PDA_TRAINER:
                 trainer.append(item)
             else:
                 other.append(item)
@@ -284,16 +284,16 @@ class ProgramDetail(ProgramMixin, DetailView):
         context['OTHER'] = sorted(other, key=lambda i: i['deactivated'])
         context['MEMBERS'] = sorted(members, key=lambda i: i['deactivated'])
 
-        if settings.SOCION_SUPER_ADMIN not in self.request.user.roles:
+        if settings.PDA_SUPER_ADMIN not in self.request.user.roles:
 
-            if settings.SOCION_ENTITY_ADMIN in program_role:
+            if settings.PDA_ENTITY_ADMIN in program_role:
                 context["entity_permissions"] = settings.ENTITY_PERMISSIONS
-            if settings.SOCION_PROGRAM_ADMIN in program_role:
+            if settings.PDA_PROGRAM_ADMIN in program_role:
                 context["permissions"] = settings.PROGRAM_PERMISSIONS
                 context["permission_can_view_participant_list"] = True
-            elif settings.SOCION_CONTENT_ADMIN in program_role:
+            elif settings.PDA_CONTENT_ADMIN in program_role:
                 context["permissions"] = settings.CONTENT_PERMISSIONS
-            elif settings.SOCION_TRAINER in program_role:
+            elif settings.PDA_TRAINER in program_role:
                 context["permissions"] = settings.TRAINER_PERMISSIONS
 
         return context
@@ -505,7 +505,7 @@ def save_all(request, form, template_name, instance):
             obj.created_by = request.user.user_id
             obj.entity_id = instance.id
             obj.save()
-            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN, entity_id=instance.id, deleted=False).distinct())
+            entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN, entity_id=instance.id, deleted=False).distinct())
             entity_admin_ids.append(request.user.user_id)
             if request.FILES:
                 aws_session = boto3.Session(aws_access_key_id=config('AWS_ACCESS_KEY_ID'), aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'))
@@ -515,7 +515,7 @@ def save_all(request, form, template_name, instance):
                     ext = file.name.split(".")[-1]
                     mimetype = mimetypes.MimeTypes().guess_type(file.name)[0]
                     uuId = uuid.uuid1()
-                    if ext in settings.SOCION_VIDEO_FORMAT:
+                    if ext in settings.PDA_VIDEO_FORMAT:
                         v = vimeo.VimeoClient(token=config('VIMEO_ACCESS_TOKEN'))
                         path = file.temporary_file_path()
                         try:
@@ -544,7 +544,7 @@ def save_all(request, form, template_name, instance):
                             program_logger.error('Could not upload a video to a program because %s.' % e)
                             pass
 
-                    elif ext in settings.SOCION_IMAGE_FORMAT:
+                    elif ext in settings.PDA_IMAGE_FORMAT:
                         file_key = "%s%s%s%s" % ("Program-Docs/Images/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -552,7 +552,7 @@ def save_all(request, form, template_name, instance):
                                                      created_by=request.user.user_id, content_type='Image')
                         attachment.save()
                         program_logger.info('Successfully Added an Image to a Program with ID : %s.' % program_id)
-                    elif ext in settings.SOCION_DOC_FORMAT:
+                    elif ext in settings.PDA_DOC_FORMAT:
                         file_key = "%s%s%s%s" % ("Program-Docs/Documents/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -601,12 +601,12 @@ class UpdateProgram(RedirectView):
                                                                       deleted=False).distinct()
         )
         program_role.extend(entity_role)
-        if settings.SOCION_SUPER_ADMIN in request.user.roles:
+        if settings.PDA_SUPER_ADMIN in request.user.roles:
             context["admin_permissions"] = True
         else:
-            if settings.SOCION_ENTITY_ADMIN in program_role:
+            if settings.PDA_ENTITY_ADMIN in program_role:
                 context["entity_permissions"] = settings.ENTITY_PERMISSIONS
-            if settings.SOCION_PROGRAM_ADMIN in program_role:
+            if settings.PDA_PROGRAM_ADMIN in program_role:
                 context["permissions"] = settings.PROGRAM_PERMISSIONS
 
         template = 'program/detail/program_update.html'
@@ -645,7 +645,7 @@ def update_all(request, form, template_name, permissions=None):
     if request.method == 'POST':
         program = Program.objects.get(pk=form.instance.pk)
         POST = request.POST.copy()
-        if settings.SOCION_SUPER_ADMIN in request.user.roles:
+        if settings.PDA_SUPER_ADMIN in request.user.roles:
             if count_of_values_changed(program, POST) > 1:
                 title = "Edit Program Details"
                 description = f"The details of Program {form.instance.name} has been changed"
@@ -665,7 +665,7 @@ def update_all(request, form, template_name, permissions=None):
                 title = "Edit Program user limit"
                 description = f"The user limit of Program {form.instance.name} has been changed"
 
-        if settings.SOCION_SUPER_ADMIN not in request.user.roles:
+        if settings.PDA_SUPER_ADMIN not in request.user.roles:
             description = f"The description for Program {form.instance.name} has been changed"
             POST['name'] = form.instance.name
             POST['start_date'] = form.instance.start_date
@@ -673,7 +673,7 @@ def update_all(request, form, template_name, permissions=None):
             POST['user_limit'] = form.instance.user_limit
             form = ProgramForm(POST, instance=form.instance)
 
-        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_PROGRAM_ADMIN, program_id=form.instance.id, deleted=False).distinct())
+        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.PDA_PROGRAM_ADMIN, program_id=form.instance.id, deleted=False).distinct())
         entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(entity_id=program.entity_id, deleted=False).distinct())
         net_admin_ids = list(set().union(entity_admin_ids, program_admin_ids))
         net_admin_ids.append(program.created_by)
@@ -762,7 +762,7 @@ class DeleteTopic(View):
         if Topic.delete(request, pk=pk):
             title = "Deactivate Topic"
             description = f"Topic {topic.name} belonging to Program {topic.program.name} has been deactivated"
-            notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+            notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
             program_member_admin_ids = list(
                 Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                                program_id=topic.program.id,
@@ -788,7 +788,7 @@ class ReactivateTopic(View):
         if Topic.reactivate(request, pk=pk):
             title = "Reactivate Topic"
             description = f"Topic {topic.name} belonging to Program {topic.program.name} has been reactivated"
-            notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+            notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
             program_member_admin_ids = list(
                 Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                                program_id=topic.program.id,
@@ -816,21 +816,21 @@ class ProgramMemberDeactivate(View):
             admin_ids = list()
             title = ""
             description = ""
-            if role == settings.SOCION_PROGRAM_ADMIN:
+            if role == settings.PDA_PROGRAM_ADMIN:
                 title = "Remove Program Admin"
                 description = f"Program Administrator access has been withdrawn for {admin_username} from Program {program.name}"
                 admin_ids = list(
-                    Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN,
+                    Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN,
                                                                                  entity_id=program.entity_id,
                                                                                  deleted=False).distinct())
-            elif role == settings.SOCION_CONTENT_ADMIN:
+            elif role == settings.PDA_CONTENT_ADMIN:
                 title = "Remove Content Admin"
                 description = f"Content Administrator access has been withdrawn for {admin_username} from Program {program.name}"
-            elif role == settings.SOCION_TRAINER:
+            elif role == settings.PDA_TRAINER:
                 title = "Remove Trainer"
                 description = f"Trainer, {admin_username}, has been removed from Program {program.name}"
             program_member_admin_ids = list(
-                Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_PROGRAM_ADMIN,
+                Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.PDA_PROGRAM_ADMIN,
                                                                                program_id=pk,
                                                                                deleted=False).distinct())
             program_member_admin_ids.append(user_id)
@@ -858,21 +858,21 @@ class ProgramMemberReactivate(View):
             admin_ids = list()
             title = ""
             description = ""
-            if role == settings.SOCION_PROGRAM_ADMIN:
+            if role == settings.PDA_PROGRAM_ADMIN:
                 title = "Reactivate Program Admin"
                 description = f"Program Administrator, {admin_username}, has been reinstated to Program {program.name}"
                 admin_ids = list(
-                    Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_ENTITY_ADMIN,
+                    Entity_Role.objects.values_list("user_id", flat=True).filter(role=settings.PDA_ENTITY_ADMIN,
                                                                                  entity_id=program.entity_id,
                                                                                  deleted=False).distinct())
-            elif role == settings.SOCION_CONTENT_ADMIN:
+            elif role == settings.PDA_CONTENT_ADMIN:
                 title = "Reactivate Content Admin"
                 description = f"Content Administrator, {admin_username}, has been reinstated to Program {program.name}"
-            elif role == settings.SOCION_TRAINER:
+            elif role == settings.PDA_TRAINER:
                 title = "Reactivate Trainer"
                 description = f"Trainer, {admin_username}, has been reinstated to Program {program.name}"
             program_member_admin_ids = list(
-                Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.SOCION_PROGRAM_ADMIN,
+                Program_Roles.objects.values_list("user_id", flat=True).filter(role=settings.PDA_PROGRAM_ADMIN,
                                                                                program_id=pk,
                                                                                deleted=False).distinct())
             program_member_admin_ids.append(user_id)
@@ -922,7 +922,7 @@ def save_topic(request, form, template_name, instance):
             data['topic_id'] = topic.id
             title = "Add Topic"
             description = f"Topic {topic.name} has been added to Program {instance.name}."
-            notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+            notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
             program_member_admin_ids = list(
                 Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                                program_id=instance.pk,
@@ -974,7 +974,7 @@ class UpdateTopic1(CreateView):
             if topic.name != request.POST['name'] or topic.description != request.POST['description']:
                 title = "Edit Topic."
                 description = f"Topic {topic.name} belonging to Program {program.name} has been edited by member {request.user.user_name}."
-                notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+                notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
                 program_member_admin_ids = list(
                     Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                                    program_id=program.id,
@@ -1010,7 +1010,7 @@ def save_topic_update(request, form, template_name, instance):
                     ext = file.name.split(".")[-1]
                     mimetype = mimetypes.MimeTypes().guess_type(file.name)[0]
                     uuId = uuid.uuid1()
-                    if ext in settings.SOCION_VIDEO_FORMAT:
+                    if ext in settings.PDA_VIDEO_FORMAT:
                         v = vimeo.VimeoClient(token=config('VIMEO_ACCESS_TOKEN'))
                         path = file.temporary_file_path()
                         try:
@@ -1038,7 +1038,7 @@ def save_topic_update(request, form, template_name, instance):
                             program_logger.error('Could not Add Video to a Topic with ID : %s.' % content.id)
                             pass
 
-                    elif ext in settings.SOCION_IMAGE_FORMAT:
+                    elif ext in settings.PDA_IMAGE_FORMAT:
                         file_key = "%s%s%s%s" % ("content/image/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -1046,7 +1046,7 @@ def save_topic_update(request, form, template_name, instance):
                                              created_by=request.user.user_id, content_url=url)
                         attachment.save()
                         program_logger.info('Successfully Added an Image to a Topic with ID : %s.' % content.id)
-                    elif ext in settings.SOCION_DOC_FORMAT:
+                    elif ext in settings.PDA_DOC_FORMAT:
                         file_key = "%s%s%s%s" % ("content/document/", uuId, ".", ext)
                         s3.Bucket(config('AWS_STORAGE_BUCKET_NAME')).put_object(Key=file_key, Body=file, ContentType=mimetype)
                         url = "%s%s" % (URL, file_key)
@@ -1057,7 +1057,7 @@ def save_topic_update(request, form, template_name, instance):
                 program = get_object_or_404(Program, pk=content.program_id)
                 title = "Add Content to a Topic."
                 description = f"Content has been added to the Topic {content.name} to Program {program.name} by member {request.user.user_name}."
-                notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+                notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
                 program_member_admin_ids = list(
                     Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                                    program_id=program.id,
@@ -1132,7 +1132,7 @@ class DeleteContent(View):
         program = get_object_or_404(Program, pk=topic.program_id)
         title = "Delete Content from a Topic."
         description = f"Content has been deleted from the Topic {topic.name} to Program {program.name} by member {request.user.user_name}."
-        notification_roles = [settings.SOCION_PROGRAM_ADMIN, settings.SOCION_CONTENT_ADMIN, ]
+        notification_roles = [settings.PDA_PROGRAM_ADMIN, settings.PDA_CONTENT_ADMIN, ]
         program_member_admin_ids = list(
             Program_Roles.objects.values_list("user_id", flat=True).filter(role__in=notification_roles,
                                                                            program_id=program.id,
@@ -1152,15 +1152,15 @@ class UploadProgramDocument(View):
 
     def post(self, request, pk):
         program = get_object_or_404(Program, pk=pk)
-        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(program_id=pk, role=settings.SOCION_PROGRAM_ADMIN, deleted=False).distinct())
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(entity_id=program.entity_id, role=settings.SOCION_ENTITY_ADMIN, deleted=False).distinct())
+        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(program_id=pk, role=settings.PDA_PROGRAM_ADMIN, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(entity_id=program.entity_id, role=settings.PDA_ENTITY_ADMIN, deleted=False).distinct())
         net_admin_ids = list(set().union(entity_admin_ids, program_admin_ids))
         net_admin_ids.append(program.created_by)
         for file in request.FILES.getlist('inline[]'):
             # print(round(file.size/1000000, 2))
             program_id = program.id
             ext = file.name.split(".")[-1]
-            if ext in settings.SOCION_VIDEO_FORMAT:
+            if ext in settings.PDA_VIDEO_FORMAT:
                 v = vimeo.VimeoClient(token=config('VIMEO_ACCESS_TOKEN'))
                 path = file.temporary_file_path()
                 try:
@@ -1189,7 +1189,7 @@ class UploadProgramDocument(View):
                     program_logger.error('Could not Add Video to a Topic with ID : %s.' % program.id)
                     pass
 
-            elif ext in settings.SOCION_IMAGE_FORMAT:
+            elif ext in settings.PDA_IMAGE_FORMAT:
                 file_key = s3_file_upload(request, bucket_name="Program-Docs/Images/")
                 if file_key is not None:
                     url = "%s%s" % (URL, file_key)
@@ -1197,7 +1197,7 @@ class UploadProgramDocument(View):
                                                  created_by=request.user.user_id, content_type='Image')
                     attachment.save()
                     program_logger.info('Successfully Added an Image to a Program with ID : %s.' % program_id)
-            elif ext in settings.SOCION_DOC_FORMAT:
+            elif ext in settings.PDA_DOC_FORMAT:
                 file_key = s3_file_upload(request, bucket_name="Program-Docs/Documents/")
                 if file_key is not None:
                     url = "%s%s" % (URL, file_key)
@@ -1221,8 +1221,8 @@ class DeleteDocument(View):
         document = get_object_or_404(ProgramDocument, pk=pk)
         program_id = document.program_id
         program = get_object_or_404(Program, pk=program_id)
-        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(program_id=program_id, role=settings.SOCION_PROGRAM_ADMIN, deleted=False).distinct())
-        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(entity_id=program.entity_id, role=settings.SOCION_ENTITY_ADMIN, deleted=False).distinct())
+        program_admin_ids = list(Program_Roles.objects.values_list("user_id", flat=True).filter(program_id=program_id, role=settings.PDA_PROGRAM_ADMIN, deleted=False).distinct())
+        entity_admin_ids = list(Entity_Role.objects.values_list("user_id", flat=True).filter(entity_id=program.entity_id, role=settings.PDA_ENTITY_ADMIN, deleted=False).distinct())
         net_admin_ids = list(set().union(entity_admin_ids, program_admin_ids))
         net_admin_ids.append(program.created_by)
         if ProgramDocument.delete(request, pk=pk):
@@ -1266,4 +1266,3 @@ def content_download(request):
                 data['downloaded'] = False
                 program_logger.error('Error while Downloading Document.')
                 return JsonResponse(data)
-

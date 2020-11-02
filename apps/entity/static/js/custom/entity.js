@@ -11,28 +11,13 @@ $(function () {
       dataType: 'json',
       beforeSend: function () {
         $("#modal-popup").modal("show");
-        localStorage.removeItem('socionEntityName');
+        localStorage.removeItem('pdaEntityName');
       },
       success: function (data) {
         $("#modal-popup .modal-content").html(data.html_form);
       }
     });
   };
-
-//  var loadChooseScanType = function () {
-//    var btn = $(this);
-//    $.ajax({
-//      url: '/entities/choose-scan-type/',
-//      type: 'get',
-//      dataType: 'json',
-//      beforeSend: function () {
-//        $("#modal-popup").modal("show");
-//      },
-//      success: function (data) {
-//        $("#modal-popup .modal-content").html(data.html_form);
-//      }
-//    });
-//  };
 
   var saveAddMemberForm = function (e) {
     e.preventDefault();
@@ -66,7 +51,7 @@ $(function () {
       dataType: 'json',
       beforeSend: function () {
         $("#modal-popup-admin").modal("show");
-        localStorage.removeItem('socionEntityName');
+        localStorage.removeItem('pdaEntityName');
       },
       success: function (data) {
         $("#modal-popup-admin .modal-content").html(data.html_form);

@@ -11,7 +11,7 @@ COPY . /code/
 COPY ./manage.py manage.py
 #COPY ./authentication authentication
 #COPY ./program program
-COPY ./socion socion
+COPY ./pda pda
 #COPY ./static static
 COPY ./.env  .env
 COPY ./.env .env

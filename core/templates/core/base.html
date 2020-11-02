@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css.map" type="application/octet-stream">
     {% block styles %}
     {% endblock %}
-    <title>Socion</title>
+    <title>title</title>
 </head>
 
 <body>
@@ -145,12 +145,12 @@ function disableScreen() {
 <script>
 $(document).ready(function () {
     var activeUrl = window.location.pathname;
-    var socion = btoa('socion');
+    var pda = btoa('pda');
     var count = 0;
     var cookies = document.cookie.split(";");
     for (var i = 0; i < cookies.length; i++){
         name = cookies[i].split("=")[0];
-        if(name.includes(socion))
+        if(name.includes(pda))
         {
             count++;
         }
@@ -159,7 +159,7 @@ $(document).ready(function () {
         window.location.href = '/oauth/landing/';
     }
     else if(count !== 3 && activeUrl.includes('/oauth/login/')){
-        document.getElementById("socionLoginForm").reset();
+        document.getElementById("pdaLoginForm").reset();
         localStorage.clear();
         for (var i = 0; i < cookies.length; i++){
             name = cookies[i].split("=")[0];

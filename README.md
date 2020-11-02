@@ -1,4 +1,4 @@
-# PDA - Socion [WebApp]
+# PDA [WebApp]
 
 A Django(Python Web Framework) Application that allows user to create and conduct program.
 
@@ -43,7 +43,7 @@ Run the below commands :-
 ### Project Structure
 ```
 
-+---socion-program
++---PDA-WEB
     |   .env
     |   .example.env
     |   .gitignore
@@ -255,7 +255,7 @@ Run the below commands :-
     |
     +---env
     |
-    +---socion
+    +---pda
     |   |   info_logs.py
     |   |   storage_backends.py
     |   |   urls.py

@@ -26,22 +26,22 @@
         </div>
         <div class="col col-md-8 align-self-center">
             <div class="col-form">
-                <div class="socion-image">
-                    <img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion"/>
+                <div class="pda-image">
+                    
                 </div>
                 <div class="text-left auth-title">Log in</div>
-                <form id="socionLoginForm">
+                <form id="pdaLoginForm">
 
                     <div class="form-group">
-                        <label class="form-field-label" for="socionPhoneNumber">MOBILE NUMBER</label>
+                        <label class="form-field-label" for="pdaPhoneNumber">MOBILE NUMBER</label>
                         <div class="input-group" id="phoneNumber">
                             <div class="input-group-prepend">
                                 <select class="input-group-text placeholder-text"
                                         style="width: 56px; padding: 0; padding-left:1.5px; background-color: #ffffff;"
-                                        id="socionUserCountryCode">
+                                        id="pdaUserCountryCode">
                                 </select>
                             </div>
-                            <input id="socionPhoneNumber" class="form-control placeholder-text" placeholder="e.g 9999999999"
+                            <input id="pdaPhoneNumber" class="form-control placeholder-text" placeholder="e.g 9999999999"
                                    style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">
                             <div class="input-group-append hidden" id="mobio-invalid">
                                 <i class="input-group-text fa fa-exclamation-circle"
@@ -55,8 +55,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-field-label" for="socionPassword">PASSWORD</label>
-                        <input type="password" class="form-control placeholder-text" id="socionPassword"
+                        <label class="form-field-label" for="pdaPassword">PASSWORD</label>
+                        <input type="password" class="form-control placeholder-text" id="pdaPassword"
                                placeholder="enter your password">
                         <div class="invalid-number">
                             <span id="passwordErrorMessage" class="invalid-number-text hidden">Please enter your password</span>
@@ -83,13 +83,13 @@ $(function(){
     var config = {
         loginUrl: "{{settings.BASE_URL}}" + "user/login",
         getUserNameField: function(){
-            return $("#socionPhoneNumber");
+            return $("#pdaPhoneNumber");
         },
         getPasswordField: function(){
-            return $("#socionPassword");
+            return $("#pdaPassword");
         },
         getCountryCodeField: function(){
-            return $("#socionUserCountryCode");
+            return $("#pdaUserCountryCode");
         },
         getUserNameErrorField: function(){
             return $("#phoneNumberErrorMessage");
@@ -116,7 +116,7 @@ $(function(){
     }
 
     function updateLocalStorage(key, value){
-         key = 'socion_'+ key;
+         key = 'pda_'+ key;
          localStorage.setItem(key, value);
     }
 
@@ -134,17 +134,17 @@ $(function(){
         return payload;
     }
 
-    $("#socionLoginForm").submit(function(event){
+    $("#pdaLoginForm").submit(function(event){
         disableScreen();
         event.preventDefault();
-        var socionLoginUrl = config.loginUrl;
+        var pdaLoginUrl = config.loginUrl;
         var userName = config.getUserNameField().val();
         var password = config.getPasswordField().val();
         var countryCode = config.getCountryCodeField().val();
         var loginCreds = {userName: userName,password: config.getEncryptedPassword(password),countryCode:countryCode}
         var jsonCreds = JSON.stringify(loginCreds);
         if(checkPhoneNumberLength(config.getUserNameField().val())){
-            $.ajax(socionLoginUrl, {
+            $.ajax(pdaLoginUrl, {
                 method: "POST",
                 contentType: "application/json",
                 data: jsonCreds,
@@ -160,14 +160,14 @@ $(function(){
                     var userDetails = JSON.stringify(data.response.userDetails);
                     var accessTokenPayload = getPayload(data.response.accessTokenResponseDTO.accessToken);
                     var userRoles = accessTokenPayload.realm_access.roles;
-                    var socion_user_name =  accessTokenPayload.name;
-                    setUserCookie(encryptValue("socion_userid"),encryptValue(data.response.userDetails.userId),data.response.accessTokenResponseDTO.expiresIn);
-                    setUserCookie(encryptValue("socion_username"),encryptValue(data.response.userDetails.name),data.response.accessTokenResponseDTO.expiresIn);
-                    setUserCookie("active_user",socion_user_name,data.response.accessTokenResponseDTO.expiresIn);
+                    var pda_user_name =  accessTokenPayload.name;
+                    setUserCookie(encryptValue("pda_userid"),encryptValue(data.response.userDetails.userId),data.response.accessTokenResponseDTO.expiresIn);
+                    setUserCookie(encryptValue("pda_username"),encryptValue(data.response.userDetails.name),data.response.accessTokenResponseDTO.expiresIn);
+                    setUserCookie("active_user",pda_user_name,data.response.accessTokenResponseDTO.expiresIn);
                     if(userRoles.includes("admin")){
-                        setUserCookie(encryptValue("socion_userroles"),encryptValue("admin"),data.response.accessTokenResponseDTO.expiresIn);
+                        setUserCookie(encryptValue("pda_userroles"),encryptValue("admin"),data.response.accessTokenResponseDTO.expiresIn);
                     } else {
-                        setUserCookie(encryptValue("socion_userroles"),encryptValue("user"),data.response.accessTokenResponseDTO.expiresIn);
+                        setUserCookie(encryptValue("pda_userroles"),encryptValue("user"),data.response.accessTokenResponseDTO.expiresIn);
                     }
                     updateLocalStorage("accessToken", data.response.accessTokenResponseDTO.accessToken);
                     updateLocalStorage("accessToken_expiresIn", data.response.accessTokenResponseDTO.expiresIn);

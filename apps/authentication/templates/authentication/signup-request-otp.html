@@ -27,31 +27,31 @@
         </div>
         <div class="col col-md-8 align-self-center">
             <div class="col-form">
-                <div class="socion-image">
-                    <img class="logo" src="{% static 'assets/newlogo.png' %}" alt="Socion"/>
+                <div class="pda-image">
+                    
                 </div>
                 <!--Sign Up Request OTP-->
                 <div id="sign-up-request-otp">
                     <div class="text-left auth-title">Sign Up</div>
-                    <form id="socionSignUpForm">
+                    <form id="pdaSignUpForm">
                         <div class="form-group">
-                            <label class="form-field-label" for="socionUserName">NAME</label>
-                            <input type="text" class="form-control placeholder-text" id="socionUserName"
-                                   placeholder="e.g Anand ML" onkeypress="return AvoidSpace(event, 'socionUserName')" onkeyup="return RemoveSpace(event, 'socionUserName')">
+                            <label class="form-field-label" for="pdaUserName">NAME</label>
+                            <input type="text" class="form-control placeholder-text" id="pdaUserName"
+                                   placeholder="e.g Anand ML" onkeypress="return AvoidSpace(event, 'pdaUserName')" onkeyup="return RemoveSpace(event, 'pdaUserName')">
                             <div class="invalid-number">
                                 <span id="userNameErrorMessage" class="invalid-number-text hidden">Please enter a user name</span>
                             </div>
                         </div>
                         <div class="form-group" style="margin-bottom:0rem;">
-                            <label class="form-field-label" for="socionPhoneNumber">MOBILE NUMBER</label>
+                            <label class="form-field-label" for="pdaPhoneNumber">MOBILE NUMBER</label>
                             <div class="input-group" id="phoneNumber">
                                 <div class="input-group-prepend">
                                     <select class="input-group-text placeholder-text"
                                             style="width: 56px; padding: 0; padding-left:1.5px; background-color: #ffffff;"
-                                            id="socionUserCountryCode">
+                                            id="pdaUserCountryCode">
                                     </select>
                                 </div>
-                                <input id="socionPhoneNumber" class="form-control placeholder-text" placeholder="e.g 9999999999"
+                                <input id="pdaPhoneNumber" class="form-control placeholder-text" placeholder="e.g 9999999999"
                                    style="border-top-right-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">
                                 <div class="input-group-append hidden" id="mobio-invalid">
                                     <i class="input-group-text fa fa-exclamation-circle"
@@ -77,7 +77,7 @@
                         We have sent you an SMS with the OTP<br/>
                         Please enter the code below
                     </div>
-                    <form id="socionOTPForm">
+                    <form id="pdaOTPForm">
                         <div class="form-group" style="margin-top:24px;margin-bottom:0rem;">
                             <label class="form-field-label" for="otp-inputs">ONE TIME PASSWORD</label>
                             <div id="otp-inputs" style="margin-top: 8px;box-sizing: border-box;">
@@ -120,13 +120,13 @@ $(function(){
         signUpUrl: "{{settings.BASE_URL}}" + "user/register",
         validateRegisterUrl: "{{settings.BASE_URL}}" + "user/validate-otp",
         getUserNameField: function(){
-            return $("#socionUserName");
+            return $("#pdaUserName");
         },
         getUserPhoneNumberField: function(){
-            return $("#socionPhoneNumber");
+            return $("#pdaPhoneNumber");
         },
         getCountryCodeField: function(){
-            return $("#socionUserCountryCode");
+            return $("#pdaUserCountryCode");
         },
         getUserNameErrorField: function(){
             return $("#userNameErrorMessage");
@@ -148,20 +148,20 @@ $(function(){
         }
     }
 
-    $("#socionSignUpForm").submit(function(event){
+    $("#pdaSignUpForm").submit(function(event){
         event.preventDefault();
-        var socionSignUpUrl = config.signUpUrl;
+        var pdaSignUpUrl = config.signUpUrl;
         var userName = config.getUserNameField().val();
         var phoneNumber = config.getUserPhoneNumberField().val();
         var countryCode = config.getCountryCodeField().val();
-        localStorage.setItem("socion_userName",userName);
-        localStorage.setItem("socion_userPhoneNumber",phoneNumber);
-        localStorage.setItem("socion_userCountryCode",countryCode);
+        localStorage.setItem("pda_userName",userName);
+        localStorage.setItem("pda_userPhoneNumber",phoneNumber);
+        localStorage.setItem("pda_userCountryCode",countryCode);
         var signupCreds = {name: userName,phoneNumber: phoneNumber,countryCode:countryCode};
         var jsonCreds = JSON.stringify(signupCreds);
         if(config.getUserNameField().val() !== "" && checkPhoneNumberLength(config.getUserPhoneNumberField().val())) {
             disableScreen();
-            $.ajax(socionSignUpUrl, {
+            $.ajax(pdaSignUpUrl, {
                 method: "POST",
                 contentType: "application/json",
                 data: jsonCreds,
@@ -234,7 +234,7 @@ $(function(){
                 config.getPhoneNumberErrorField().text("Please enter a valid mobile number");
                 $("#mobio-invalid").removeClass("hidden");
                 $("#phoneNumber").addClass("input-field-error");
-                $("#socionPhoneNumber").removeAttr("style");
+                $("#pdaPhoneNumber").removeAttr("style");
             }
             else if (config.getUserNameField().val() === ""){
                 config.getUserNameErrorField().text("Please enter the User Name");
@@ -244,7 +244,7 @@ $(function(){
                 config.getPhoneNumberErrorField().text("Please enter a valid mobile number");
                 $("#mobio-invalid").removeClass("hidden");
                 $("#phoneNumber").addClass("input-field-error");
-                $("#socionPhoneNumber").removeAttr("style");
+                $("#pdaPhoneNumber").removeAttr("style");
             }
 
         }
@@ -253,13 +253,13 @@ $(function(){
     $("#resendOTP").click(function(event){
         disableScreen();
         event.preventDefault();
-        var socionResendOTPUrl = config.signUpUrl;
-        var userName = localStorage.getItem("socion_userName");
-        var phoneNumber = localStorage.getItem("socion_userPhoneNumber");
-        var countryCode = localStorage.getItem("socion_userCountryCode");
+        var pdaResendOTPUrl = config.signUpUrl;
+        var userName = localStorage.getItem("pda_userName");
+        var phoneNumber = localStorage.getItem("pda_userPhoneNumber");
+        var countryCode = localStorage.getItem("pda_userCountryCode");
         var resendCreds = {name: userName,phoneNumber: phoneNumber,countryCode:countryCode};
         var jsonCreds = JSON.stringify(resendCreds);
-        $.ajax(socionResendOTPUrl, {
+        $.ajax(pdaResendOTPUrl, {
             method: "POST",
             contentType: "application/json",
             data: jsonCreds
@@ -300,12 +300,12 @@ $(function(){
         });
     });
 
-    $("#socionOTPForm").submit(function(event){
+    $("#pdaOTPForm").submit(function(event){
         disableScreen();
         event.preventDefault();
-        var socionValidateRegisterUrl = config.validateRegisterUrl;
-        var phoneNumber = localStorage.getItem("socion_userPhoneNumber");
-        var countryCode = localStorage.getItem("socion_userCountryCode");
+        var pdaValidateRegisterUrl = config.validateRegisterUrl;
+        var phoneNumber = localStorage.getItem("pda_userPhoneNumber");
+        var countryCode = localStorage.getItem("pda_userCountryCode");
         var otp = config.getOTPField().children().toArray();
         var otpText = "";
         otp.forEach(function(item){
@@ -314,7 +314,7 @@ $(function(){
         var encryptedOtp = config.getEncryptedOTP(otpText);
         var otpCreds = {phoneNumber: phoneNumber,typeOfOTP:"Registration-OTP",otp:encryptedOtp,countryCode:countryCode};
         var jsonCreds = JSON.stringify(otpCreds);
-        $.ajax(socionValidateRegisterUrl, {
+        $.ajax(pdaValidateRegisterUrl, {
             method: "POST",
             contentType: "application/json",
             data: jsonCreds

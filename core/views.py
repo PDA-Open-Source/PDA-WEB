@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 import json
 from core.models import Notification
-from socion.info_logs import core_logger
+from pda.info_logs import core_logger
 
 
 def pop_scanner(template_name, request, **kwargs):
@@ -68,4 +68,3 @@ class Notifications:
     def notification_save(title, description, notification_type, date_time, is_deleted, is_read, role, user_id, session_id):
         notification_obj = Notification(title=title, description=description, notification_type=notification_type, date_time=date_time, is_deleted=is_deleted, is_read=is_read, role=role, user_id=user_id, session_id=session_id)
         notification_obj.save(using='session_db')
-

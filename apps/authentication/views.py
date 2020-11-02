@@ -2,7 +2,7 @@ from django.shortcuts import render
 import boto3, botocore
 from decouple import config
 from django.conf import settings
-from socion.info_logs import authentication_logger
+from pda.info_logs import authentication_logger
 import base64
 import mimetypes
 

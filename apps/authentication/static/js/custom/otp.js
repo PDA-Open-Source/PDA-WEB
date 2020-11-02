@@ -46,10 +46,6 @@ $(document).ready(function () {
       return true;
     }
 
-//    if (key === 9 || key === 8 || (key >= 96 && key <= 105)) {
-//      return true;
-//    }
-
     e.preventDefault();
     return false;
   }
@@ -65,7 +61,7 @@ $(document).ready(function () {
   $(".user-otp-inputs").on('keydown', 'input', onKeyDown);
   $(".user-otp-inputs").on('click', 'input', onFocus);
 
-  $('#socionUserName').on('keydown',function(e){
+  $('#pdaUserName').on('keydown',function(e){
         var key = e.which;
         var keyVal = e.key;
         console.log(key)

@@ -98,7 +98,7 @@ class TopicAdmin(admin.ModelAdmin):
 
 
 
-admin_site_name = 'Socion'
+admin_site_name = 'pda'
 admin.site.site_header = admin_site_name
 admin.site.site_title = admin_site_name
 admin.site.register(Program, ProgramAdmin)

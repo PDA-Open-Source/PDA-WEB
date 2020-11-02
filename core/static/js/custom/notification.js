@@ -2,7 +2,7 @@ $(function () {
     var notificationsList = [];
     var pageSize = 10;
     var totalNotificationLoaded = 0;
-    var token = localStorage.getItem("socion_accessToken");
+    var token = localStorage.getItem("pda_accessToken");
     if ($('#unReadNotificationCount').length === 1){
         unReadNotificationFunction();
     }

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var localStorageCountryCodes = localStorage.getItem("socion_countryCodes");
+    var localStorageCountryCodes = localStorage.getItem("pda_countryCodes");
     if (localStorageCountryCodes === null) {
         var countryCodeUrl = baseURLFunction() + 'user/get-country-codes';
         $.ajax(countryCodeUrl, {
@@ -8,7 +8,7 @@ $(document).ready(function () {
         .done(function (data, textStatus, jqXHR) {
             if (data.responseCode === 200) {
                 var countryCodes = data.response;
-                localStorage.setItem("socion_countryCodes", JSON.stringify(countryCodes));
+                localStorage.setItem("pda_countryCodes", JSON.stringify(countryCodes));
                 countryCodes.forEach(function (item) {
                     var option = document.createElement("option");
                     option.value = item.code;
@@ -27,7 +27,7 @@ $(document).ready(function () {
                     if (option.value === "+91") {
                         option.selected = 'selected';
                     }
-                    document.getElementById('socionUserCountryCode').appendChild(option);
+                    document.getElementById('pdaUserCountryCode').appendChild(option);
                 });
             }
             else {
@@ -72,7 +72,7 @@ $(document).ready(function () {
             if (option.value === "+91") {
                 option.selected = 'selected';
             }
-            document.getElementById('socionUserCountryCode').appendChild(option);
+            document.getElementById('pdaUserCountryCode').appendChild(option);
         });
     }
 });
