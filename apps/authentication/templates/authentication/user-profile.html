@@ -96,12 +96,18 @@
                                 <div>
                                 </div>
                                 <div class="d-flex justify-content-start">
-                                    <a class="download-button a-download-button" id="downloadProfile" href="#" target="_blank" style="padding-top: 2px;">
-                                        <span class="download-icon"><i class="fa fa-download"
-                                                                       aria-hidden="true"></i></span>
-                                        <b class="Download">Download ID Card</b>
-                                    </a>
-                                </div>
+    <form hidden class="download-content" id="download-content" method="POST" >
+        {% csrf_token %}
+        <input type="hidden" name="content_name" id="content_name" value="">
+        <input type="hidden" name="content_url" id="content_url" value="">
+        <button type="submit" value="submit" id="DownloadSubmit" hidden></button>
+    </form>
+    <a class="download-button a-download-button" id="downloadProfile"  style="padding-top: 2px;">
+        <span class="download-icon"><i class="fa fa-download"
+                                       aria-hidden="true"></i></span>
+        <b class="Download">Download ID Card</b>
+    </a>
+</div>
                             </div>
                         </div>
                         <div class="user-divider-card"></div>
@@ -657,8 +663,11 @@ $(document).ready(function(){
             config.getPhoneNumberField().attr("data-action", data.phoneNumber);
             var downloadButtonValue = data.profileCardUrl;
             jQuery('#qrCode').qrcode(encrypt(data.userId));
-            config.getProfileCard().attr("href", downloadButtonValue);
-            config.getProfileCard().attr("download", "Profile - "+data.name+".pdf");
+           // config.getProfileCard().attr("href", downloadButtonValue);
+            //config.getProfileCard().attr("href", downloadButtonValue);
+$('#content_url').val(downloadButtonValue);
+$('#content_name').val("Profile - "+data.name+".pdf");
+		config.getProfileCard().attr("download", "Profile - "+data.name+".pdf");
         }
         else{
             $('.toast #password-check-error-message').text("Something went wrong...!!!");
@@ -684,7 +693,35 @@ $(document).ready(function(){
             });
         }
     });
-
+	$(document).on("click", "#downloadProfile", function (e) {
+    document.getElementById("DownloadSubmit").click();
+});
+	$(document).on("submit", ".download-content", function(event) {
+    disableScreen();
+    var form = $(this);
+    var download_url = "/oauth/download-profile/";
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    $.ajax(download_url, {
+        data: form.serialize(),
+        type: form.attr("method"),
+        dataType: 'json',
+        success: function (data) {
+            if (data.downloaded) {
+                var link = document.createElement("a");
+                link.href = data.file_url;
+                link.download=$('#content_name').val();
+                link.click();
+                link.remove();
+                $('.loader-overlay').remove();
+            }
+            else {
+                  alert("Couldn't Download File!!");
+                  $('.loader-overlay').remove();
+            }
+        }
+    })
+})
     $("#changePassword").click(function(event){
         $("#changePasswordModal").modal("show");
     });

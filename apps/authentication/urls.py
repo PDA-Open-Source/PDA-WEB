@@ -16,4 +16,5 @@ urlpatterns = [
     path('terms-conditions/', views.terms_and_conditions, name='terms-and-conditions'),
     path('upload-profile-pic/', views.upload_profile_pic, name='upload-profile-pic'),
     path('', RedirectView.as_view(pattern_name='login', permanent=False)),
+    path("download-profile/", views.profile_download, name='download-profile'),
 ]

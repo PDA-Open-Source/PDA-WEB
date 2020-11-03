@@ -47,19 +47,26 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col d-flex align-items-center flex-column">
-                    <div class="trainer-heading">Attestation QR Code</div>
-                    <input type="hidden" id="sessionURL" value="{{url}}"/>
-                    <div class="sessionQrCode" id="sessionQR"></div>
-                    <div class="trainer-heading">Attestation Card</div>
-                    <div style="padding-top: 2.5px; margin-bottom: 5px;">
-                        <a class="a-download-button download-button" title="{{ data.attestationUrl }}" id="downloadProfile" href="{{ data.attestationUrl }}" target="_blank">
-                        <span class="download-icon"><i class="fa fa-download"
-                                                       aria-hidden="true"></i></span>
-                        <b class="Download">Download</b></a>
-                    </div>
-                </div>
-            </div>
+               
+<div class="col d-flex align-items-center flex-column">
+    <div class="trainer-heading">Attestation QR Code</div>
+    <input type="hidden" id="sessionURL" value="{{url}}"/>
+    <div class="sessionQrCode" id="sessionQR"></div>
+    <div class="trainer-heading">Attestation Card</div>
+    <form hidden class="download-attestation" id="download-attestation" method="POST" >
+        {% csrf_token %}
+        <input type="hidden" name="content_name" id="content_name" value="Attestation-card-{{ data.user.userId }}">
+        <input type="hidden" name="content_url" id="content_url" value="{{ data.attestationUrl }}">
+        <button type="submit" value="submit" id="DownloadSubmit" hidden></button>
+    </form>
+    <div style="padding-top: 2.5px; margin-bottom: 5px;">
+        <a class="a-download-button download-button" title="{{ data.attestationUrl }}" id="downloadAttestation" href="{{ data.attestationUrl }}">
+        <span class="download-icon"><i class="fa fa-download"
+                                       aria-hidden="true"></i></span>
+        <b class="Download">Download</b></a>
+    </div>
+</div>
+	    </div>
         </div>
         <div class="col col-sm-5 col-md-5 col-lg-5 attestation-session-detail" style="height:auto;">
 
@@ -204,6 +211,35 @@ $(document).ready(function(){
         var id = $(this).data("auth");
         document.getElementById("DownloadSubmit" + id).click();
     });
+$(document).on("click", "#downloadAttestation", function (e) {
+    document.getElementById("DownloadSubmit").click();
+});
+$(document).on("submit", ".download-attestation", function(event) {
+    disableScreen();
+    var form = $(this);
+    var download_url = "/attestation/download-attestation/";
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    $.ajax(download_url, {
+        data: form.serialize(),
+        type: form.attr("method"),
+        dataType: 'json',
+        success: function (data) {
+            if (data.downloaded) {
+                var link = document.createElement("a");
+                link.href = data.file_url;
+                link.download=$('#content_name').val();
+                link.click();
+                link.remove();
+                $('.loader-overlay').remove();
+            }
+            else {
+                  alert("Couldn't Download File!!");
+                  $('.loader-overlay').remove();
+            }
+        }
+    })
+});
 </script>
 
 <script>
