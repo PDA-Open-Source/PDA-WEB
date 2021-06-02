@@ -17,7 +17,7 @@ qrcode==6.1
 s3transfer==0.2.1
 six==1.12.0
 sqlparse==0.3.0
-urllib3==1.25.3
+urllib3==1.26.5
 PyVimeo==1.0.11
 requests==2.22.0
 django-settings-export==1.2.1
