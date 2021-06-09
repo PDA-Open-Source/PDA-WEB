@@ -1,7 +1,7 @@
 boto3==1.9.217
 botocore==1.12.217
 colorama==0.4.1
-Django==2.2.4
+Django==2.2.22
 django-debug-toolbar==2.0
 django-qr-code==1.0.0
 django-widget-tweaks==1.4.5
