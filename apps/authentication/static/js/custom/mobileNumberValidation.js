@@ -22,13 +22,13 @@ $(document).ready(function () {
   $("#socionPhoneNumber").on("blur", function () {
     var mobNum = $(this).val();
     selectedCountryCode = $("#socionUserCountryCode").val();
-    countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
-    countryCodes.forEach(function (item){
-         if(item.code == selectedCountryCode){
-               phoneNumberMaxLength = item.phoneNumberSizeMax;
-               phoneNumberMinLength = item.phoneNumberSizeMin;
-         }
-    });
+//     countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
+//     countryCodes.forEach(function (item){
+//          if(item.code == selectedCountryCode){
+//                phoneNumberMaxLength = item.phoneNumberSizeMax;
+//                phoneNumberMinLength = item.phoneNumberSizeMin;
+//          }
+//     });
     mobileNumberLengthValidation(filter, mobNum);
   });
 
