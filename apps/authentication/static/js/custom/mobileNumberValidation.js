@@ -89,7 +89,7 @@ $(document).ready(function () {
         return false;
       }
     else {
-      $("#phoneNumberErrorMessage").text("Please enter a valid mobile number");
+      $("#phoneNumberErrorMessage").text("Please enter phone number");
       $("#phoneNumberErrorMessage").removeClass("hidden");
       $("#mobio-invalid").removeClass("hidden");
       $("#phoneNumber").addClass("input-field-error");
