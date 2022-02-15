@@ -97,7 +97,7 @@ $(document).ready(function () {
 //       return false;
 //     }
 //   }
-// });
+});
 
 function checkPhoneNumberLength(mobnum){
     selectedCountryCode = $("#socionUserCountryCode").val();
