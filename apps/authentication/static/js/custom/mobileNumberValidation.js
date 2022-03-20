@@ -1,4 +1,4 @@
-var phoneNumberMaxLength = 0;
+var phoneNumberMaxLength = 10;
 var phoneNumberMinLength = 10;
 
 $(document).ready(function () {
