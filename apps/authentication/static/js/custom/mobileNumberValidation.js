@@ -1,5 +1,5 @@
-var phoneNumberMaxLength = 0;
-var phoneNumberMinLength = 0;
+var phoneNumberMaxLength = 10;
+var phoneNumberMinLength = 10;
 
 $(document).ready(function () {
   var filter = /^\d*(?:\.\d{1,2})?$/;
@@ -16,21 +16,21 @@ $(document).ready(function () {
                 phoneNumberMinLength = item.phoneNumberSizeMin;
            }
       });
-      mobileNumberLengthValidation(filter, mobNum);
+//       mobileNumberLengthValidation(filter, mobNum);
   });
 
-  $("#socionPhoneNumber").on("blur", function () {
-    var mobNum = $(this).val();
-    selectedCountryCode = $("#socionUserCountryCode").val();
-    countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
-    countryCodes.forEach(function (item){
-         if(item.code == selectedCountryCode){
-               phoneNumberMaxLength = item.phoneNumberSizeMax;
-               phoneNumberMinLength = item.phoneNumberSizeMin;
-         }
-    });
-    mobileNumberLengthValidation(filter, mobNum);
-  });
+//   $("#socionPhoneNumber").on("blur", function () {
+//     var mobNum = $(this).val();
+//     selectedCountryCode = $("#socionUserCountryCode").val();
+//     countryCodes = JSON.parse(localStorage.getItem("socion_countryCodes"));
+//     countryCodes.forEach(function (item){
+//          if(item.code == selectedCountryCode){
+//                phoneNumberMaxLength = item.phoneNumberSizeMax;
+//                phoneNumberMinLength = item.phoneNumberSizeMin;
+//          }
+//     });
+//     mobileNumberLengthValidation(filter, mobNum);
+//   });
 
   /*$("#socionPassword").on("blur", function () {
     var password = $(this).val();
@@ -65,31 +65,10 @@ $(document).ready(function () {
         $("#addByPhoneNumber .mobile-placeholder-text").css("height", "48px");
         $("#addByPhoneNumber .mobile-placeholder-text").css("border", "solid 0.5px #f9cfcc");
       }
-      else {
-        if (phoneNumberMinLength == phoneNumberMaxLength){
-            $("#phoneNumberErrorMessage").text("The phone number should be of " + phoneNumberMaxLength + " digits.");
-        }
-        else{
-            $("#phoneNumberErrorMessage").text("The phone number should be between " + phoneNumberMinLength + " - " + phoneNumberMaxLength + " digits.");
-        }
-        $("#phoneNumberErrorMessage").removeClass("hidden");
-        $("#mobio-invalid").removeClass("hidden");
-        $("#phoneNumber").addClass("input-field-error");
-        $("#socionPhoneNumber").removeAttr("style");
-        setTimeout(function(){
-            $("#phoneNumberErrorMessage").addClass("hidden");
-            $("#mobio-invalid").addClass("hidden");
-            $("#socionPhoneNumber").css("border-top-right-radius", "0.25rem");
-            $("#socionPhoneNumber").css("border-bottom-right-radius", "0.25rem");
-            $("#phoneNumber").removeClass("input-field-error");
-            $("#addByPhoneNumber .mobile-placeholder-text").css("height", "48px");
-            $("#addByPhoneNumber .mobile-placeholder-text").css("border", "solid 0.5px #f9cfcc");
-        }, 2500);
-        }
         return false;
       }
     else {
-      $("#phoneNumberErrorMessage").text("Please enter a valid mobile number");
+      $("#phoneNumberErrorMessage").text("Please enter phone number");
       $("#phoneNumberErrorMessage").removeClass("hidden");
       $("#mobio-invalid").removeClass("hidden");
       $("#phoneNumber").addClass("input-field-error");

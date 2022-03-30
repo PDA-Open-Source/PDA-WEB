@@ -55,8 +55,10 @@ def pop_add_admin(template_name, request, **kwargs):
             'Accept': 'application/json'
         }
         response = requests.post(add_member_url, json=payload, headers=headers)
-        response_result = response.json()
-        if response_result['responseCode'] == 200:
+        if response.status_code == 200:
+            response_result = response.json()
+       # response_result = response.json()
+       # if response_result['responseCode'] == 200:
             program = Program.objects.get(pk=program_id)
             admin_ids = list()
             title = ""
