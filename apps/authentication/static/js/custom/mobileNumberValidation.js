@@ -16,9 +16,11 @@ $(document).ready(function () {
                 phoneNumberMinLength = item.phoneNumberSizeMin;
            }
       });
+//bypassing min max length validation
 //       mobileNumberLengthValidation(filter, mobNum);
   });
 
+//bypassing min max length validation
 //   $("#socionPhoneNumber").on("blur", function () {
 //     var mobNum = $(this).val();
 //     selectedCountryCode = $("#socionUserCountryCode").val();
